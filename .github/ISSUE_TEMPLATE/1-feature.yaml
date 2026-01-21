@@ -1,0 +1,36 @@
+name: Feature Request
+description: Request a new feature or enhancement.
+title: "StateCraft: "
+labels: [StateCraft]
+projects: ["ZCrewSoftware/ZCrew.Common"]
+type: feature
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: A clear and concise description of problem you're facing.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution
+      description: A clear and concise description of the solution you'd like.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Describe alternative you've considered.
+      value: None.
+    validations:
+      required: false
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      value: None.
+    validations:
+      required: false

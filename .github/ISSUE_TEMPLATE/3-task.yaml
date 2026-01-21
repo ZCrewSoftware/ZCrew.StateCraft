@@ -1,0 +1,14 @@
+name: Task
+description: Non-functional work such as documentation or changing GitHub settings
+title: "StateCraft: "
+labels: [StateCraft]
+projects: ["ZCrewSoftware/ZCrew.Common"]
+type: task
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the work that is necessary.
+    validations:
+      required: true
