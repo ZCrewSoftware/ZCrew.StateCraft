@@ -1,1 +1,13 @@
-<Solution />
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/1-introduction.md" />
+    <File Path="docs/2-getting-started.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/ZCrew.StateCraft/ZCrew.StateCraft.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/ZCrew.StateCraft.IntegrationTests/ZCrew.StateCraft.IntegrationTests.csproj" />
+    <Project Path="test/ZCrew.StateCraft.UnitTests/ZCrew.StateCraft.UnitTests.csproj" />
+  </Folder>
+</Solution>
