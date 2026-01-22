@@ -6,8 +6,8 @@
   <Folder Name="/src/">
     <Project Path="src/ZCrew.StateCraft/ZCrew.StateCraft.csproj" />
   </Folder>
-  <Folder Name="/test/">
-    <Project Path="test/ZCrew.StateCraft.IntegrationTests/ZCrew.StateCraft.IntegrationTests.csproj" />
-    <Project Path="test/ZCrew.StateCraft.UnitTests/ZCrew.StateCraft.UnitTests.csproj" />
+  <Folder Name="/tests/">
+    <Project Path="tests/ZCrew.StateCraft.IntegrationTests/ZCrew.StateCraft.IntegrationTests.csproj" />
+    <Project Path="tests/ZCrew.StateCraft.UnitTests/ZCrew.StateCraft.UnitTests.csproj" />
   </Folder>
 </Solution>
