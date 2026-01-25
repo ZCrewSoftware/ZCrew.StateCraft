@@ -1,8 +1,8 @@
 name: Bug Report
 description: File a bug report.
 title: "StateCraft: "
-labels: [StateCraft]
-projects: ["ZCrewSoftware/ZCrew.Common"]
+labels: []
+projects: ["ZCrewSoftware/ZCrew.StateCraft"]
 type: bugfix
 body:
   - type: textarea
