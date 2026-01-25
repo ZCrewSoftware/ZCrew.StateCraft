@@ -1,4 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- NuGet package metadata -->
+  <PropertyGroup>
+    <PackageTags>state-machine;async;tasks</PackageTags>
+    <Description>State machine for modern .NET applications with robust safety mechanisms and fluent configuration</Description>
+  </PropertyGroup>
+
+  <!-- NuGet package content -->
+  <ItemGroup>
+    <None Include="../../img/icon.png" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="ZCrew.Extensions.Tasks" />
   </ItemGroup>
