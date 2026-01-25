@@ -1,11 +1,10 @@
 using NSubstitute;
-using ZCrew.StateCraft.IntegrationTests.Extensions;
 
 namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 
 public class LockingTests
 {
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Transition_WhenConcurrentTransitionsCalled_ShouldSerializeOperations()
     {
         // Arrange
@@ -32,7 +31,7 @@ public class LockingTests
 
         blockingTcs.SetResult();
 
-        await Task.WhenAll(firstTransition, secondTransition).Timeout();
+        await Task.WhenAll(firstTransition, secondTransition);
 
         // Assert
         Assert.Equal("C", stateMachine.CurrentState?.StateValue);
@@ -52,7 +51,7 @@ public class LockingTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Activate_WhenConcurrentActivateCalled_ShouldOnlyAllowOne()
     {
         // Arrange
@@ -73,10 +72,10 @@ public class LockingTests
 
         blockingTcs.SetResult();
 
-        await firstActivation.Timeout();
+        await firstActivation;
 
         // Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => secondActivation.Timeout());
+        await Assert.ThrowsAsync<InvalidOperationException>(() => secondActivation);
 
         return;
 
@@ -87,7 +86,7 @@ public class LockingTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Deactivate_WhenConcurrentDeactivateCalled_ShouldOnlyAllowOne()
     {
         // Arrange
@@ -110,10 +109,10 @@ public class LockingTests
 
         blockingTcs.SetResult();
 
-        await firstDeactivation.Timeout();
+        await firstDeactivation;
 
         // Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => secondDeactivation.Timeout());
+        await Assert.ThrowsAsync<InvalidOperationException>(() => secondDeactivation);
 
         return;
 
@@ -124,7 +123,7 @@ public class LockingTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task CanTransition_WhenCalledDuringTransition_ShouldWaitForLock()
     {
         // Arrange
@@ -149,8 +148,8 @@ public class LockingTests
 
         blockingTcs.SetResult();
 
-        await transition.Timeout();
-        var canTransition = await canTransitionTask.Timeout();
+        await transition;
+        var canTransition = await canTransitionTask;
 
         // Assert
         Assert.True(canTransition);
@@ -165,7 +164,7 @@ public class LockingTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task TryTransition_WhenCalledDuringTransition_ShouldWaitForLock()
     {
         // Arrange
@@ -190,8 +189,8 @@ public class LockingTests
 
         blockingTcs.SetResult();
 
-        await firstTransition.Timeout();
-        var tryTransitionResult = await tryTransitionTask.Timeout();
+        await firstTransition;
+        var tryTransitionResult = await tryTransitionTask;
 
         // Assert
         Assert.True(tryTransitionResult);
@@ -206,7 +205,7 @@ public class LockingTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Transition_WhenCalledDuringActivation_ShouldWaitForLock()
     {
         // Arrange
@@ -228,8 +227,8 @@ public class LockingTests
 
         blockingTcs.SetResult();
 
-        await activation.Timeout();
-        await transitionTask.Timeout();
+        await activation;
+        await transitionTask;
 
         // Assert
         Assert.Equal("B", stateMachine.CurrentState?.StateValue);
@@ -243,7 +242,7 @@ public class LockingTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Deactivate_WhenCalledDuringTransition_ShouldWaitForLock()
     {
         // Arrange
@@ -267,8 +266,8 @@ public class LockingTests
 
         blockingTcs.SetResult();
 
-        await transition.Timeout();
-        await deactivateTask.Timeout();
+        await transition;
+        await deactivateTask;
 
         // Assert
         Assert.Null(stateMachine.CurrentState);
@@ -282,7 +281,7 @@ public class LockingTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task MultipleOperations_WhenCalledConcurrently_ShouldNotDeadlock()
     {
         // Arrange
@@ -305,7 +304,7 @@ public class LockingTests
         blockingTcs.SetResult();
 
         // Assert
-        await Task.WhenAll(tasks).Timeout(TimeSpan.FromSeconds(5));
+        await Task.WhenAll(tasks);
         Assert.Equal("A", stateMachine.CurrentState?.StateValue);
 
         return;
