@@ -51,7 +51,14 @@ internal abstract class TriggerBase<TState, TTransition> : ITrigger
             // the trigger
             this.executionCancellationTokenSource = new CancellationTokenSource();
             this.executeTask = Task.Run(
-                () => Execute(this.executionCancellationTokenSource.Token),
+                async () =>
+                {
+                    await this.StateMachine.RunWithExceptionHandling(
+                        () => Execute(this.executionCancellationTokenSource.Token),
+                        throwOnCancellation: false,
+                        this.executionCancellationTokenSource.Token
+                    );
+                },
                 this.executionCancellationTokenSource.Token
             );
         }
@@ -83,22 +90,7 @@ internal abstract class TriggerBase<TState, TTransition> : ITrigger
         // just ignored but still sent to the exception handlers
         await cts.CancelAsync();
         cts.Dispose();
-        await this
-            .StateMachine.RunWithExceptionHandling(
-                async () =>
-                {
-                    try
-                    {
-                        await task.WaitAsync(token);
-                    }
-                    catch (OperationCanceledException ex) when (ex.CancellationToken.IsCancellationRequested)
-                    {
-                        // Don't handle operation canceled exceptions with the exception handler as this is expected
-                    }
-                },
-                token
-            )
-            .ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+        await task.WaitAsync(token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
     }
 
     /// <summary>
