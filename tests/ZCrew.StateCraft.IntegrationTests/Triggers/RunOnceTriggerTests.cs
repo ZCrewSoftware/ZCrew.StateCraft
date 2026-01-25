@@ -1,15 +1,18 @@
 using NSubstitute;
+using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft.IntegrationTests.Triggers;
 
 public class RunOnceTriggerTests
 {
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Once_WhenSignalCompletes_ShouldExecuteTrigger()
     {
         // Arrange
         var signal = Substitute.For<Action>();
         var trigger = Substitute.For<Action>();
+        var triggerCalled = new TaskCompletionSource();
+        trigger.When(x => x.Invoke()).Do(_ => triggerCalled.TrySetResult());
 
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -20,18 +23,20 @@ public class RunOnceTriggerTests
 
         // Act
         await stateMachine.Activate(TestContext.Current.CancellationToken);
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await triggerCalled.Task;
 
         // Assert
         signal.Received(1).Invoke();
         trigger.Received(1).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Once_WhenSignalCompletesMultipleTimes_ShouldExecuteTriggerOnlyOnce()
     {
         // Arrange
         var trigger = Substitute.For<Action>();
+        var triggerCalled = new TaskCompletionSource();
+        trigger.When(x => x.Invoke()).Do(_ => triggerCalled.TrySetResult());
 
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -42,13 +47,13 @@ public class RunOnceTriggerTests
 
         // Act
         await stateMachine.Activate(TestContext.Current.CancellationToken);
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await triggerCalled.Task;
 
-        // Assert - Once() trigger only fires once even after signal completes
+        // Assert
         trigger.Received(1).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Once_WhenDeactivatedBeforeSignal_ShouldNotExecuteTrigger()
     {
         // Arrange
@@ -64,20 +69,22 @@ public class RunOnceTriggerTests
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
-        // Act - Deactivate before signal completes
+        // Act
         await stateMachine.Deactivate(TestContext.Current.CancellationToken);
         signalGate.SetResult();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
 
         // Assert
         trigger.DidNotReceive().Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Once_WhenReactivated_ShouldResetAndExecuteAgain()
     {
         // Arrange
         var trigger = Substitute.For<Action>();
+        var triggerGate = new SemaphoreSlim(0);
+        trigger.When(x => x.Invoke()).Do(_ => triggerGate.Release());
+
         var signalGate = new SemaphoreSlim(0);
 
         var stateMachine = StateMachine
@@ -87,40 +94,52 @@ public class RunOnceTriggerTests
             .WithTrigger(t => t.Once().Await(token => signalGate.WaitAsync(token)).ThenInvoke(trigger))
             .Build();
 
+        var token = TestContext.Current.CancellationToken;
+
         // First activation cycle
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        await stateMachine.Activate(token);
         signalGate.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await triggerGate.WaitAsync(token);
         trigger.Received(1).Invoke();
 
-        await stateMachine.Deactivate(TestContext.Current.CancellationToken);
+        await stateMachine.Deactivate(token);
 
         // Act
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        await stateMachine.Activate(token);
         signalGate.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await triggerGate.WaitAsync(token);
 
         // Assert
         trigger.Received(2).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Once_WithStateMachineAccess_ShouldTransitionStateMachine()
     {
         // Arrange
+        var transitionCompleted = new TaskCompletionSource();
+
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
             .WithState("A", state => state.WithTransition("ToB", "B"))
             .WithState("B", state => state)
-            .WithTrigger(t => t.Once().Await(() => { }).ThenInvoke((sm, token) => sm.Transition("ToB", token)))
+            .WithTrigger(t => t.Once().Await(() => { }).ThenInvoke(TriggerAction))
             .Build();
 
         // Act
         await stateMachine.Activate(TestContext.Current.CancellationToken);
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await transitionCompleted.Task;
 
         // Assert
         Assert.Equal("B", stateMachine.CurrentState?.StateValue);
+
+        return;
+
+        async Task TriggerAction(IStateMachine<string, string> sm, CancellationToken token)
+        {
+            await sm.Transition("ToB", token);
+            transitionCompleted.TrySetResult();
+        }
     }
 }

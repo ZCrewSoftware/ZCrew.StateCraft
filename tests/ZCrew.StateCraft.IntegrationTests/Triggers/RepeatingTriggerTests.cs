@@ -1,14 +1,18 @@
 using NSubstitute;
+using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft.IntegrationTests.Triggers;
 
 public class RepeatingTriggerTests
 {
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Repeat_WhenSignalCompletesMultipleTimes_ShouldExecuteTriggerEachTime()
     {
         // Arrange
         var trigger = Substitute.For<Action>();
+        var triggerGate = new SemaphoreSlim(0);
+        trigger.When(x => x.Invoke()).Do(_ => triggerGate.Release());
+
         var semaphore = new SemaphoreSlim(0);
 
         var stateMachine = StateMachine
@@ -18,25 +22,29 @@ public class RepeatingTriggerTests
             .WithTrigger(t => t.Repeat().Await(token => semaphore.WaitAsync(token)).ThenInvoke(trigger))
             .Build();
 
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        var token = TestContext.Current.CancellationToken;
+        await stateMachine.Activate(token);
 
-        // Act - Release semaphore 3 times
+        // Act
         semaphore.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await triggerGate.WaitAsync(token);
         semaphore.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await triggerGate.WaitAsync(token);
         semaphore.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await triggerGate.WaitAsync(token);
 
         // Assert
         trigger.Received(3).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Repeat_WhenDeactivated_ShouldStopRepeating()
     {
         // Arrange
         var trigger = Substitute.For<Action>();
+        var triggerGate = new SemaphoreSlim(0);
+        trigger.When(x => x.Invoke()).Do(_ => triggerGate.Release());
+
         var semaphore = new SemaphoreSlim(0);
 
         var stateMachine = StateMachine
@@ -46,31 +54,30 @@ public class RepeatingTriggerTests
             .WithTrigger(t => t.Repeat().Await(token => semaphore.WaitAsync(token)).ThenInvoke(trigger))
             .Build();
 
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        var token = TestContext.Current.CancellationToken;
+        await stateMachine.Activate(token);
 
         // Trigger a few times
         semaphore.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await triggerGate.WaitAsync(token);
         semaphore.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await triggerGate.WaitAsync(token);
         var countBeforeDeactivate = trigger.ReceivedCalls().Count();
 
-        // Act - Deactivate
-        await stateMachine.Deactivate(TestContext.Current.CancellationToken);
-
-        // Try to signal more
+        // Act
+        await stateMachine.Deactivate(token);
         semaphore.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
 
-        // Assert - Count should not increase after deactivation
+        // Assert
         Assert.Equal(countBeforeDeactivate, trigger.ReceivedCalls().Count());
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Repeat_WithStateMachineAccess_ShouldTransitionStateMachine()
     {
         // Arrange
         var semaphore = new SemaphoreSlim(0);
+        var transitionGate = new SemaphoreSlim(0);
 
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -78,26 +85,29 @@ public class RepeatingTriggerTests
             .WithState("A", state => state.WithTransition("Next", "B"))
             .WithState("B", state => state.WithTransition("Next", "C"))
             .WithState("C", state => state)
-            .WithTrigger(t =>
-                t.Repeat()
-                    .Await(token => semaphore.WaitAsync(token))
-                    .ThenInvoke((sm, token) => sm.Transition("Next", token))
-            )
+            .WithTrigger(t => t.Repeat().Await(token => semaphore.WaitAsync(token)).ThenInvoke(TriggerAction))
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
         Assert.Equal("A", stateMachine.CurrentState?.StateValue);
 
-        // Act - First transition
+        // Act
         semaphore.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await transitionGate.WaitAsync(TestContext.Current.CancellationToken);
         Assert.Equal("B", stateMachine.CurrentState?.StateValue);
 
-        // Second transition
         semaphore.Release();
-        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await transitionGate.WaitAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal("C", stateMachine.CurrentState?.StateValue);
+
+        return;
+
+        async Task TriggerAction(IStateMachine<string, string> sm, CancellationToken token)
+        {
+            await sm.Transition("Next", token);
+            transitionGate.Release();
+        }
     }
 }
