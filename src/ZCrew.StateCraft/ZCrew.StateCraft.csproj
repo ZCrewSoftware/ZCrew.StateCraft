@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <ProjectReference Include="../../ZCrew.Extensions.Tasks/ZCrew.Extensions.Tasks.csproj" />
+    <PackageReference Include="ZCrew.Extensions.Tasks" />
   </ItemGroup>
 </Project>
