@@ -294,5 +294,6 @@ You don't need additional synchronization in handlers unless accessing external 
 
 ## Next Steps
 
-- [Triggers](./5-triggers.md) - Autonomous transitions based on signals
-- [Exception Handling](./6-exception-handling.md) - Error handling strategies
+- [Actions](./5-actions.md) - Long-running interruptible state work
+- [Triggers](./6-triggers.md) - Autonomous transitions based on signals
+- [Exception Handling](./7-exception-handling.md) - Error handling strategies

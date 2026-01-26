@@ -287,5 +287,6 @@ Reusing configurations:
 ## Next Steps
 
 - [State Lifecycle](./4-state-lifecycle.md) - Detailed lifecycle handler documentation
-- [Triggers](./5-triggers.md) - Autonomous transitions based on signals
-- [Exception Handling](./6-exception-handling.md) - Error handling strategies
+- [Actions](./5-actions.md) - Long-running interruptible state work
+- [Triggers](./6-triggers.md) - Autonomous transitions based on signals
+- [Exception Handling](./7-exception-handling.md) - Error handling strategies

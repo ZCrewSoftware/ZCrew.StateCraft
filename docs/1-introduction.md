@@ -70,5 +70,6 @@ await machine.Deactivate(cancellationToken);
 - [Getting Started](./2-getting-started.md) - Installation and first state machine
 - [General Concepts](./3-general-concepts.md) - Handler signatures, initial state, and build validation
 - [State Lifecycle](./4-state-lifecycle.md) - Detailed lifecycle documentation
-- [Triggers](./5-triggers.md) - Autonomous transitions
-- [Exception Handling](./6-exception-handling.md) - Error handling strategies
+- [Actions](./5-actions.md) - Long-running interruptible state work
+- [Triggers](./6-triggers.md) - Autonomous transitions
+- [Exception Handling](./7-exception-handling.md) - Error handling strategies
