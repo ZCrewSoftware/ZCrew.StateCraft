@@ -2,6 +2,8 @@
   <Folder Name="/docs/">
     <File Path="docs/1-introduction.md" />
     <File Path="docs/2-getting-started.md" />
+    <File Path="docs/3-general-concepts.md" />
+    <File Path="docs/4-state-lifecycle.md" />
   </Folder>
   <Folder Name="/samples/" />
   <Folder Name="/src/">
