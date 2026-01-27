@@ -200,5 +200,9 @@ Order delivered
 - [General Concepts](./3-general-concepts.md) - Handler signatures, initial state, and build validation
 - [State Lifecycle](./4-state-lifecycle.md) - Detailed lifecycle documentation
 - [Actions](./5-actions.md) - Long-running interruptible state work
-- [Triggers](./6-triggers.md) - Autonomous transitions
-- [Exception Handling](./7-exception-handling.md) - Error handling strategies
+- [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
+- [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
+- [Mapped Transitions](./8-mapped-transitions.md) - Automatic parameter conversion
+- [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
+- [Triggers](./10-triggers.md) - Autonomous transitions
+- [Exception Handling](./11-exception-handling.md) - Error handling strategies

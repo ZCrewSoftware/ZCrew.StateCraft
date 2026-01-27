@@ -335,6 +335,10 @@ Reserve actions for work that should be cancellable. Use `OnEntry` for quick, re
 
 ## Next Steps
 
-- [Triggers](./6-triggers.md) - Autonomous transitions based on signals
-- [Exception Handling](./7-exception-handling.md) - Error handling strategies
+- [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
+- [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
+- [Mapped Transitions](./8-mapped-transitions.md) - Automatic parameter conversion
+- [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
+- [Triggers](./10-triggers.md) - Autonomous transitions based on signals
+- [Exception Handling](./11-exception-handling.md) - Error handling strategies
 - [State Lifecycle](./4-state-lifecycle.md) - Lifecycle handler documentation
