@@ -50,15 +50,9 @@ internal abstract class TriggerBase<TState, TTransition> : ITrigger
             // Start the trigger task in the background - the cancellation token is used to signal the deactivation of
             // the trigger
             this.executionCancellationTokenSource = new CancellationTokenSource();
-            this.executeTask = Task.Run(
-                async () =>
-                {
-                    await this.StateMachine.RunWithExceptionHandling(
-                        () => Execute(this.executionCancellationTokenSource.Token),
-                        throwOnCancellation: false,
-                        this.executionCancellationTokenSource.Token
-                    );
-                },
+            this.executeTask = this.StateMachine.RunWithExceptionHandling(
+                () => Execute(this.executionCancellationTokenSource.Token),
+                throwOnCancellation: false,
                 this.executionCancellationTokenSource.Token
             );
         }
