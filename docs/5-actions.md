@@ -176,7 +176,7 @@ When a transition occurs, the state machine:
         catch (OperationCanceledException)
         {
             // Expected when transitioning out of State.A
-            Console.WriteLine("Action cancelled during transition");
+            Console.WriteLine("Action canceled during transition");
 
             // State machine expects this exception and this does not need to be suprressed
             throw;
@@ -261,14 +261,14 @@ This is the most important practice for actions. The cancellation token signals 
 
 ### Throw OperationCanceledException to Exit
 
-Throwing `OperationCanceledException` is the correct way to exit an action when cancelled:
+Throwing `OperationCanceledException` is the correct way to exit an action when canceled:
 
 ```csharp
 // Good: Let cancellation propagate naturally
 .WithAction(action => action
     .Invoke(async token =>
     {
-        // Task.Delay throws OperationCanceledException when cancelled
+        // Task.Delay throws OperationCanceledException when canceled
         await Task.Delay(TimeSpan.FromHours(1), token);
     }))
 
@@ -321,7 +321,7 @@ Reserve actions for work that should be cancellable. Use `OnEntry` for quick, re
     .WithAction(action => action
         .Invoke(async token =>
         {
-            await ProcessAllItemsAsync(token);  // Can be cancelled
+            await ProcessAllItemsAsync(token);  // Can be canceled
         })))
 
 // Avoid: All work in OnEntry (blocks transitions)
