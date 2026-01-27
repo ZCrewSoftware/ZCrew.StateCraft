@@ -204,5 +204,5 @@ Order delivered
 - [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
 - [Mapped Transitions](./8-mapped-transitions.md) - Automatic parameter conversion
 - [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
-- [Triggers](./10-triggers.md) - Autonomous transitions
+- [Triggers](./10-triggers.md) - Autonomous transitions based on signals
 - [Exception Handling](./11-exception-handling.md) - Error handling strategies
