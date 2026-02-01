@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.Parameters;
+using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Tracking.Contracts;
 
@@ -28,17 +30,41 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
 
     public IState<TState, TTransition>? NextState { get; set; }
 
-    public object? CurrentParameter { get; set; }
+    [Obsolete($"Use {nameof(Parameters)} instead")]
+    public object? CurrentParameter
+    {
+        get =>
+            Parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet)
+                ? Parameters.GetCurrentParameter<object?>(0)
+                : null;
+    }
 
-    public object? PreviousParameter { get; set; }
+    [Obsolete($"Use {nameof(Parameters)} instead")]
+    public object? PreviousParameter
+    {
+        get =>
+            Parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet)
+                ? Parameters.GetPreviousParameter<object?>(0)
+                : null;
+    }
 
-    public object? NextParameter { get; set; }
+    [Obsolete($"Use {nameof(Parameters)} instead")]
+    public object? NextParameter
+    {
+        get =>
+            Parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet)
+                ? Parameters.GetNextParameter<object?>(0)
+                : null;
+        set => Parameters.SetNextParameters([value]);
+    }
+
+    public IStateMachineParameters Parameters { get; } = new StateMachineParameters();
 
     public ITransition<TState, TTransition>? CurrentTransition { get; set; }
 
     public StateTable<TState, TTransition> StateTable { get; set; }
 
-    public ITracker<TState, TTransition>? Tracker { get; }
+    public ITracker<TState, TTransition>? Tracker { get; set; }
 
     public virtual Task Activate(CancellationToken token = default)
     {

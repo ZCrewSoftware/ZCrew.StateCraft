@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.Tracking.Contracts;
 
 namespace ZCrew.StateCraft.StateMachines.Contracts;
@@ -39,19 +40,27 @@ public interface IStateMachine<TState, TTransition> : IDisposable
     ///     The parameter for the current state, or <see langword="null"/> if the current state is parameterless or the
     ///     state machine has not been activated.
     /// </summary>
+    [Obsolete($"Use {nameof(Parameters)} instead")]
     internal object? CurrentParameter { get; }
 
     /// <summary>
     ///     The parameter for the previous state during a transition, or <see langword="null"/> if the previous state is
     ///     parameterless or the state machine is not currently transitioning.
     /// </summary>
+    [Obsolete($"Use {nameof(Parameters)} instead")]
     internal object? PreviousParameter { get; }
 
     /// <summary>
     ///     The parameter for the next state during a transition, or <see langword="null"/> if the next state is
     ///     parameterless or the state machine is not currently transitioning.
     /// </summary>
+    [Obsolete($"Use {nameof(Parameters)} instead")]
     internal object? NextParameter { get; set; }
+
+    /// <summary>
+    ///     The parameters for the state machine when in a state or transitioning between states.
+    /// </summary>
+    internal IStateMachineParameters Parameters { get; }
 
     /// <summary>
     ///     The current transition that has been started. This will only be present when transitioning.

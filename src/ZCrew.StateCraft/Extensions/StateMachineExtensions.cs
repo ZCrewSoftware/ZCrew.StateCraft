@@ -19,6 +19,7 @@ internal static class StateMachineExtensions
         /// <exception cref="InvalidOperationException">
         ///     Thrown when <see cref="IStateMachine{TState, TTransition}.CurrentParameter"/> is <see langword="null"/>.
         /// </exception>
+        [Obsolete($"Use {nameof(Parameters)} instead")]
         internal T GetPreviousParameter<T>()
         {
             if (stateMachine.PreviousParameter == null)
@@ -36,6 +37,7 @@ internal static class StateMachineExtensions
         /// <exception cref="InvalidOperationException">
         ///     Thrown when <see cref="IStateMachine{TState, TTransition}.CurrentParameter"/> is <see langword="null"/>.
         /// </exception>
+        [Obsolete($"Use {nameof(Parameters)} instead")]
         internal T GetCurrentParameter<T>()
         {
             if (stateMachine.CurrentParameter == null)
@@ -53,6 +55,7 @@ internal static class StateMachineExtensions
         /// <exception cref="InvalidOperationException">
         ///     Thrown when <see cref="IStateMachine{TState, TTransition}.NextParameter"/> is <see langword="null"/>.
         /// </exception>
+        [Obsolete($"Use {nameof(Parameters)} instead")]
         internal T GetNextParameter<T>()
         {
             if (stateMachine.NextParameter == null)
