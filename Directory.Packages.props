@@ -3,6 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.1.0" />
     <PackageVersion Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
     <PackageVersion Include="Nito.AsyncEx.Tasks" Version="5.1.2" />
