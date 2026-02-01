@@ -20,6 +20,11 @@ namespace ZCrew.StateCraft.Parameters.Contracts;
 internal interface IStateMachineParameters
 {
     /// <summary>
+    ///     The status indicating which parameters have been set.
+    /// </summary>
+    StateMachineParametersFlags Status { get; }
+
+    /// <summary>
     ///     Retrieves a parameter from the previous state.
     /// </summary>
     /// <typeparam name="T">The expected type of the parameter.</typeparam>
@@ -69,15 +74,6 @@ internal interface IStateMachineParameters
     ///     Completes the transition, promoting staged parameters to current and current to previous.
     /// </summary>
     void CommitTransition();
-
-    /// <summary>
-    ///     Determines whether the transition can be committed.
-    /// </summary>
-    /// <returns>
-    ///     <see langword="true"/> if <see cref="SetNextParameters"/> has been called since the last
-    ///     <see cref="BeginTransition"/>; otherwise, <see langword="false"/>.
-    /// </returns>
-    bool CanCommitTransition();
 
     /// <summary>
     ///     Clears the staged parameters without affecting current or previous values.

@@ -15,11 +15,17 @@ internal class StateMachineParameters : IStateMachineParameters
 
     private readonly object?[] nextParameters = new object?[MaxParameterCount];
     private int nextParameterCount;
-    private bool nextParametersSet;
+
+    /// <inheritdoc />
+    public StateMachineParametersFlags Status { get; private set; }
 
     /// <inheritdoc />
     public T GetPreviousParameter<T>(int index)
     {
+        if (!Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet))
+        {
+            throw new InvalidOperationException("Previous parameters have not been set");
+        }
         if (index < 0 || index >= this.previousParameterCount)
         {
             throw new ArgumentOutOfRangeException(nameof(index), index, "Invalid previous parameter index");
@@ -30,6 +36,10 @@ internal class StateMachineParameters : IStateMachineParameters
     /// <inheritdoc />
     public T GetCurrentParameter<T>(int index)
     {
+        if (!Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet))
+        {
+            throw new InvalidOperationException("Current parameters have not been set");
+        }
         if (index < 0 || index >= this.currentParameterCount)
         {
             throw new ArgumentException($"Current parameter {index} has not been set");
@@ -40,6 +50,10 @@ internal class StateMachineParameters : IStateMachineParameters
     /// <inheritdoc />
     public T GetNextParameter<T>(int index)
     {
+        if (!Status.HasFlag(StateMachineParametersFlags.NextParametersSet))
+        {
+            throw new InvalidOperationException("Next parameters have not been set");
+        }
         if (index < 0 || index >= this.nextParameterCount)
         {
             throw new ArgumentException($"Next parameter {index} has not been set");
@@ -54,7 +68,7 @@ internal class StateMachineParameters : IStateMachineParameters
         {
             throw new ArgumentException($"Setting {nextParameters.Length} next parameters exceeds parameter limit");
         }
-        this.nextParametersSet = true;
+        Status |= StateMachineParametersFlags.NextParametersSet;
         this.nextParameterCount = nextParameters.Length;
 
         CopyTo(nextParameters, this.nextParameters);
@@ -64,6 +78,8 @@ internal class StateMachineParameters : IStateMachineParameters
     public void BeginTransition()
     {
         // Transfer from Current -> Previous, Next is empty
+        Status |= StateMachineParametersFlags.PreviousParametersSet;
+        Status &= ~StateMachineParametersFlags.CurrentParametersSet;
         this.previousParameterCount = this.currentParameterCount;
         this.currentParameterCount = 0;
 
@@ -75,6 +91,8 @@ internal class StateMachineParameters : IStateMachineParameters
     public void RollbackTransition()
     {
         // Transfer from Previous -> Current
+        Status |= StateMachineParametersFlags.CurrentParametersSet;
+        Status &= ~StateMachineParametersFlags.PreviousParametersSet;
         this.currentParameterCount = this.previousParameterCount;
         this.previousParameterCount = 0;
 
@@ -82,8 +100,8 @@ internal class StateMachineParameters : IStateMachineParameters
         Clear(this.previousParameters);
 
         // Clear Next
+        Status &= ~StateMachineParametersFlags.NextParametersSet;
         this.nextParameterCount = 0;
-        this.nextParametersSet = false;
         Clear(this.nextParameters);
     }
 
@@ -91,22 +109,18 @@ internal class StateMachineParameters : IStateMachineParameters
     public void CommitTransition()
     {
         // Transfer from Next -> Current
+        Status |= StateMachineParametersFlags.CurrentParametersSet;
+        Status &= ~StateMachineParametersFlags.NextParametersSet;
         this.currentParameterCount = this.nextParameterCount;
         this.nextParameterCount = 0;
-        this.nextParametersSet = false;
 
         CopyTo(this.nextParameters, this.currentParameters);
         Clear(this.nextParameters);
 
         // Clear Previous
+        Status &= ~StateMachineParametersFlags.PreviousParametersSet;
         this.previousParameterCount = 0;
         Clear(this.previousParameters);
-    }
-
-    /// <inheritdoc />
-    public bool CanCommitTransition()
-    {
-        return this.nextParametersSet;
     }
 
     /// <inheritdoc />
@@ -115,7 +129,10 @@ internal class StateMachineParameters : IStateMachineParameters
         this.previousParameterCount = 0;
         this.currentParameterCount = 0;
         this.nextParameterCount = 0;
-        this.nextParametersSet = false;
+
+        Status &= ~StateMachineParametersFlags.PreviousParametersSet;
+        Status &= ~StateMachineParametersFlags.CurrentParametersSet;
+        Status &= ~StateMachineParametersFlags.NextParametersSet;
 
         Clear(this.previousParameters);
         Clear(this.currentParameters);

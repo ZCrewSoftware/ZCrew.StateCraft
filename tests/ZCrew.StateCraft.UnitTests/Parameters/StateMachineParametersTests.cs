@@ -1,4 +1,5 @@
 using ZCrew.StateCraft.Parameters;
+using ZCrew.StateCraft.Parameters.Contracts;
 
 namespace ZCrew.StateCraft.UnitTests.Parameters;
 
@@ -84,7 +85,7 @@ public class StateMachineParametersTests
     }
 
     [Fact]
-    public void GetCurrentParameter_String_WhenNoParametersSet_ShouldThrowArgumentException()
+    public void GetCurrentParameter_String_WhenNoParametersSet_ShouldThrowInvalidOperationException()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -93,7 +94,7 @@ public class StateMachineParametersTests
         var act = object () => parameters.GetCurrentParameter<string>(0);
 
         // Assert
-        Assert.Throws<ArgumentException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -196,7 +197,7 @@ public class StateMachineParametersTests
     }
 
     [Fact]
-    public void GetPreviousParameter_String_WhenNoParametersSet_ShouldThrowArgumentOutOfRangeException()
+    public void GetPreviousParameter_String_WhenNoParametersSet_ShouldThrowInvalidOperationException()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -205,7 +206,7 @@ public class StateMachineParametersTests
         var act = object () => parameters.GetPreviousParameter<string>(0);
 
         // Assert
-        Assert.Throws<ArgumentOutOfRangeException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -299,7 +300,7 @@ public class StateMachineParametersTests
     }
 
     [Fact]
-    public void GetNextParameter_String_WhenNoParametersSet_ShouldThrowArgumentException()
+    public void GetNextParameter_String_WhenNoParametersSet_ShouldThrowInvalidOperationException()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -308,7 +309,7 @@ public class StateMachineParametersTests
         var act = object () => parameters.GetNextParameter<string>(0);
 
         // Assert
-        Assert.Throws<ArgumentException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -427,7 +428,7 @@ public class StateMachineParametersTests
 
         // Assert
         var act = object () => parameters.GetCurrentParameter<string>(0);
-        Assert.Throws<ArgumentException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -471,7 +472,7 @@ public class StateMachineParametersTests
 
         // Assert
         var act = object () => parameters.GetNextParameter<string>(0);
-        Assert.Throws<ArgumentException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -489,11 +490,11 @@ public class StateMachineParametersTests
 
         // Assert
         var act = object () => parameters.GetPreviousParameter<string>(0);
-        Assert.Throws<ArgumentOutOfRangeException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
-    public void CommitTransition_WhenCalled_ShouldResetCanCommitTransition()
+    public void CommitTransition_WhenCalled_ShouldClearNextParametersSetFlag()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -503,8 +504,24 @@ public class StateMachineParametersTests
         parameters.CommitTransition();
 
         // Assert
-        var result = parameters.CanCommitTransition();
-        Assert.False(result);
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+    }
+
+    [Fact]
+    public void CommitTransition_WhenCalled_ShouldClearPreviousParametersSetFlag()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameters(["first"]);
+        parameters.CommitTransition();
+        parameters.BeginTransition();
+        parameters.SetNextParameters(["second"]);
+
+        // Act
+        parameters.CommitTransition();
+
+        // Assert
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
     }
 
     [Fact]
@@ -521,12 +538,11 @@ public class StateMachineParametersTests
         parameters.CommitTransition();
 
         // Assert
-        var stringResult = parameters.GetCurrentParameter<string>(0);
-        var intResult = parameters.GetCurrentParameter<int>(1);
-        var canCommit = parameters.CanCommitTransition();
-        Assert.Equal("state-B", stringResult);
-        Assert.Equal(200, intResult);
-        Assert.False(canCommit);
+        Assert.Equal("state-B", parameters.GetCurrentParameter<string>(0));
+        Assert.Equal(200, parameters.GetCurrentParameter<int>(1));
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
     }
 
     [Fact]
@@ -560,7 +576,7 @@ public class StateMachineParametersTests
 
         // Assert
         var act = object () => parameters.GetPreviousParameter<string>(0);
-        Assert.Throws<ArgumentOutOfRangeException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -578,11 +594,11 @@ public class StateMachineParametersTests
 
         // Assert
         var act = object () => parameters.GetNextParameter<string>(0);
-        Assert.Throws<ArgumentException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
-    public void RollbackTransition_WhenCalled_ShouldResetCanCommitTransition()
+    public void RollbackTransition_WhenCalled_ShouldClearNextParametersSetFlag()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -595,8 +611,7 @@ public class StateMachineParametersTests
         parameters.RollbackTransition();
 
         // Assert
-        var result = parameters.CanCommitTransition();
-        Assert.False(result);
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
     }
 
     [Fact]
@@ -613,55 +628,53 @@ public class StateMachineParametersTests
         parameters.RollbackTransition();
 
         // Assert
-        var result = parameters.GetCurrentParameter<string>(0);
-        var canCommit = parameters.CanCommitTransition();
-        Assert.Equal("original", result);
-        Assert.False(canCommit);
+        Assert.Equal("original", parameters.GetCurrentParameter<string>(0));
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
     }
 
     [Fact]
-    public void CanCommitTransition_WhenNextParametersNotSet_ShouldReturnFalse()
+    public void Status_WhenInitialized_ShouldBeNone()
     {
         // Arrange
         var parameters = new StateMachineParameters();
 
         // Act
-        var result = parameters.CanCommitTransition();
+        var result = parameters.Status;
 
         // Assert
-        Assert.False(result);
+        Assert.Equal(StateMachineParametersFlags.None, result);
     }
 
     [Fact]
-    public void CanCommitTransition_WhenNextParametersSet_ShouldReturnTrue()
+    public void Status_AfterSetNextParameters_ShouldHaveNextParametersSet()
     {
         // Arrange
         var parameters = new StateMachineParameters();
+
+        // Act
         parameters.SetNextParameters(["value"]);
 
-        // Act
-        var result = parameters.CanCommitTransition();
-
         // Assert
-        Assert.True(result);
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
     }
 
     [Fact]
-    public void CanCommitTransition_WhenNextParametersSetWithEmptyArray_ShouldReturnTrue()
+    public void Status_AfterSetNextParametersWithEmptyArray_ShouldHaveNextParametersSet()
     {
         // Arrange
         var parameters = new StateMachineParameters();
-        parameters.SetNextParameters([]);
 
         // Act
-        var result = parameters.CanCommitTransition();
+        parameters.SetNextParameters([]);
 
         // Assert
-        Assert.True(result);
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
     }
 
     [Fact]
-    public void CanCommitTransition_AfterCommit_ShouldReturnFalse()
+    public void Status_AfterBeginTransition_ShouldHavePreviousParametersSet()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -669,26 +682,101 @@ public class StateMachineParametersTests
         parameters.CommitTransition();
 
         // Act
-        var result = parameters.CanCommitTransition();
+        parameters.BeginTransition();
 
         // Assert
-        Assert.False(result);
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
     }
 
     [Fact]
-    public void CanCommitTransition_AfterRollback_ShouldReturnFalse()
+    public void Status_AfterBeginTransition_ShouldNotHaveCurrentParametersSet()
     {
         // Arrange
         var parameters = new StateMachineParameters();
-        parameters.BeginTransition();
         parameters.SetNextParameters(["value"]);
+        parameters.CommitTransition();
+
+        // Act
+        parameters.BeginTransition();
+
+        // Assert
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
+    }
+
+    [Fact]
+    public void Status_AfterCommitTransition_ShouldHaveCurrentParametersSet()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameters(["value"]);
+
+        // Act
+        parameters.CommitTransition();
+
+        // Assert
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
+    }
+
+    [Fact]
+    public void Status_AfterCommitTransition_ShouldNotHaveNextParametersSet()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameters(["value"]);
+
+        // Act
+        parameters.CommitTransition();
+
+        // Assert
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+    }
+
+    [Fact]
+    public void Status_AfterRollbackTransition_ShouldHaveCurrentParametersSet()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameters(["value"]);
+        parameters.CommitTransition();
+        parameters.BeginTransition();
 
         // Act
         parameters.RollbackTransition();
 
         // Assert
-        var result = parameters.CanCommitTransition();
-        Assert.False(result);
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
+    }
+
+    [Fact]
+    public void Status_AfterRollbackTransition_ShouldNotHavePreviousParametersSet()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameters(["value"]);
+        parameters.CommitTransition();
+        parameters.BeginTransition();
+
+        // Act
+        parameters.RollbackTransition();
+
+        // Assert
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
+    }
+
+    [Fact]
+    public void Status_AfterClear_ShouldBeNone()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameters(["value"]);
+        parameters.CommitTransition();
+        parameters.BeginTransition();
+
+        // Act
+        parameters.Clear();
+
+        // Assert
+        Assert.Equal(StateMachineParametersFlags.None, parameters.Status);
     }
 
     [Fact]
@@ -705,7 +793,7 @@ public class StateMachineParametersTests
 
         // Assert
         var act = object () => parameters.GetPreviousParameter<string>(0);
-        Assert.Throws<ArgumentOutOfRangeException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -721,7 +809,7 @@ public class StateMachineParametersTests
 
         // Assert
         var act = object () => parameters.GetCurrentParameter<string>(0);
-        Assert.Throws<ArgumentException>(act);
+        Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
@@ -736,21 +824,6 @@ public class StateMachineParametersTests
 
         // Assert
         var act = object () => parameters.GetNextParameter<string>(0);
-        Assert.Throws<ArgumentException>(act);
-    }
-
-    [Fact]
-    public void Clear_WhenCalled_ShouldResetCanCommitTransition()
-    {
-        // Arrange
-        var parameters = new StateMachineParameters();
-        parameters.SetNextParameters(["value"]);
-
-        // Act
-        parameters.Clear();
-
-        // Assert
-        var result = parameters.CanCommitTransition();
-        Assert.False(result);
+        Assert.Throws<InvalidOperationException>(act);
     }
 }
