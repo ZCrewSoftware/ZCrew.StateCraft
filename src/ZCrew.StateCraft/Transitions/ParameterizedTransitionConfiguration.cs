@@ -10,10 +10,13 @@ internal class ParameterizedTransitionConfiguration<TState, TTransition, TNext>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{TransitionValue}({PreviousStateValue}) → ?<{typeof(TNext).FriendlyName}>";
+    private string DisplayString =>
+        $"{this.transitionValue}({this.previousStateValue}) → ?<{typeof(TNext).FriendlyName}>";
 
     private readonly IReadOnlyList<IAsyncFunc<bool>> previousConditions;
     private readonly List<IAsyncFunc<TNext, bool>> nextConditions = [];
+    private readonly TState previousStateValue;
+    private readonly TTransition transitionValue;
 
     public ParameterizedTransitionConfiguration(
         TState previousState,
@@ -21,42 +24,27 @@ internal class ParameterizedTransitionConfiguration<TState, TTransition, TNext>
         IReadOnlyList<IAsyncFunc<bool>> previousConditions
     )
     {
-        PreviousStateValue = previousState;
-        TransitionValue = transition;
+        this.previousStateValue = previousState;
+        this.transitionValue = transition;
         this.previousConditions = previousConditions;
     }
 
-    /// <inheritdoc/>
-    public TState PreviousStateValue { get; }
-
-    /// <inheritdoc/>
-    public TTransition TransitionValue { get; }
-
-    /// <inheritdoc/>
-    public TState? NextStateValue { get; } = default;
-
-    /// <inheritdoc/>
-    public IReadOnlyList<Type> PreviousStateTypeParameters { get; } = [];
-
     /// <inheritdoc />
-    public IReadOnlyList<Type> TransitionTypeParameters { get; } = [typeof(TNext)];
-
-    /// <inheritdoc/>
-    public IReadOnlyList<Type> NextStateTypeParameters { get; } = [typeof(TNext)];
-
-    /// <inheritdoc/>
-    public bool IsConditional => this.previousConditions.Count > 0 || this.nextConditions.Count > 0;
-
-    /// <inheritdoc />
-    public IFinalTransitionConfiguration<TState, TTransition> To(TState state)
+    public ITransitionConfiguration<TState, TTransition> To(TState state)
     {
         return new FinalParameterizedTransitionConfiguration<TState, TTransition, TNext>(
-            PreviousStateValue,
-            TransitionValue,
+            this.previousStateValue,
+            this.transitionValue,
             state,
             this.previousConditions,
             this.nextConditions
         );
+    }
+
+    /// <inheritdoc />
+    public ITransitionConfiguration<TState, TTransition> ToSameState()
+    {
+        return To(this.previousStateValue);
     }
 
     /// <inheritdoc />
@@ -99,10 +87,12 @@ internal class ParameterizedTransitionConfiguration<TState, TTransition, TPrevio
     where TTransition : notnull
 {
     private string DisplayString =>
-        $"{TransitionValue}({PreviousStateValue}<{typeof(TPrevious).FriendlyName}>) → ?<{typeof(TNext).FriendlyName}>";
+        $"{this.transitionValue}({this.previousStateValue}<{typeof(TPrevious).FriendlyName}>) → ?<{typeof(TNext).FriendlyName}>";
 
     private readonly IReadOnlyList<IAsyncFunc<TPrevious, bool>> previousConditions;
     private readonly List<IAsyncFunc<TNext, bool>> nextConditions = [];
+    private readonly TState previousStateValue;
+    private readonly TTransition transitionValue;
 
     public ParameterizedTransitionConfiguration(
         TState previousState,
@@ -110,42 +100,27 @@ internal class ParameterizedTransitionConfiguration<TState, TTransition, TPrevio
         IReadOnlyList<IAsyncFunc<TPrevious, bool>> previousConditions
     )
     {
-        PreviousStateValue = previousState;
-        TransitionValue = transition;
+        this.previousStateValue = previousState;
+        this.transitionValue = transition;
         this.previousConditions = previousConditions;
     }
 
-    /// <inheritdoc/>
-    public TState PreviousStateValue { get; }
-
-    /// <inheritdoc/>
-    public TTransition TransitionValue { get; }
-
-    /// <inheritdoc/>
-    public TState? NextStateValue { get; } = default;
-
-    /// <inheritdoc/>
-    public IReadOnlyList<Type> PreviousStateTypeParameters { get; } = [typeof(TPrevious)];
-
     /// <inheritdoc />
-    public IReadOnlyList<Type> TransitionTypeParameters { get; } = [typeof(TNext)];
-
-    /// <inheritdoc/>
-    public IReadOnlyList<Type> NextStateTypeParameters { get; } = [typeof(TNext)];
-
-    /// <inheritdoc/>
-    public bool IsConditional => this.previousConditions.Count > 0 || this.nextConditions.Count > 0;
-
-    /// <inheritdoc />
-    public IFinalTransitionConfiguration<TState, TTransition, TPrevious> To(TState state)
+    public ITransitionConfiguration<TState, TTransition> To(TState state)
     {
         return new FinalParameterizedTransitionConfiguration<TState, TTransition, TPrevious, TNext>(
-            PreviousStateValue,
-            TransitionValue,
+            this.previousStateValue,
+            this.transitionValue,
             state,
             this.previousConditions,
             this.nextConditions
         );
+    }
+
+    /// <inheritdoc />
+    public ITransitionConfiguration<TState, TTransition> ToSameState()
+    {
+        return To(this.previousStateValue);
     }
 
     /// <inheritdoc />

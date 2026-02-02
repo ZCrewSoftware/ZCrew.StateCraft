@@ -21,7 +21,7 @@ internal class ParameterizedStateConfiguration<TState, TTransition, T>
     private readonly List<IAsyncAction<T>> onEntryHandlers = [];
     private readonly List<IAsyncAction<T>> onExitHandlers = [];
     private readonly List<IParameterizedActionConfiguration<T>> actionConfigurations = [];
-    private readonly List<IFinalTransitionConfiguration<TState, TTransition, T>> transitionConfigurations = [];
+    private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
     public ParameterizedStateConfiguration(TState state)
     {
@@ -76,7 +76,7 @@ internal class ParameterizedStateConfiguration<TState, TTransition, T>
         TTransition transition,
         Func<
             IInitialTransitionConfiguration<TState, TTransition, T>,
-            IFinalTransitionConfiguration<TState, TTransition, T>
+            ITransitionConfiguration<TState, TTransition>
         > configureTransition
     )
     {

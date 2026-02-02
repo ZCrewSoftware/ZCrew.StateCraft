@@ -233,10 +233,7 @@ public interface IStateMachineConfiguration<TState, TTransition>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithState(
         TState state,
-        Func<
-            IInitialStateConfiguration<TState, TTransition>,
-            IFinalStateConfiguration<TState, TTransition>
-        > configureState
+        Func<IInitialStateConfiguration<TState, TTransition>, IStateConfiguration<TState, TTransition>> configureState
     );
 
     /// <summary>

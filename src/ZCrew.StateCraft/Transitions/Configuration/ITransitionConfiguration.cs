@@ -12,6 +12,10 @@ namespace ZCrew.StateCraft;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
+/// <remarks>
+///     This should remain empty of public configuration members. This allows configuration steps to stop further
+///     configuration by returning this type.
+/// </remarks>
 public interface ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
@@ -27,10 +31,9 @@ public interface ITransitionConfiguration<TState, TTransition>
     internal TTransition TransitionValue { get; }
 
     /// <summary>
-    ///     The next state value. This will be <see langword="null"/> until it is set. <see cref="Build"/> should not
-    ///     be called until this value is set.
+    ///     The next state value.
     /// </summary>
-    internal TState? NextStateValue { get; }
+    internal TState NextStateValue { get; }
 
     /// <summary>
     ///     The type parameters of the previous state. Empty if the previous state has no parameters.
@@ -52,4 +55,11 @@ public interface ITransitionConfiguration<TState, TTransition>
     ///     must be satisfied for the transition to be taken.
     /// </summary>
     internal bool IsConditional { get; }
+
+    /// <summary>
+    ///     Build the transition based on the configuration.
+    /// </summary>
+    /// <param name="state">The parent state.</param>
+    /// <returns>The transition model.</returns>
+    internal ITransition<TState, TTransition> Build(IState<TState, TTransition> state);
 }

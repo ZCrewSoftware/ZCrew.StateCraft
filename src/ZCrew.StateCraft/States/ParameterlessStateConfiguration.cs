@@ -22,7 +22,7 @@ internal class ParameterlessStateConfiguration<TState, TTransition>
     private readonly List<IAsyncAction> onEntryHandlers = [];
     private readonly List<IAsyncAction> onExitHandlers = [];
     private readonly List<IParameterlessActionConfiguration> actionConfigurations = [];
-    private readonly List<IFinalTransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
+    private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
     public ParameterlessStateConfiguration(TState state)
     {
@@ -77,7 +77,7 @@ internal class ParameterlessStateConfiguration<TState, TTransition>
         TTransition transition,
         Func<
             IInitialTransitionConfiguration<TState, TTransition>,
-            IFinalTransitionConfiguration<TState, TTransition>
+            ITransitionConfiguration<TState, TTransition>
         > configureTransition
     )
     {

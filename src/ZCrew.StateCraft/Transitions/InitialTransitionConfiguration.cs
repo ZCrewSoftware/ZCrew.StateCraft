@@ -17,36 +17,17 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{TransitionValue}({PreviousStateValue}) → ?";
+    private string DisplayString => $"{this.transitionValue}({this.previousStateValue}) → ?";
 
     private readonly List<IAsyncFunc<bool>> previousConditions = [];
+    private readonly TState previousStateValue;
+    private readonly TTransition transitionValue;
 
     public InitialTransitionConfiguration(TState previousState, TTransition transition)
     {
-        PreviousStateValue = previousState;
-        TransitionValue = transition;
+        this.previousStateValue = previousState;
+        this.transitionValue = transition;
     }
-
-    /// <inheritdoc />
-    public TState PreviousStateValue { get; }
-
-    /// <inheritdoc />
-    public TTransition TransitionValue { get; }
-
-    /// <inheritdoc />
-    public TState? NextStateValue { get; } = default;
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> PreviousStateTypeParameters { get; } = [];
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> TransitionTypeParameters { get; } = [];
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> NextStateTypeParameters { get; } = [];
-
-    /// <inheritdoc />
-    public bool IsConditional => this.previousConditions.Count > 0;
 
     /// <inheritdoc />
     public IInitialTransitionConfiguration<TState, TTransition> If(Func<bool> condition)
@@ -73,8 +54,8 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     public IParameterlessTransitionConfiguration<TState, TTransition> WithNoParameters()
     {
         return new ParameterlessTransitionConfiguration<TState, TTransition>(
-            PreviousStateValue,
-            TransitionValue,
+            this.previousStateValue,
+            this.transitionValue,
             this.previousConditions
         );
     }
@@ -83,8 +64,8 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     public IParameterizedTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>()
     {
         return new ParameterizedTransitionConfiguration<TState, TTransition, TNext>(
-            PreviousStateValue,
-            TransitionValue,
+            this.previousStateValue,
+            this.transitionValue,
             this.previousConditions
         );
     }
@@ -110,36 +91,18 @@ internal class InitialTransitionConfiguration<TState, TTransition, TPrevious>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{TransitionValue}({PreviousStateValue}<{typeof(TPrevious).FriendlyName}>) → ?";
+    private string DisplayString =>
+        $"{this.transitionValue}({this.previousStateValue}<{typeof(TPrevious).FriendlyName}>) → ?";
 
     private readonly List<IAsyncFunc<TPrevious, bool>> previousConditions = [];
+    private readonly TState previousStateValue;
+    private readonly TTransition transitionValue;
 
     public InitialTransitionConfiguration(TState previousState, TTransition transition)
     {
-        PreviousStateValue = previousState;
-        TransitionValue = transition;
+        this.previousStateValue = previousState;
+        this.transitionValue = transition;
     }
-
-    /// <inheritdoc />
-    public TState PreviousStateValue { get; }
-
-    /// <inheritdoc />
-    public TTransition TransitionValue { get; }
-
-    /// <inheritdoc />
-    public TState? NextStateValue { get; } = default;
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> PreviousStateTypeParameters { get; } = [typeof(TPrevious)];
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> TransitionTypeParameters { get; } = [];
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> NextStateTypeParameters { get; } = [];
-
-    /// <inheritdoc />
-    public bool IsConditional => this.previousConditions.Count > 0;
 
     /// <inheritdoc />
     public IInitialTransitionConfiguration<TState, TTransition, TPrevious> If(Func<TPrevious, bool> condition)
@@ -170,8 +133,8 @@ internal class InitialTransitionConfiguration<TState, TTransition, TPrevious>
     public IParameterlessTransitionConfiguration<TState, TTransition, TPrevious> WithNoParameters()
     {
         return new ParameterlessTransitionConfiguration<TState, TTransition, TPrevious>(
-            PreviousStateValue,
-            TransitionValue,
+            this.previousStateValue,
+            this.transitionValue,
             this.previousConditions
         );
     }
@@ -180,8 +143,8 @@ internal class InitialTransitionConfiguration<TState, TTransition, TPrevious>
     public IParameterizedTransitionConfiguration<TState, TTransition, TPrevious, TNext> WithParameter<TNext>()
     {
         return new ParameterizedTransitionConfiguration<TState, TTransition, TPrevious, TNext>(
-            PreviousStateValue,
-            TransitionValue,
+            this.previousStateValue,
+            this.transitionValue,
             this.previousConditions
         );
     }
@@ -192,8 +155,8 @@ internal class InitialTransitionConfiguration<TState, TTransition, TPrevious>
     )
     {
         return new MappedTransitionConfiguration<TState, TTransition, TPrevious, TNext>(
-            PreviousStateValue,
-            TransitionValue,
+            this.previousStateValue,
+            this.transitionValue,
             this.previousConditions,
             map
         );

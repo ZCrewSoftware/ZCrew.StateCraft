@@ -197,10 +197,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithState(
         TState state,
-        Func<
-            IInitialStateConfiguration<TState, TTransition>,
-            IFinalStateConfiguration<TState, TTransition>
-        > configureState
+        Func<IInitialStateConfiguration<TState, TTransition>, IStateConfiguration<TState, TTransition>> configureState
     )
     {
         var initialStateConfiguration = new ParameterlessStateConfiguration<TState, TTransition>(state);

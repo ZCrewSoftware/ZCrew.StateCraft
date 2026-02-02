@@ -7,7 +7,7 @@ namespace ZCrew.StateCraft.Transitions;
 /// <inheritdoc />
 [DebuggerDisplay("{ToDisplayString()}")]
 internal class FinalParameterlessTransitionConfiguration<TState, TTransition>
-    : IFinalTransitionConfiguration<TState, TTransition>
+    : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -51,11 +51,11 @@ internal class FinalParameterlessTransitionConfiguration<TState, TTransition>
     public bool IsConditional => this.previousConditions.Count > 0 || this.nextConditions.Count > 0;
 
     /// <inheritdoc />
-    public ITransition<TState, TTransition> Build(IParameterlessState<TState, TTransition> state)
+    public ITransition<TState, TTransition> Build(IState<TState, TTransition> state)
     {
         var combinedConditions = this.previousConditions.Concat(this.nextConditions).ToList();
         return new ParameterlessTransition<TState, TTransition>(
-            state,
+            (IParameterlessState<TState, TTransition>)state,
             TransitionValue,
             NextStateValue,
             combinedConditions
@@ -82,7 +82,7 @@ internal class FinalParameterlessTransitionConfiguration<TState, TTransition>
 /// <inheritdoc />
 [DebuggerDisplay("{ToDisplayString()}")]
 internal class FinalParameterlessTransitionConfiguration<TState, TTransition, TPrevious>
-    : IFinalTransitionConfiguration<TState, TTransition, TPrevious>
+    : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -126,10 +126,10 @@ internal class FinalParameterlessTransitionConfiguration<TState, TTransition, TP
     public bool IsConditional => this.previousConditions.Count > 0 || this.nextConditions.Count > 0;
 
     /// <inheritdoc />
-    public ITransition<TState, TTransition> Build(IParameterizedState<TState, TTransition, TPrevious> state)
+    public ITransition<TState, TTransition> Build(IState<TState, TTransition> state)
     {
         return new ParameterlessTransition<TState, TTransition, TPrevious>(
-            state,
+            (IParameterizedState<TState, TTransition, TPrevious>)state,
             TransitionValue,
             NextStateValue,
             this.previousConditions,

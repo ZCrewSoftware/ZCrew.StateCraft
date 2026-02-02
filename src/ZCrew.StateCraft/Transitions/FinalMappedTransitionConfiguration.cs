@@ -6,7 +6,7 @@ namespace ZCrew.StateCraft.Transitions;
 /// <inheritdoc />
 [DebuggerDisplay("{ToDisplayString()}")]
 internal class FinalMappedTransitionConfiguration<TState, TTransition, TPrevious, TNext>
-    : IFinalTransitionConfiguration<TState, TTransition, TPrevious>
+    : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -53,10 +53,10 @@ internal class FinalMappedTransitionConfiguration<TState, TTransition, TPrevious
     public bool IsConditional => this.previousConditions.Count > 0 || this.nextConditions.Count > 0;
 
     /// <inheritdoc />
-    public ITransition<TState, TTransition> Build(IParameterizedState<TState, TTransition, TPrevious> state)
+    public ITransition<TState, TTransition> Build(IState<TState, TTransition> state)
     {
         return new MappedTransition<TState, TTransition, TPrevious, TNext>(
-            state,
+            (IParameterizedState<TState, TTransition, TPrevious>)state,
             TransitionValue,
             NextStateValue,
             this.previousConditions,

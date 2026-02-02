@@ -21,9 +21,7 @@ namespace ZCrew.StateCraft;
 ///             .OnExit(() => Console.WriteLine("Exiting 'Open' state")));
 ///     </code>
 /// </example>
-public interface IParameterlessStateConfiguration<TState, TTransition>
-    : IStateConfiguration<TState, TTransition>,
-        IFinalStateConfiguration<TState, TTransition>
+public interface IParameterlessStateConfiguration<TState, TTransition> : IStateConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -192,7 +190,7 @@ public interface IParameterlessStateConfiguration<TState, TTransition>
         TTransition transition,
         Func<
             IInitialTransitionConfiguration<TState, TTransition>,
-            IFinalTransitionConfiguration<TState, TTransition>
+            ITransitionConfiguration<TState, TTransition>
         > configureTransition
     );
 
