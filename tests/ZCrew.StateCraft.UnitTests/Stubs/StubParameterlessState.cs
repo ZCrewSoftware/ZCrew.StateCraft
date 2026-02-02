@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Contracts;
 
@@ -57,6 +58,16 @@ internal class StubParameterlessState<TState, TTransition> : IParameterlessState
     }
 
     public virtual Task StateChange(TState previous, TTransition transition, CancellationToken token)
+    {
+        return Task.CompletedTask;
+    }
+
+    public virtual Task StateChange(
+        TState previousState,
+        TTransition transition,
+        IStateMachineParameters parameters,
+        CancellationToken token
+    )
     {
         return Task.CompletedTask;
     }

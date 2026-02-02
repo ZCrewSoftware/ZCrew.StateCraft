@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft.UnitTests.Stubs;
@@ -56,6 +57,16 @@ internal class StubParameterizedState<TState, TTransition, T> : IParameterizedSt
     }
 
     public virtual Task StateChange(TState previous, TTransition transition, T parameter, CancellationToken token)
+    {
+        return Task.CompletedTask;
+    }
+
+    public virtual Task StateChange(
+        TState previousState,
+        TTransition transition,
+        IStateMachineParameters parameters,
+        CancellationToken token
+    )
     {
         return Task.CompletedTask;
     }

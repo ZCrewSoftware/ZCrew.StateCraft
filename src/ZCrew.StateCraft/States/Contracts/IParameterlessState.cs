@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.Parameters.Contracts;
+
 namespace ZCrew.StateCraft.States.Contracts;
 
 /// <summary>
@@ -21,5 +23,6 @@ internal interface IParameterlessState<TState, TTransition> : IState<TState, TTr
     /// <param name="previousState">The state being transitioned from.</param>
     /// <param name="transition">The transition being applied.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
+    [Obsolete($"Use method with {nameof(IStateMachineParameters)}")]
     Task StateChange(TState previousState, TTransition transition, CancellationToken token);
 }

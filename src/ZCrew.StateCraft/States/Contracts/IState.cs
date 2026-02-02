@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft;
@@ -70,7 +71,7 @@ internal interface IState<TState, TTransition>
     /// <param name="transition">The transition to look up.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     /// <returns>
-    ///     The first matching transition whose whose type and conditions.
+    ///     The first matching transition with passing conditions.
     ///     Otherwise, <see langword="null"/> if no transition can be found.
     /// </returns>
     internal Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(
@@ -89,7 +90,7 @@ internal interface IState<TState, TTransition>
     /// </param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     /// <returns>
-    ///     The first matching transition whose whose type and conditions.
+    ///     The first matching transition with the same type and passing conditions.
     ///     Otherwise, <see langword="null"/> if no transition can be found.
     /// </returns>
     internal Task<ITransition<TState, TTransition>?> GetTransitionOrDefault<TNext>(
@@ -128,4 +129,18 @@ internal interface IState<TState, TTransition>
     /// </summary>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     Task Action(CancellationToken token);
+
+    /// <summary>
+    ///     Invoke the state change handlers when transitioning into this state.
+    /// </summary>
+    /// <param name="previousState">The state being transitioned from.</param>
+    /// <param name="transition">The transition being applied.</param>
+    /// <param name="parameters">The state machine parameters.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    Task StateChange(
+        TState previousState,
+        TTransition transition,
+        IStateMachineParameters parameters,
+        CancellationToken token
+    );
 }

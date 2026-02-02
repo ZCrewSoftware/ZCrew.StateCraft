@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
+using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Contracts;
 
@@ -18,7 +19,9 @@ namespace ZCrew.StateCraft.States;
 ///     state machine behaves as expected.
 /// </typeparam>
 [DebuggerDisplay("{DisplayString}")]
-internal class ParameterlessState<TState, TTransition> : IParameterlessState<TState, TTransition>
+internal class ParameterlessState<TState, TTransition>
+    : IState<TState, TTransition>,
+        IParameterlessState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -85,6 +88,17 @@ internal class ParameterlessState<TState, TTransition> : IParameterlessState<TSt
         {
             await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(StateValue, token), token);
         }
+    }
+
+    /// <inheritdoc />
+    public Task StateChange(
+        TState previousState,
+        TTransition transition,
+        IStateMachineParameters parameters,
+        CancellationToken token
+    )
+    {
+        return StateChange(previousState, transition, token);
     }
 
     /// <inheritdoc />
