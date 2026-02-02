@@ -26,7 +26,6 @@ namespace ZCrew.StateCraft;
 ///     </para>
 /// </remarks>
 public interface IParameterizedTransitionConfiguration<TState, TTransition, TNext>
-    : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -63,7 +62,7 @@ public interface IParameterizedTransitionConfiguration<TState, TTransition, TNex
     /// </summary>
     /// <param name="state">The next state.</param>
     /// <returns>The final state configuration step.</returns>
-    IFinalTransitionConfiguration<TState, TTransition> To(TState state);
+    ITransitionConfiguration<TState, TTransition> To(TState state);
 
     /// <summary>
     ///     Configures this transition to return to the same state.
@@ -74,10 +73,7 @@ public interface IParameterizedTransitionConfiguration<TState, TTransition, TNex
     ///     this may point to a different configured state. This is merely shorthand for <see cref="To"/> with the same
     ///     <see cref="IState{TState,TTransition}.StateValue"/>.
     /// </remarks>
-    IFinalTransitionConfiguration<TState, TTransition> ToSameState()
-    {
-        return To(PreviousStateValue);
-    }
+    ITransitionConfiguration<TState, TTransition> ToSameState();
 }
 
 /// <summary>
@@ -107,7 +103,6 @@ public interface IParameterizedTransitionConfiguration<TState, TTransition, TNex
 ///     </para>
 /// </remarks>
 public interface IParameterizedTransitionConfiguration<TState, TTransition, TPrevious, TNext>
-    : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -144,7 +139,7 @@ public interface IParameterizedTransitionConfiguration<TState, TTransition, TPre
     /// </summary>
     /// <param name="state">The next state.</param>
     /// <returns>The final state configuration step.</returns>
-    IFinalTransitionConfiguration<TState, TTransition, TPrevious> To(TState state);
+    ITransitionConfiguration<TState, TTransition> To(TState state);
 
     /// <summary>
     ///     Configures this transition to return to the same state.
@@ -155,8 +150,5 @@ public interface IParameterizedTransitionConfiguration<TState, TTransition, TPre
     ///     this may point to a different configured state. This is merely shorthand for <see cref="To"/> with the same
     ///     <see cref="IState{TState,TTransition}.StateValue"/>.
     /// </remarks>
-    IFinalTransitionConfiguration<TState, TTransition, TPrevious> ToSameState()
-    {
-        return To(PreviousStateValue);
-    }
+    ITransitionConfiguration<TState, TTransition> ToSameState();
 }

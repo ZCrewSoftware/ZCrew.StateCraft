@@ -1,7 +1,6 @@
 namespace ZCrew.StateCraft;
 
 public interface IMappedTransitionConfiguration<TState, TTransition, TPrevious, TNext>
-    : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -38,7 +37,7 @@ public interface IMappedTransitionConfiguration<TState, TTransition, TPrevious, 
     /// </summary>
     /// <param name="state">The next state.</param>
     /// <returns>The final state configuration step.</returns>
-    IFinalTransitionConfiguration<TState, TTransition, TPrevious> To(TState state);
+    ITransitionConfiguration<TState, TTransition> To(TState state);
 
     /// <summary>
     ///     Configures this transition to return to the same state.
@@ -49,8 +48,5 @@ public interface IMappedTransitionConfiguration<TState, TTransition, TPrevious, 
     ///     this may point to a different configured state. This is merely shorthand for <see cref="To"/> with the same
     ///     <see cref="IState{TState,TTransition}.StateValue"/>.
     /// </remarks>
-    IFinalTransitionConfiguration<TState, TTransition, TPrevious> ToSameState()
-    {
-        return To(PreviousStateValue);
-    }
+    ITransitionConfiguration<TState, TTransition> ToSameState();
 }

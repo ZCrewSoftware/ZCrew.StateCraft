@@ -25,7 +25,7 @@ namespace ZCrew.StateCraft;
 ///     <see cref="WithNoParameters"/>) are evaluated before any conditions added afterward.
 ///     </para>
 /// </remarks>
-public interface IInitialTransitionConfiguration<TState, TTransition> : ITransitionConfiguration<TState, TTransition>
+public interface IInitialTransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -69,7 +69,7 @@ public interface IInitialTransitionConfiguration<TState, TTransition> : ITransit
     /// </summary>
     /// <param name="state">The next state.</param>
     /// <returns>The final state configuration step.</returns>
-    IFinalTransitionConfiguration<TState, TTransition> To(TState state)
+    ITransitionConfiguration<TState, TTransition> To(TState state)
     {
         return WithNoParameters().To(state);
     }
@@ -100,7 +100,6 @@ public interface IInitialTransitionConfiguration<TState, TTransition> : ITransit
 ///     </para>
 /// </remarks>
 public interface IInitialTransitionConfiguration<TState, TTransition, TPrevious>
-    : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -176,7 +175,7 @@ public interface IInitialTransitionConfiguration<TState, TTransition, TPrevious>
     /// </summary>
     /// <param name="state">The next state.</param>
     /// <returns>The final state configuration step.</returns>
-    IFinalTransitionConfiguration<TState, TTransition, TPrevious> To(TState state)
+    ITransitionConfiguration<TState, TTransition> To(TState state)
     {
         return WithNoParameters().To(state);
     }

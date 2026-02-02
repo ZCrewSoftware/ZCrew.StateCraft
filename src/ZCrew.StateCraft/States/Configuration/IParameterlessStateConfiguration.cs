@@ -192,7 +192,7 @@ public interface IParameterlessStateConfiguration<TState, TTransition>
         TTransition transition,
         Func<
             IInitialTransitionConfiguration<TState, TTransition>,
-            IFinalTransitionConfiguration<TState, TTransition>
+            ITransitionConfiguration<TState, TTransition>
         > configureTransition
     );
 

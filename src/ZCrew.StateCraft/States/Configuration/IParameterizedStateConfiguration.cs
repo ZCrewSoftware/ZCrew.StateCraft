@@ -202,7 +202,7 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T>
         TTransition transition,
         Func<
             IInitialTransitionConfiguration<TState, TTransition, T>,
-            IFinalTransitionConfiguration<TState, TTransition, T>
+            ITransitionConfiguration<TState, TTransition>
         > configureTransition
     );
 
