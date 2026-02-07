@@ -92,7 +92,7 @@ internal class NextState<TState, TTransition, T> : INextState<TState, TTransitio
     /// <inheritdoc />
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = parameters.GetNextParameter<T>(0);
+        var parameter = parameters.GetNextParameter<T>();
         foreach (var condition in this.conditions)
         {
             var result = await condition.InvokeAsync(parameter, token);

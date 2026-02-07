@@ -54,6 +54,7 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
     {
         get =>
             Parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet)
+            && Parameters.NextParameterTypes.Count > 0
                 ? Parameters.GetNextParameter<object?>(0)
                 : null;
         set => Parameters.SetNextParameters([value]);

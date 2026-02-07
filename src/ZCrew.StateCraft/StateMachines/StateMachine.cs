@@ -75,7 +75,9 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     {
         get
         {
-            return Parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet)
+            return
+                Parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet)
+                && Parameters.CurrentParameterTypes.Count > 0
                 ? Parameters.GetCurrentParameter<object?>(0)
                 : null;
         }
@@ -87,7 +89,9 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     {
         get
         {
-            return Parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet)
+            return
+                Parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet)
+                && Parameters.PreviousParameterTypes.Count > 0
                 ? Parameters.GetPreviousParameter<object?>(0)
                 : null;
         }
@@ -99,11 +103,23 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     {
         get
         {
-            return Parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet)
+            return
+                Parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet)
+                && Parameters.NextParameterTypes.Count > 0
                 ? Parameters.GetNextParameter<object?>(0)
                 : null;
         }
-        set => Parameters.SetNextParameters([value]);
+        set
+        {
+            if (value == null)
+            {
+                Parameters.SetEmptyNextParameters();
+            }
+            else
+            {
+                Parameters.SetNextParameters([value]);
+            }
+        }
     }
 
     /// <inheritdoc />
@@ -345,7 +361,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         try
         {
             CurrentTransition = await CurrentState.GetTransition(transition, token);
-            Parameters.SetNextParameters([null]);
+            Parameters.SetEmptyNextParameters();
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
@@ -373,7 +389,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         try
         {
             CurrentTransition = await CurrentState.GetTransition(transition, parameter, token);
-            Parameters.SetNextParameters([parameter]);
+            Parameters.SetNextParameter(parameter);
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
@@ -436,7 +452,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
         try
         {
-            Parameters.SetNextParameters([null]);
+            Parameters.SetEmptyNextParameters();
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
@@ -470,7 +486,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
         try
         {
-            Parameters.SetNextParameters([parameter]);
+            Parameters.SetNextParameter(parameter);
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);

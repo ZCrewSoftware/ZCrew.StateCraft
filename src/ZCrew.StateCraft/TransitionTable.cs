@@ -132,7 +132,7 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
 
             // TODO MWZ: just pass in the correct state machine parameters this after the state machine is refactored
             var stateMachineParameters = new StateMachineParameters();
-            stateMachineParameters.SetNextParameters([previous]);
+            stateMachineParameters.SetNextParameter(previous);
             stateMachineParameters.CommitTransition();
             stateMachineParameters.BeginTransition();
             if (!await transition.EvaluateConditions(stateMachineParameters, token))
@@ -189,7 +189,7 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
 
             // TODO MWZ: just pass in the correct state machine parameters this after the state machine is refactored
             var stateMachineParameters = new StateMachineParameters();
-            stateMachineParameters.SetNextParameters([next]);
+            stateMachineParameters.SetNextParameter(next);
             if (!await transition.EvaluateConditions(stateMachineParameters, token))
             {
                 continue;
@@ -252,10 +252,10 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
 
             // TODO MWZ: just pass in the correct state machine parameters this after the state machine is refactored
             var stateMachineParameters = new StateMachineParameters();
-            stateMachineParameters.SetNextParameters([previous]);
+            stateMachineParameters.SetNextParameter(previous);
             stateMachineParameters.CommitTransition();
             stateMachineParameters.BeginTransition();
-            stateMachineParameters.SetNextParameters([next]);
+            stateMachineParameters.SetNextParameter(next);
             if (!await transition.EvaluateConditions(stateMachineParameters, token))
             {
                 continue;

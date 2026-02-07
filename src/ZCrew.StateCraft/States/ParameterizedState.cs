@@ -108,7 +108,7 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
         CancellationToken token
     )
     {
-        var parameter = parameters.GetNextParameter<T>(0);
+        var parameter = parameters.GetNextParameter<T>();
         foreach (var handler in this.onStateChangeHandlers)
         {
             await StateMachine.RunWithExceptionHandling(
