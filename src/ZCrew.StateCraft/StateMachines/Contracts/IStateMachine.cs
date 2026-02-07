@@ -1,5 +1,6 @@
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.Tracking.Contracts;
+using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.StateMachines.Contracts;
 
@@ -228,4 +229,10 @@ public interface IStateMachine<TState, TTransition> : IDisposable
     /// <param name="token">The token to monitor for cancellation requests.</param>
     /// <returns>The result of the action.</returns>
     internal Task<T> RunWithExceptionHandling<T>(Func<Task<T>> action, CancellationToken token);
+
+    /// <summary>
+    ///     Adds the <paramref name="state"/> to this machine.
+    /// </summary>
+    /// <param name="state">The state to add.</param>
+    internal void AddState(IState<TState, TTransition> state);
 }

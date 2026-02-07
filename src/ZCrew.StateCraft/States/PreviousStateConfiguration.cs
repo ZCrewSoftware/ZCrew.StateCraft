@@ -4,9 +4,7 @@ using ZCrew.StateCraft.States.Contracts;
 
 namespace ZCrew.StateCraft.States;
 
-internal class PreviousStateConfiguration<TState, TTransition>
-    : IPreviousStateConfiguration<TState, TTransition>,
-        IPartialPreviousStateConfiguration<TState, TTransition>
+internal class PreviousStateConfiguration<TState, TTransition> : IPartialPreviousStateConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -16,6 +14,8 @@ internal class PreviousStateConfiguration<TState, TTransition>
     {
         StateValue = stateValue;
     }
+
+    public bool IsConditional => this.conditions.Count > 0;
 
     public TState StateValue { get; }
 
@@ -27,18 +27,38 @@ internal class PreviousStateConfiguration<TState, TTransition>
         return new PreviousState<TState, TTransition>(state, this.conditions);
     }
 
-    public void Add(Func<bool> condition)
+    public void Add(IAsyncFunc<bool> condition)
     {
-        this.conditions.Add(condition.AsAsyncFunc());
+        this.conditions.Add(condition);
+    }
+}
+
+internal class PreviousStateConfiguration<TState, TTransition, T>
+    : IPartialPreviousStateConfiguration<TState, TTransition, T>
+    where TState : notnull
+    where TTransition : notnull
+{
+    private readonly List<IAsyncFunc<T, bool>> conditions = [];
+
+    public PreviousStateConfiguration(TState stateValue)
+    {
+        StateValue = stateValue;
     }
 
-    public void Add(Func<CancellationToken, Task<bool>> condition)
+    public bool IsConditional => this.conditions.Count > 0;
+
+    public TState StateValue { get; }
+
+    public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T)];
+
+    public IPreviousState<TState, TTransition> Build(StateTable<TState, TTransition> stateTable)
     {
-        this.conditions.Add(condition.AsAsyncFunc());
+        var state = stateTable.LookupState<T>(StateValue);
+        return new PreviousState<TState, TTransition, T>(state, this.conditions);
     }
 
-    public void Add(Func<CancellationToken, ValueTask<bool>> condition)
+    public void Add(IAsyncFunc<T, bool> condition)
     {
-        this.conditions.Add(condition.AsAsyncFunc());
+        this.conditions.Add(condition);
     }
 }

@@ -8,18 +8,15 @@ internal class NextState<TState, TTransition> : INextState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IState<TState, TTransition> state;
     private readonly IReadOnlyList<IAsyncFunc<bool>> conditions;
 
     public NextState(IState<TState, TTransition> state, IReadOnlyList<IAsyncFunc<bool>> conditions)
     {
-        this.state = state;
+        State = state;
         this.conditions = conditions;
     }
 
-    public TState StateValue => this.state.StateValue;
-
-    public IReadOnlyList<Type> TypeParameters { get; } = [];
+    public IState<TState, TTransition> State { get; }
 
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
@@ -34,14 +31,34 @@ internal class NextState<TState, TTransition> : INextState<TState, TTransition>
 
         return true;
     }
+}
 
-    public Task ChangeState(
-        TState previousState,
-        TTransition transition,
-        IStateMachineParameters parameters,
-        CancellationToken token
-    )
+internal class NextState<TState, TTransition, T> : INextState<TState, TTransition>
+    where TState : notnull
+    where TTransition : notnull
+{
+    private readonly IReadOnlyList<IAsyncFunc<T, bool>> conditions;
+
+    public NextState(IState<TState, TTransition> state, IReadOnlyList<IAsyncFunc<T, bool>> conditions)
     {
-        return this.state.StateChange(previousState, transition, parameters, token);
+        State = state;
+        this.conditions = conditions;
+    }
+
+    public IState<TState, TTransition> State { get; }
+
+    public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
+    {
+        var parameter = parameters.GetNextParameter<T>(0);
+        foreach (var condition in this.conditions)
+        {
+            var result = await condition.InvokeAsync(parameter, token);
+            if (!result)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -1,5 +1,6 @@
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
+using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft;
 
@@ -21,22 +22,28 @@ internal interface IState<TState, TTransition>
     /// <summary>
     ///     The state value.
     /// </summary>
-    internal TState StateValue { get; }
+    TState StateValue { get; }
 
     /// <summary>
     ///     The type parameters of the state.
     /// </summary>
-    internal IReadOnlyList<Type> TypeParameters { get; }
+    IReadOnlyList<Type> TypeParameters { get; }
 
     /// <summary>
     ///     The state machine that contains this state.
     /// </summary>
-    internal IStateMachine<TState, TTransition> StateMachine { get; }
+    IStateMachine<TState, TTransition> StateMachine { get; }
 
     /// <summary>
     ///     The transitions from this state.
     /// </summary>
-    internal IEnumerable<ITransition<TState, TTransition>> Transitions { get; }
+    IEnumerable<ITransition<TState, TTransition>> Transitions { get; }
+
+    /// <summary>
+    ///     Adds the <paramref name="transition"/> to this state.
+    /// </summary>
+    /// <param name="transition">The transition to add.</param>
+    void AddTransition(ITransition<TState, TTransition> transition);
 
     /// <summary>
     ///     Gets the transition to a parameterless next state.
@@ -45,7 +52,7 @@ internal interface IState<TState, TTransition>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     /// <returns>The first matching transition whose conditions evaluate to true.</returns>
     /// <exception cref="InvalidOperationException">No matching transition was found.</exception>
-    internal Task<ITransition<TState, TTransition>> GetTransition(TTransition transition, CancellationToken token);
+    Task<ITransition<TState, TTransition>> GetTransition(TTransition transition, CancellationToken token);
 
     /// <summary>
     ///     Gets the transition to a parameterized next state.
@@ -58,7 +65,7 @@ internal interface IState<TState, TTransition>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     /// <returns>The first matching transition whose type and conditions match.</returns>
     /// <exception cref="InvalidOperationException">No matching transition was found.</exception>
-    internal Task<ITransition<TState, TTransition>> GetTransition<TNext>(
+    Task<ITransition<TState, TTransition>> GetTransition<TNext>(
         TTransition transition,
         TNext nextParameter,
         CancellationToken token
@@ -74,10 +81,7 @@ internal interface IState<TState, TTransition>
     ///     The first matching transition with passing conditions.
     ///     Otherwise, <see langword="null"/> if no transition can be found.
     /// </returns>
-    internal Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(
-        TTransition transition,
-        CancellationToken token
-    );
+    Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(TTransition transition, CancellationToken token);
 
     /// <summary>
     ///     Gets the transition to a parameterized next state, or <see langword="null"/> if no matching transition was
@@ -93,7 +97,7 @@ internal interface IState<TState, TTransition>
     ///     The first matching transition with the same type and passing conditions.
     ///     Otherwise, <see langword="null"/> if no transition can be found.
     /// </returns>
-    internal Task<ITransition<TState, TTransition>?> GetTransitionOrDefault<TNext>(
+    Task<ITransition<TState, TTransition>?> GetTransitionOrDefault<TNext>(
         TTransition transition,
         TNext nextParameter,
         CancellationToken token

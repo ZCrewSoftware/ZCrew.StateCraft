@@ -1,5 +1,7 @@
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
+using ZCrew.StateCraft.States.Contracts;
+using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.UnitTests.Stubs;
 
@@ -24,6 +26,8 @@ internal class StubParameterizedState<TState, TTransition, T> : IParameterizedSt
     public IStateMachine<TState, TTransition> StateMachine => null!;
 
     public IEnumerable<ITransition<TState, TTransition>> Transitions { get; } = [];
+
+    public void AddTransition(ITransition<TState, TTransition> transition) { }
 
     public virtual Task<ITransition<TState, TTransition>> GetTransition(TTransition transition, CancellationToken token)
     {
@@ -56,6 +60,7 @@ internal class StubParameterizedState<TState, TTransition, T> : IParameterizedSt
         return Task.FromResult<ITransition<TState, TTransition>?>(null);
     }
 
+    [Obsolete($"Use method with {nameof(IStateMachineParameters)}")]
     public virtual Task StateChange(TState previous, TTransition transition, T parameter, CancellationToken token)
     {
         return Task.CompletedTask;

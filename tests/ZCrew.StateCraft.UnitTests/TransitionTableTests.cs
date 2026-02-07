@@ -1,4 +1,5 @@
 using NSubstitute;
+using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.UnitTests.Stubs;
 
 namespace ZCrew.StateCraft.UnitTests;
@@ -62,7 +63,7 @@ public class TransitionTableTests
     {
         // Arrange
         var transition = Substitute.ForPartsOf<StubParameterlessTransition<string, string>>("A", "T1", "B");
-        transition.EvaluateConditions(Arg.Any<CancellationToken>()).Returns(false);
+        transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
         var transitionTable = new TransitionTable<string, string>([transition]);
 
         // Act
@@ -144,7 +145,7 @@ public class TransitionTableTests
     {
         // Arrange
         var transition = Substitute.ForPartsOf<StubParameterlessTransition<string, string, int>>("A", "T1", "B");
-        transition.EvaluateConditions(Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(false);
+        transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
         var transitionTable = new TransitionTable<string, string>([transition]);
 
         // Act
@@ -217,7 +218,7 @@ public class TransitionTableTests
     {
         // Arrange
         var transition = Substitute.ForPartsOf<StubParameterizedTransition<string, string, int>>("A", "T1", "B");
-        transition.EvaluateConditions(Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(false);
+        transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
         var transitionTable = new TransitionTable<string, string>([transition]);
 
         // Act
@@ -297,7 +298,7 @@ public class TransitionTableTests
             "T1",
             "B"
         );
-        transition.EvaluateConditions(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(false);
+        transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
         var transitionTable = new TransitionTable<string, string>([transition]);
 
         // Act

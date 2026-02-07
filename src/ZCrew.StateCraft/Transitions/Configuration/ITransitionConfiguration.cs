@@ -1,3 +1,6 @@
+using ZCrew.StateCraft.StateMachines.Contracts;
+using ZCrew.StateCraft.Transitions.Contracts;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -59,7 +62,7 @@ public interface ITransitionConfiguration<TState, TTransition>
     /// <summary>
     ///     Build the transition based on the configuration.
     /// </summary>
-    /// <param name="state">The parent state.</param>
+    /// <param name="stateMachine">The parent state machine.</param>
     /// <returns>The transition model.</returns>
-    internal ITransition<TState, TTransition> Build(IState<TState, TTransition> state);
+    internal ITransition<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine);
 }

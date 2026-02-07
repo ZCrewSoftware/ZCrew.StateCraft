@@ -3,6 +3,8 @@ using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
+using ZCrew.StateCraft.States.Contracts;
+using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.States;
 
@@ -33,7 +35,7 @@ internal class ParameterizedState<TState, TTransition, T>
     private readonly IReadOnlyList<IAsyncAction<T>> onEntryHandlers;
     private readonly IReadOnlyList<IAsyncAction<T>> onExitHandlers;
     private readonly IReadOnlyList<IParameterizedAction<T>> actions;
-    private readonly TransitionTable<TState, TTransition> transitionTable;
+    private readonly TransitionTable<TState, TTransition> transitionTable = [];
 
     public ParameterizedState(
         TState state,
@@ -43,8 +45,7 @@ internal class ParameterizedState<TState, TTransition, T>
         IReadOnlyList<IAsyncAction<T>> onEntryHandlers,
         IReadOnlyList<IAsyncAction<T>> onExitHandlers,
         IReadOnlyList<IParameterizedAction<T>> actions,
-        IStateMachine<TState, TTransition> stateMachine,
-        TransitionTable<TState, TTransition> transitionTable
+        IStateMachine<TState, TTransition> stateMachine
     )
     {
         StateValue = state;
@@ -55,7 +56,6 @@ internal class ParameterizedState<TState, TTransition, T>
         this.onExitHandlers = onExitHandlers;
         this.actions = actions;
         StateMachine = stateMachine;
-        this.transitionTable = transitionTable;
     }
 
     /// <inheritdoc />
@@ -150,6 +150,12 @@ internal class ParameterizedState<TState, TTransition, T>
                 token
             );
         }
+    }
+
+    /// <inheritdoc />
+    public void AddTransition(ITransition<TState, TTransition> transition)
+    {
+        this.transitionTable.Add(transition);
     }
 
     /// <inheritdoc />

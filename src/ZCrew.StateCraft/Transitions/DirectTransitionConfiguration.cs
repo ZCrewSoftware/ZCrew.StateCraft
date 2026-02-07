@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Configuration;
 using ZCrew.StateCraft.Transitions.Contracts;
@@ -8,25 +7,22 @@ namespace ZCrew.StateCraft.Transitions;
 
 /// <inheritdoc />
 [DebuggerDisplay("{ToDisplayString()}")]
-internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionConfiguration<TState, TTransition>
+internal class DirectTransitionConfiguration<TState, TTransition> : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly INextStateConfiguration<TState, TTransition> nextStateConfiguration;
-    private readonly IMappingFunction mappingFunction;
 
-    public MappedTransitionConfiguration(
+    public DirectTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
         INextStateConfiguration<TState, TTransition> nextStateConfiguration,
-        TTransition transition,
-        IMappingFunction mappingFunction
+        TTransition transition
     )
     {
         this.previousStateConfiguration = previousStateConfiguration;
         this.nextStateConfiguration = nextStateConfiguration;
         TransitionValue = transition;
-        this.mappingFunction = mappingFunction;
     }
 
     /// <inheritdoc />
@@ -39,28 +35,27 @@ internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionC
     public TState NextStateValue => this.nextStateConfiguration.StateValue;
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> PreviousStateTypeParameters => this.nextStateConfiguration.TypeParameters;
+    public IReadOnlyList<Type> PreviousStateTypeParameters => this.previousStateConfiguration.TypeParameters;
 
     /// <inheritdoc/>
-    public IReadOnlyList<Type> TransitionTypeParameters { get; } = [];
+    public IReadOnlyList<Type> TransitionTypeParameters => this.nextStateConfiguration.TypeParameters;
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> NextStateTypeParameters => this.previousStateConfiguration.TypeParameters;
+    public IReadOnlyList<Type> NextStateTypeParameters => this.nextStateConfiguration.TypeParameters;
 
     /// <inheritdoc />
     public bool IsConditional =>
-        this.nextStateConfiguration.IsConditional || this.previousStateConfiguration.IsConditional;
+        this.previousStateConfiguration.IsConditional || this.nextStateConfiguration.IsConditional;
 
     /// <inheritdoc />
     public ITransition<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var previousState = this.previousStateConfiguration.Build(stateMachine.StateTable);
         var nextState = this.nextStateConfiguration.Build(stateMachine.StateTable);
-        var transition = new MappedTransition<TState, TTransition>(
+        var transition = new DirectTransition<TState, TTransition>(
             previousState,
             nextState,
             TransitionValue,
-            this.mappingFunction,
             stateMachine
         );
 
@@ -72,7 +67,7 @@ internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionC
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"Mapped Transition: {ToDisplayString()}";
+        return $"Transition: {ToDisplayString()}";
     }
 
     private string ToDisplayString()

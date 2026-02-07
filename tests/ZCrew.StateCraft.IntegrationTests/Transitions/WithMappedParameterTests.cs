@@ -57,7 +57,7 @@ public class WithMappedParameterTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        mappingFunction.Received(1).Invoke(42);
+        mappingFunction.Received().Invoke(42);
     }
 
     [Fact]

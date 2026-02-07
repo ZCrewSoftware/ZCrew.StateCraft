@@ -1,6 +1,6 @@
 using ZCrew.StateCraft.Parameters.Contracts;
 
-namespace ZCrew.StateCraft;
+namespace ZCrew.StateCraft.States.Contracts;
 
 /// <summary>
 ///     Represents a state with a parameter.

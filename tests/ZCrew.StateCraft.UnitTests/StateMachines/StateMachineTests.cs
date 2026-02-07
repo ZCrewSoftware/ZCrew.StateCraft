@@ -436,7 +436,6 @@ public class StateMachineTests
             new StateMachineActivator<string, string>(string.Empty),
             [],
             exceptionHandlers,
-            new StateTable<string, string>(),
             [],
             StateMachineOptions.None
         );

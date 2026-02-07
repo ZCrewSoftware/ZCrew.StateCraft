@@ -38,7 +38,6 @@ internal class ParameterizedStateConfiguration<TState, TTransition, T>
     public IState<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var actions = this.actionConfigurations.Select(action => action.Build()).ToList();
-        var transitionTable = new TransitionTable<TState, TTransition>();
         var state = new ParameterizedState<TState, TTransition, T>(
             State,
             this.onActivateHandlers,
@@ -47,15 +46,10 @@ internal class ParameterizedStateConfiguration<TState, TTransition, T>
             this.onEntryHandlers,
             this.onExitHandlers,
             actions,
-            stateMachine,
-            transitionTable
+            stateMachine
         );
 
-        foreach (var transitionConfiguration in this.transitionConfigurations)
-        {
-            var transition = transitionConfiguration.Build(state);
-            transitionTable.Add(transition);
-        }
+        stateMachine.AddState(state);
 
         return state;
     }

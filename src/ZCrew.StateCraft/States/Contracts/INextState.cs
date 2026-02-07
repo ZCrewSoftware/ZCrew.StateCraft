@@ -6,13 +6,6 @@ internal interface INextState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    TState StateValue { get; }
-    IReadOnlyList<Type> TypeParameters { get; }
+    IState<TState, TTransition> State { get; }
     Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token);
-    Task ChangeState(
-        TState previousState,
-        TTransition transition,
-        IStateMachineParameters parameters,
-        CancellationToken token
-    );
 }
