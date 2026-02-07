@@ -198,6 +198,29 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     }
 
     /// <inheritdoc />
+    public Task<ITransition<TState, TTransition>> GetTransition<TNext>(
+        TTransition transition,
+        IStateMachineParameters parameters,
+        CancellationToken token
+    )
+    {
+        var parameter = StateMachine.GetCurrentParameter<TState, TTransition, T>();
+        var result = await this.transitionTable.LookupParameterizedTransition(
+            transition,
+            parameter,
+            nextParameter,
+            token
+        );
+        if (result == null)
+        {
+            throw new InvalidOperationException(
+                $"No parameterized transition could be found for: Transition={transition}, Previous={typeof(T)}, Next={typeof(TNext)}"
+            );
+        }
+        return result;
+    }
+
+    /// <inheritdoc />
     public async Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(
         TTransition transition,
         CancellationToken token

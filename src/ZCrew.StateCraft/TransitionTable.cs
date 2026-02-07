@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Diagnostics;
 using ZCrew.StateCraft.Parameters;
+using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft;
@@ -191,6 +192,70 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
             var stateMachineParameters = new StateMachineParameters();
             stateMachineParameters.SetNextParameter(next);
             if (!await transition.EvaluateConditions(stateMachineParameters, token))
+            {
+                continue;
+            }
+
+            return transition;
+        }
+
+        return null;
+    }
+
+    public async Task<ITransition<TState, TTransition>?> LookupTransition(
+        TTransition transitionValue,
+        IStateMachineParameters parameters,
+        CancellationToken token
+    )
+    {
+        foreach (var transition in this.transitions)
+        {
+            // Filter out transitions with other values
+            if (!EqualityComparer<TTransition>.Default.Equals(transition.TransitionValue, transitionValue))
+            {
+                continue;
+            }
+
+            // Filter out transitions with parameters
+            if (transition.TransitionTypeParameters.Count != 0)
+            {
+                continue;
+            }
+
+            // Filter out transitions that failed conditions
+            if (!await transition.EvaluateConditions(parameters, token))
+            {
+                continue;
+            }
+
+            return transition;
+        }
+
+        return null;
+    }
+
+    public async Task<ITransition<TState, TTransition>?> LookupTransition<T>(
+        TTransition transitionValue,
+        IStateMachineParameters parameters,
+        CancellationToken token
+    )
+    {
+        foreach (var transition in this.transitions)
+        {
+            // Filter out transitions with other values
+            if (!EqualityComparer<TTransition>.Default.Equals(transition.TransitionValue, transitionValue))
+            {
+                continue;
+            }
+
+            // Filter out transitions with parameters
+            if (transition.TransitionTypeParameters.IsAssignableFrom([typeof(T)]))
+            {
+                continue;
+            }
+
+            // Filter out transitions that failed conditions
+            if (!await transition.EvaluateConditions(parameters, token))
             {
                 continue;
             }

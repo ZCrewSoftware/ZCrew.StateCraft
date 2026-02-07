@@ -72,6 +72,23 @@ internal interface IState<TState, TTransition>
     );
 
     /// <summary>
+    ///     Gets the transition to the next state.
+    /// </summary>
+    /// <typeparam name="TNext">The type of the next state's parameter.</typeparam>
+    /// <param name="transition">The transition to look up.</param>
+    /// <param name="parameters">
+    ///     The current parameters and transition parameters.
+    /// </param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    /// <returns>The first matching transition whose type and conditions match.</returns>
+    /// <exception cref="InvalidOperationException">No matching transition was found.</exception>
+    Task<ITransition<TState, TTransition>> GetTransition<TNext>(
+        TTransition transition,
+        IStateMachineParameters parameters,
+        CancellationToken token
+    );
+
+    /// <summary>
     ///     Gets the transition to a parameterless next state, or <see langword="null"/> if no matching transition was
     ///     found.
     /// </summary>
