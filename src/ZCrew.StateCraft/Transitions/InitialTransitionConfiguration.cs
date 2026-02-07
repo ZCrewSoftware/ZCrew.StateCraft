@@ -25,6 +25,12 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     private readonly IPartialPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly TTransition transitionValue;
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="InitialTransitionConfiguration{TState, TTransition}"/> class.
+    /// </summary>
+    /// <param name="previousState">The previous state value for this transition.</param>
+    /// <param name="transition">The transition value that triggers this transition.</param>
     public InitialTransitionConfiguration(TState previousState, TTransition transition)
     {
         this.previousStateConfiguration = new PreviousStateConfiguration<TState, TTransition>(previousState);
@@ -97,6 +103,12 @@ internal class InitialTransitionConfiguration<TState, TTransition, TPrevious>
     private readonly IPartialPreviousStateConfiguration<TState, TTransition, TPrevious> previousStateConfiguration;
     private readonly TTransition transitionValue;
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="InitialTransitionConfiguration{TState, TTransition, TPrevious}"/> class.
+    /// </summary>
+    /// <param name="previousState">The previous state value for this transition.</param>
+    /// <param name="transition">The transition value that triggers this transition.</param>
     public InitialTransitionConfiguration(TState previousState, TTransition transition)
     {
         this.previousStateConfiguration = new PreviousStateConfiguration<TState, TTransition, TPrevious>(previousState);

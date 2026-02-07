@@ -21,6 +21,13 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext>
     private readonly TTransition transitionValue;
     private readonly IMappingFunction mappingFunction;
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="PartialMappedTransitionConfiguration{TState, TTransition, TNext}"/> class.
+    /// </summary>
+    /// <param name="previousStateConfiguration">The configuration for the previous state.</param>
+    /// <param name="transition">The transition value that triggers this transition.</param>
+    /// <param name="mappingFunction">The mapping function that transforms the previous parameter.</param>
     public PartialMappedTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
         TTransition transition,

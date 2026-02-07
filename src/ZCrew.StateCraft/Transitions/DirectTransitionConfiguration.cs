@@ -14,6 +14,13 @@ internal class DirectTransitionConfiguration<TState, TTransition> : ITransitionC
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly INextStateConfiguration<TState, TTransition> nextStateConfiguration;
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="DirectTransitionConfiguration{TState, TTransition}"/> class.
+    /// </summary>
+    /// <param name="previousStateConfiguration">The configuration for the previous state.</param>
+    /// <param name="nextStateConfiguration">The configuration for the next state.</param>
+    /// <param name="transition">The transition value that triggers this transition.</param>
     public DirectTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
         INextStateConfiguration<TState, TTransition> nextStateConfiguration,

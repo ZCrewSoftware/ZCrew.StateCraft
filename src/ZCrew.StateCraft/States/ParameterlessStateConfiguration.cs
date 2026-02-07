@@ -24,15 +24,23 @@ internal class ParameterlessStateConfiguration<TState, TTransition>
     private readonly List<IParameterlessActionConfiguration> actionConfigurations = [];
     private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="ParameterlessStateConfiguration{TState, TTransition}"/> class.
+    /// </summary>
+    /// <param name="state">The state value that identifies this state configuration.</param>
     public ParameterlessStateConfiguration(TState state)
     {
         State = state;
     }
 
+    /// <inheritdoc />
     public TState State { get; }
 
+    /// <inheritdoc />
     public IReadOnlyList<Type> TypeParameters { get; } = [];
 
+    /// <inheritdoc />
     public IEnumerable<ITransitionConfiguration<TState, TTransition>> Transitions => this.transitionConfigurations;
 
     /// <inheritdoc />

@@ -23,15 +23,23 @@ internal class ParameterizedStateConfiguration<TState, TTransition, T>
     private readonly List<IParameterizedActionConfiguration<T>> actionConfigurations = [];
     private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="ParameterizedStateConfiguration{TState, TTransition, T}"/> class.
+    /// </summary>
+    /// <param name="state">The state value that identifies this state configuration.</param>
     public ParameterizedStateConfiguration(TState state)
     {
         State = state;
     }
 
+    /// <inheritdoc />
     public TState State { get; }
 
+    /// <inheritdoc />
     public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T)];
 
+    /// <inheritdoc />
     public IEnumerable<ITransitionConfiguration<TState, TTransition>> Transitions => this.transitionConfigurations;
 
     /// <inheritdoc />

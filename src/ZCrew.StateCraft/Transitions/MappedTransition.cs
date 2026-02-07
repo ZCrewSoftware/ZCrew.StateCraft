@@ -27,6 +27,14 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
     private readonly IMappingFunction mappingFunction;
     private readonly IStateMachine<TState, TTransition> stateMachine;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="MappedTransition{TState, TTransition}"/> class.
+    /// </summary>
+    /// <param name="previous">The previous state in the transition.</param>
+    /// <param name="next">The next state in the transition.</param>
+    /// <param name="transition">The transition value that triggers this transition.</param>
+    /// <param name="mappingFunction">The mapping function that transforms the previous parameter.</param>
+    /// <param name="stateMachine">The state machine that owns this transition.</param>
     public MappedTransition(
         IPreviousState<TState, TTransition> previous,
         INextState<TState, TTransition> next,

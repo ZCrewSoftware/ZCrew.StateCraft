@@ -37,6 +37,17 @@ internal class ParameterizedState<TState, TTransition, T>
     private readonly IReadOnlyList<IParameterizedAction<T>> actions;
     private readonly TransitionTable<TState, TTransition> transitionTable = [];
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ParameterizedState{TState, TTransition, T}"/> class.
+    /// </summary>
+    /// <param name="state">The state value that identifies this state.</param>
+    /// <param name="onActivateHandlers">Handlers invoked when the state machine is activated.</param>
+    /// <param name="onDeactivateHandlers">Handlers invoked when the state machine is deactivated.</param>
+    /// <param name="onStateChangeHandlers">Handlers invoked when a state change occurs.</param>
+    /// <param name="onEntryHandlers">Handlers invoked when entering this state.</param>
+    /// <param name="onExitHandlers">Handlers invoked when exiting this state.</param>
+    /// <param name="actions">The actions associated with this state.</param>
+    /// <param name="stateMachine">The state machine that owns this state.</param>
     public ParameterizedState(
         TState state,
         IReadOnlyList<IAsyncAction<TState, T>> onActivateHandlers,

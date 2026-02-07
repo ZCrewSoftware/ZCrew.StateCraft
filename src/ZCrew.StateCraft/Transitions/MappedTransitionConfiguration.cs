@@ -16,6 +16,14 @@ internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionC
     private readonly INextStateConfiguration<TState, TTransition> nextStateConfiguration;
     private readonly IMappingFunction mappingFunction;
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="MappedTransitionConfiguration{TState, TTransition}"/> class.
+    /// </summary>
+    /// <param name="previousStateConfiguration">The configuration for the previous state.</param>
+    /// <param name="nextStateConfiguration">The configuration for the next state.</param>
+    /// <param name="transition">The transition value that triggers this transition.</param>
+    /// <param name="mappingFunction">The mapping function that transforms the previous parameter.</param>
     public MappedTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
         INextStateConfiguration<TState, TTransition> nextStateConfiguration,

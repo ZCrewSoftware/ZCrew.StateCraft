@@ -24,6 +24,13 @@ internal class DirectTransition<TState, TTransition> : ITransition<TState, TTran
 {
     private readonly IStateMachine<TState, TTransition> stateMachine;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DirectTransition{TState, TTransition}"/> class.
+    /// </summary>
+    /// <param name="previous">The previous state in the transition.</param>
+    /// <param name="next">The next state in the transition.</param>
+    /// <param name="transitionValue">The transition value that triggers this transition.</param>
+    /// <param name="stateMachine">The state machine that owns this transition.</param>
     public DirectTransition(
         IPreviousState<TState, TTransition> previous,
         INextState<TState, TTransition> next,

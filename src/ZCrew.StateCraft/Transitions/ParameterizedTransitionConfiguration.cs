@@ -19,6 +19,12 @@ internal class ParameterizedTransitionConfiguration<TState, TTransition, TNext>
     private readonly IPartialNextStateConfiguration<TState, TTransition, TNext> nextStateConfiguration;
     private readonly TTransition transitionValue;
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="ParameterizedTransitionConfiguration{TState, TTransition, TNext}"/> class.
+    /// </summary>
+    /// <param name="previousStateConfiguration">The configuration for the previous state.</param>
+    /// <param name="transition">The transition value that triggers this transition.</param>
     public ParameterizedTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
         TTransition transition
