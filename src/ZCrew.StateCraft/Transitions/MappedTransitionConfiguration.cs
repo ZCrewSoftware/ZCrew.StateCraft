@@ -47,17 +47,17 @@ internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionC
     public TState NextStateValue => this.nextStateConfiguration.StateValue;
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> PreviousStateTypeParameters => this.nextStateConfiguration.TypeParameters;
+    public IReadOnlyList<Type> PreviousStateTypeParameters => this.previousStateConfiguration.TypeParameters;
 
     /// <inheritdoc/>
     public IReadOnlyList<Type> TransitionTypeParameters { get; } = [];
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> NextStateTypeParameters => this.previousStateConfiguration.TypeParameters;
+    public IReadOnlyList<Type> NextStateTypeParameters => this.nextStateConfiguration.TypeParameters;
 
     /// <inheritdoc />
     public bool IsConditional =>
-        this.nextStateConfiguration.IsConditional || this.previousStateConfiguration.IsConditional;
+        this.previousStateConfiguration.IsConditional || this.nextStateConfiguration.IsConditional;
 
     /// <inheritdoc />
     public ITransition<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)

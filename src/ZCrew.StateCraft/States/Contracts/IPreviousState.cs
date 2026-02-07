@@ -26,7 +26,7 @@ internal interface IPreviousState<TState, TTransition>
     /// <summary>
     ///     Gets a value indicating whether this previous state has any conditions that must be evaluated.
     /// </summary>
-    public bool IsConditional { get; }
+    bool IsConditional { get; }
 
     /// <summary>
     ///     Evaluates any conditions associated with this previous state.

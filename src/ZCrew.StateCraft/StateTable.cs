@@ -35,7 +35,6 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
     ///     Adds the <paramref name="state"/> to the table.
     /// </summary>
     /// <param name="state">The state to add to the table.</param>
-    /// <exception cref="InvalidOperationException">If the parameter count of the state is unexpected.</exception>
     public void Add(IState<TState, TTransition> state)
     {
         this.states.Add(state);
@@ -57,6 +56,7 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
                 continue;
             }
 
+            // TODO MWZ: this pattern is messy and could be replaced once the state machine is refactored
             if (state.TypeParameters.Count != 0)
             {
                 continue;
@@ -85,12 +85,13 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
                 continue;
             }
 
+            // TODO MWZ: this pattern is messy and could be replaced once the state machine is refactored
             if (state.TypeParameters.Count != 1)
             {
                 continue;
             }
 
-            if (!state.TypeParameters.Single().IsAssignableFrom(typeof(T)))
+            if (!state.TypeParameters[0].IsAssignableFrom(typeof(T)))
             {
                 continue;
             }

@@ -32,7 +32,7 @@ internal interface ITransition<TState, TTransition>
     /// <summary>
     ///     The transition value.
     /// </summary>
-    public TTransition TransitionValue { get; }
+    TTransition TransitionValue { get; }
 
     /// <summary>
     ///     The type parameters of the transition. Empty if the transition can be invoked without providing a parameter.

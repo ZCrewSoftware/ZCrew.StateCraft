@@ -94,6 +94,8 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
     public async Task Transition(IStateMachineParameters parameters, CancellationToken token)
     {
         this.stateMachine.Tracker?.Transitioned(this);
+
+        // TODO MWZ: consider evaluating if mapping needs to be re-ran
         await this.mappingFunction.Map(parameters, token);
         await this.stateMachine.StateChange(Previous.State.StateValue, TransitionValue, Next.State.StateValue, token);
         await Next.State.StateChange(Previous.State.StateValue, TransitionValue, parameters, token);

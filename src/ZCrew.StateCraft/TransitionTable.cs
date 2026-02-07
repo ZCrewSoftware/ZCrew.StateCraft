@@ -65,6 +65,7 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
                 continue;
             }
 
+            // TODO MWZ: this pattern is messy and could be replaced once the state machine is refactored
             if (transition.Previous.State.TypeParameters.Count != 0)
             {
                 continue;
@@ -113,12 +114,13 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
                 continue;
             }
 
+            // TODO MWZ: this pattern is messy and could be replaced once the state machine is refactored
             if (transition.Previous.State.TypeParameters.Count != 1)
             {
                 continue;
             }
 
-            if (!transition.Previous.State.TypeParameters.Single().IsAssignableFrom(typeof(TPrevious)))
+            if (!transition.Previous.State.TypeParameters[0].IsAssignableFrom(typeof(TPrevious)))
             {
                 continue;
             }
@@ -169,6 +171,7 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
                 continue;
             }
 
+            // TODO MWZ: this pattern is messy and could be replaced once the state machine is refactored
             if (transition.Previous.State.TypeParameters.Count != 0)
             {
                 continue;
@@ -179,7 +182,7 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
                 continue;
             }
 
-            if (!transition.TransitionTypeParameters.Single().IsAssignableFrom(typeof(TNext)))
+            if (!transition.TransitionTypeParameters[0].IsAssignableFrom(typeof(TNext)))
             {
                 continue;
             }
@@ -226,12 +229,13 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
                 continue;
             }
 
+            // TODO MWZ: this pattern is messy and could be replaced once the state machine is refactored
             if (transition.Previous.State.TypeParameters.Count != 1)
             {
                 continue;
             }
 
-            if (!transition.Previous.State.TypeParameters.Single().IsAssignableFrom(typeof(TPrevious)))
+            if (!transition.Previous.State.TypeParameters[0].IsAssignableFrom(typeof(TPrevious)))
             {
                 continue;
             }
@@ -241,7 +245,7 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
                 continue;
             }
 
-            if (!transition.TransitionTypeParameters.Single().IsAssignableFrom(typeof(TNext)))
+            if (!transition.TransitionTypeParameters[0].IsAssignableFrom(typeof(TNext)))
             {
                 continue;
             }
