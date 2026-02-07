@@ -26,7 +26,7 @@ internal enum StateMachineParametersFlags
 
     /// <summary>
     /// The next parameter slot has been set.
-    /// This flag is set by <see cref="IStateMachineParameters.SetNextParameters"/>.
+    /// This flag is set by <see cref="IStateMachineParameters.SetNextParameter{T}"/>.
     /// </summary>
     NextParametersSet = 1 << 2,
 }

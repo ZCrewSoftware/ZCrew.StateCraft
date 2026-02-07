@@ -9,11 +9,11 @@ namespace ZCrew.StateCraft.UnitTests.Mapping;
 public class MappingFunctionTests
 {
     [Fact]
-    public async Task Map_TIn_TOut_WhenCalled_ShouldSetNextParametersFromFunctionResult()
+    public async Task Map_TIn_TOut_WhenCalled_ShouldSetNextParameterFromFunctionResult()
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(42);
+        parameters.GetPreviousParameter<int>().Returns(42);
 
         var function = Substitute.For<IAsyncFunc<int, string>>();
         function.InvokeAsync(42, Arg.Any<CancellationToken>()).Returns("result");
@@ -24,7 +24,7 @@ public class MappingFunctionTests
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
 
         // Assert
-        parameters.Received(1).SetNextParameters(Arg.Is<object?[]>(p => p.SequenceEqual(new object?[] { "result" })));
+        parameters.Received(1).SetNextParameter("result");
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public class MappingFunctionTests
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(42);
+        parameters.GetPreviousParameter<int>().Returns(42);
 
         var function = Substitute.For<IAsyncFunc<int, string>>();
         function.InvokeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns("result");
@@ -47,11 +47,11 @@ public class MappingFunctionTests
     }
 
     [Fact]
-    public async Task Map_TIn_TOut_WhenFunctionThrows_ShouldNotSetNextParameters()
+    public async Task Map_TIn_TOut_WhenFunctionThrows_ShouldNotSetNextParameter()
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(42);
+        parameters.GetPreviousParameter<int>().Returns(42);
 
         var function = Substitute.For<IAsyncFunc<int, string>>();
         function.InvokeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()).ThrowsAsync(new InvalidOperationException());
@@ -63,15 +63,15 @@ public class MappingFunctionTests
 
         // Assert
         await Assert.ThrowsAsync<InvalidOperationException>(act);
-        parameters.DidNotReceive().SetNextParameters(Arg.Any<object?[]>());
+        parameters.DidNotReceive().SetNextParameter(Arg.Any<string>());
     }
 
     [Fact]
-    public async Task Map_TIn_TOut_WhenCalledMultipleTimes_ShouldSetNextParametersEachTime()
+    public async Task Map_TIn_TOut_WhenCalledMultipleTimes_ShouldSetNextParameterEachTime()
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1, 2);
+        parameters.GetPreviousParameter<int>().Returns(1, 2);
 
         var function = Substitute.For<IAsyncFunc<int, string>>();
         function.InvokeAsync(1, Arg.Any<CancellationToken>()).Returns("first");
@@ -84,17 +84,16 @@ public class MappingFunctionTests
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
 
         // Assert
-        parameters.Received(1).SetNextParameters(Arg.Is<object?[]>(p => p.SequenceEqual(new object?[] { "first" })));
-        parameters.Received(1).SetNextParameters(Arg.Is<object?[]>(p => p.SequenceEqual(new object?[] { "second" })));
+        parameters.Received(1).SetNextParameter("first");
+        parameters.Received(1).SetNextParameter("second");
     }
 
     [Fact]
-    public async Task Map_TIn1_TIn2_TOut_WhenCalled_ShouldSetNextParametersFromFunctionResult()
+    public async Task Map_TIn1_TIn2_TOut_WhenCalled_ShouldSetNextParameterFromFunctionResult()
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1);
-        parameters.GetPreviousParameter<string>(1).Returns("input");
+        parameters.GetPreviousParameters<int, string>().Returns((1, "input"));
 
         var function = Substitute.For<IAsyncFunc<int, string, double>>();
         function.InvokeAsync(1, "input", Arg.Any<CancellationToken>()).Returns(3.14);
@@ -105,7 +104,7 @@ public class MappingFunctionTests
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
 
         // Assert
-        parameters.Received(1).SetNextParameters(Arg.Is<object?[]>(p => p.SequenceEqual(new object?[] { 3.14 })));
+        parameters.Received(1).SetNextParameter(3.14);
     }
 
     [Fact]
@@ -113,8 +112,7 @@ public class MappingFunctionTests
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1);
-        parameters.GetPreviousParameter<string>(1).Returns("input");
+        parameters.GetPreviousParameters<int, string>().Returns((1, "input"));
 
         var function = Substitute.For<IAsyncFunc<int, string, double>>();
         function.InvokeAsync(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(3.14);
@@ -129,12 +127,11 @@ public class MappingFunctionTests
     }
 
     [Fact]
-    public async Task Map_TIn1_TIn2_TOut_WhenFunctionThrows_ShouldNotSetNextParameters()
+    public async Task Map_TIn1_TIn2_TOut_WhenFunctionThrows_ShouldNotSetNextParameter()
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1);
-        parameters.GetPreviousParameter<string>(1).Returns("input");
+        parameters.GetPreviousParameters<int, string>().Returns((1, "input"));
 
         var function = Substitute.For<IAsyncFunc<int, string, double>>();
         function
@@ -148,17 +145,15 @@ public class MappingFunctionTests
 
         // Assert
         await Assert.ThrowsAsync<InvalidOperationException>(act);
-        parameters.DidNotReceive().SetNextParameters(Arg.Any<object?[]>());
+        parameters.DidNotReceive().SetNextParameter(Arg.Any<double>());
     }
 
     [Fact]
-    public async Task Map_TIn1_TIn2_TIn3_TOut_WhenCalled_ShouldSetNextParametersFromFunctionResult()
+    public async Task Map_TIn1_TIn2_TIn3_TOut_WhenCalled_ShouldSetNextParameterFromFunctionResult()
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1);
-        parameters.GetPreviousParameter<string>(1).Returns("input");
-        parameters.GetPreviousParameter<bool>(2).Returns(true);
+        parameters.GetPreviousParameters<int, string, bool>().Returns((1, "input", true));
 
         var function = Substitute.For<IAsyncFunc<int, string, bool, double>>();
         function.InvokeAsync(1, "input", true, Arg.Any<CancellationToken>()).Returns(3.14);
@@ -169,7 +164,7 @@ public class MappingFunctionTests
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
 
         // Assert
-        parameters.Received(1).SetNextParameters(Arg.Is<object?[]>(p => p.SequenceEqual(new object?[] { 3.14 })));
+        parameters.Received(1).SetNextParameter(3.14);
     }
 
     [Fact]
@@ -177,9 +172,7 @@ public class MappingFunctionTests
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1);
-        parameters.GetPreviousParameter<string>(1).Returns("input");
-        parameters.GetPreviousParameter<bool>(2).Returns(true);
+        parameters.GetPreviousParameters<int, string, bool>().Returns((1, "input", true));
 
         var function = Substitute.For<IAsyncFunc<int, string, bool, double>>();
         function
@@ -196,13 +189,11 @@ public class MappingFunctionTests
     }
 
     [Fact]
-    public async Task Map_TIn1_TIn2_TIn3_TOut_WhenFunctionThrows_ShouldNotSetNextParameters()
+    public async Task Map_TIn1_TIn2_TIn3_TOut_WhenFunctionThrows_ShouldNotSetNextParameter()
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1);
-        parameters.GetPreviousParameter<string>(1).Returns("input");
-        parameters.GetPreviousParameter<bool>(2).Returns(true);
+        parameters.GetPreviousParameters<int, string, bool>().Returns((1, "input", true));
 
         var function = Substitute.For<IAsyncFunc<int, string, bool, double>>();
         function
@@ -216,18 +207,15 @@ public class MappingFunctionTests
 
         // Assert
         await Assert.ThrowsAsync<InvalidOperationException>(act);
-        parameters.DidNotReceive().SetNextParameters(Arg.Any<object?[]>());
+        parameters.DidNotReceive().SetNextParameter(Arg.Any<double>());
     }
 
     [Fact]
-    public async Task Map_TIn1_TIn2_TIn3_TIn4_TOut_WhenCalled_ShouldSetNextParametersFromFunctionResult()
+    public async Task Map_TIn1_TIn2_TIn3_TIn4_TOut_WhenCalled_ShouldSetNextParameterFromFunctionResult()
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1);
-        parameters.GetPreviousParameter<string>(1).Returns("input");
-        parameters.GetPreviousParameter<bool>(2).Returns(true);
-        parameters.GetPreviousParameter<char>(3).Returns('x');
+        parameters.GetPreviousParameters<int, string, bool, char>().Returns((1, "input", true, 'x'));
 
         var function = Substitute.For<IAsyncFunc<int, string, bool, char, double>>();
         function.InvokeAsync(1, "input", true, 'x', Arg.Any<CancellationToken>()).Returns(3.14);
@@ -238,7 +226,7 @@ public class MappingFunctionTests
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
 
         // Assert
-        parameters.Received(1).SetNextParameters(Arg.Is<object?[]>(p => p.SequenceEqual(new object?[] { 3.14 })));
+        parameters.Received(1).SetNextParameter(3.14);
     }
 
     [Fact]
@@ -246,10 +234,7 @@ public class MappingFunctionTests
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1);
-        parameters.GetPreviousParameter<string>(1).Returns("input");
-        parameters.GetPreviousParameter<bool>(2).Returns(true);
-        parameters.GetPreviousParameter<char>(3).Returns('x');
+        parameters.GetPreviousParameters<int, string, bool, char>().Returns((1, "input", true, 'x'));
 
         var function = Substitute.For<IAsyncFunc<int, string, bool, char, double>>();
         function
@@ -272,14 +257,11 @@ public class MappingFunctionTests
     }
 
     [Fact]
-    public async Task Map_TIn1_TIn2_TIn3_TIn4_TOut_WhenFunctionThrows_ShouldNotSetNextParameters()
+    public async Task Map_TIn1_TIn2_TIn3_TIn4_TOut_WhenFunctionThrows_ShouldNotSetNextParameter()
     {
         // Arrange
         var parameters = Substitute.For<IStateMachineParameters>();
-        parameters.GetPreviousParameter<int>(0).Returns(1);
-        parameters.GetPreviousParameter<string>(1).Returns("input");
-        parameters.GetPreviousParameter<bool>(2).Returns(true);
-        parameters.GetPreviousParameter<char>(3).Returns('x');
+        parameters.GetPreviousParameters<int, string, bool, char>().Returns((1, "input", true, 'x'));
 
         var function = Substitute.For<IAsyncFunc<int, string, bool, char, double>>();
         function
@@ -299,6 +281,6 @@ public class MappingFunctionTests
 
         // Assert
         await Assert.ThrowsAsync<InvalidOperationException>(act);
-        parameters.DidNotReceive().SetNextParameters(Arg.Any<object?[]>());
+        parameters.DidNotReceive().SetNextParameter(Arg.Any<double>());
     }
 }
