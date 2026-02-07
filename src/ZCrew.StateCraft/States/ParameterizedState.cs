@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
+using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
+using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.States;
 
@@ -18,7 +20,7 @@ namespace ZCrew.StateCraft.States;
 /// </typeparam>
 /// <typeparam name="T">The type of the parameter for this state.</typeparam>
 [DebuggerDisplay("{DisplayString}")]
-internal class ParameterizedState<TState, TTransition, T> : IParameterizedState<TState, TTransition, T>
+internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -30,8 +32,19 @@ internal class ParameterizedState<TState, TTransition, T> : IParameterizedState<
     private readonly IReadOnlyList<IAsyncAction<T>> onEntryHandlers;
     private readonly IReadOnlyList<IAsyncAction<T>> onExitHandlers;
     private readonly IReadOnlyList<IParameterizedAction<T>> actions;
-    private readonly TransitionTable<TState, TTransition> transitionTable;
+    private readonly TransitionTable<TState, TTransition> transitionTable = [];
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ParameterizedState{TState, TTransition, T}"/> class.
+    /// </summary>
+    /// <param name="state">The state value that identifies this state.</param>
+    /// <param name="onActivateHandlers">Handlers invoked when the state machine is activated.</param>
+    /// <param name="onDeactivateHandlers">Handlers invoked when the state machine is deactivated.</param>
+    /// <param name="onStateChangeHandlers">Handlers invoked when a state change occurs.</param>
+    /// <param name="onEntryHandlers">Handlers invoked when entering this state.</param>
+    /// <param name="onExitHandlers">Handlers invoked when exiting this state.</param>
+    /// <param name="actions">The actions associated with this state.</param>
+    /// <param name="stateMachine">The state machine that owns this state.</param>
     public ParameterizedState(
         TState state,
         IReadOnlyList<IAsyncAction<TState, T>> onActivateHandlers,
@@ -40,8 +53,7 @@ internal class ParameterizedState<TState, TTransition, T> : IParameterizedState<
         IReadOnlyList<IAsyncAction<T>> onEntryHandlers,
         IReadOnlyList<IAsyncAction<T>> onExitHandlers,
         IReadOnlyList<IParameterizedAction<T>> actions,
-        IStateMachine<TState, TTransition> stateMachine,
-        TransitionTable<TState, TTransition> transitionTable
+        IStateMachine<TState, TTransition> stateMachine
     )
     {
         StateValue = state;
@@ -52,7 +64,6 @@ internal class ParameterizedState<TState, TTransition, T> : IParameterizedState<
         this.onExitHandlers = onExitHandlers;
         this.actions = actions;
         StateMachine = stateMachine;
-        this.transitionTable = transitionTable;
     }
 
     /// <inheritdoc />
@@ -90,8 +101,14 @@ internal class ParameterizedState<TState, TTransition, T> : IParameterizedState<
     }
 
     /// <inheritdoc />
-    public async Task StateChange(TState previousState, TTransition transition, T parameter, CancellationToken token)
+    public async Task StateChange(
+        TState previousState,
+        TTransition transition,
+        IStateMachineParameters parameters,
+        CancellationToken token
+    )
     {
+        var parameter = parameters.GetNextParameter<T>(0);
         foreach (var handler in this.onStateChangeHandlers)
         {
             await StateMachine.RunWithExceptionHandling(
@@ -135,6 +152,12 @@ internal class ParameterizedState<TState, TTransition, T> : IParameterizedState<
                 token
             );
         }
+    }
+
+    /// <inheritdoc />
+    public void AddTransition(ITransition<TState, TTransition> transition)
+    {
+        this.transitionTable.Add(transition);
     }
 
     /// <inheritdoc />

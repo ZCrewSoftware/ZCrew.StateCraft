@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Contracts;
@@ -8,8 +7,7 @@ using ZCrew.StateCraft.Transitions.Contracts;
 namespace ZCrew.StateCraft.Transitions;
 
 /// <summary>
-///     A parameterized transition from a parameterized state that applies a mapping function the previous parameter.
-///     This means that the user does not need to provide a parameter for this transition.
+///     A direct transition from a state.
 /// </summary>
 /// <typeparam name="TState">
 ///     The state type. This should be an <see langword="enum"/> type or it should be an equatable type so the state
@@ -20,33 +18,29 @@ namespace ZCrew.StateCraft.Transitions;
 ///     state machine behaves as expected.
 /// </typeparam>
 [DebuggerDisplay("{ToDisplayString()}")]
-internal class MappedTransition<TState, TTransition> : ITransition<TState, TTransition>
+internal class DirectTransition<TState, TTransition> : ITransition<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IMappingFunction mappingFunction;
     private readonly IStateMachine<TState, TTransition> stateMachine;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="MappedTransition{TState, TTransition}"/> class.
+    ///     Initializes a new instance of the <see cref="DirectTransition{TState, TTransition}"/> class.
     /// </summary>
     /// <param name="previous">The previous state in the transition.</param>
     /// <param name="next">The next state in the transition.</param>
-    /// <param name="transition">The transition value that triggers this transition.</param>
-    /// <param name="mappingFunction">The mapping function that transforms the previous parameter.</param>
+    /// <param name="transitionValue">The transition value that triggers this transition.</param>
     /// <param name="stateMachine">The state machine that owns this transition.</param>
-    public MappedTransition(
+    public DirectTransition(
         IPreviousState<TState, TTransition> previous,
         INextState<TState, TTransition> next,
-        TTransition transition,
-        IMappingFunction mappingFunction,
+        TTransition transitionValue,
         IStateMachine<TState, TTransition> stateMachine
     )
     {
         Previous = previous;
         Next = next;
-        TransitionValue = transition;
-        this.mappingFunction = mappingFunction;
+        TransitionValue = transitionValue;
         this.stateMachine = stateMachine;
     }
 
@@ -60,51 +54,38 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
     public TTransition TransitionValue { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> TransitionTypeParameters { get; } = [];
+    public IReadOnlyList<Type> TransitionTypeParameters => Next.State.TypeParameters;
 
     /// <inheritdoc />
-    public Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
+    public async Task Transition(IStateMachineParameters parameters, CancellationToken token)
     {
-        return this.stateMachine.RunWithExceptionHandling(
+        this.stateMachine.Tracker?.Transitioned(this);
+        await this.stateMachine.StateChange(Previous.State.StateValue, TransitionValue, Next.State.StateValue, token);
+        await Next.State.StateChange(Previous.State.StateValue, TransitionValue, parameters, token);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
+    {
+        return await this.stateMachine.RunWithExceptionHandling(
             async () =>
             {
-                // Evaluate conditions that use the previous state's parameter first
-                var previousResult = await Previous.EvaluateConditions(parameters, token);
-                if (!previousResult)
+                var previousStateCondition = await Previous.EvaluateConditions(parameters, token);
+                if (!previousStateCondition)
                 {
                     return false;
                 }
-
-                // Avoid mapping if there are no other conditions
-                if (!Next.IsConditional)
-                {
-                    return true;
-                }
-
-                await this.mappingFunction.Map(parameters, token);
-
-                // Evaluate conditions that use the next state's parameter
-                return await Next.EvaluateConditions(parameters, token);
+                var nextStateCondition = await Next.EvaluateConditions(parameters, token);
+                return nextStateCondition;
             },
             token
         );
     }
 
     /// <inheritdoc />
-    public async Task Transition(IStateMachineParameters parameters, CancellationToken token)
-    {
-        this.stateMachine.Tracker?.Transitioned(this);
-
-        // TODO MWZ: consider evaluating if mapping needs to be re-ran
-        await this.mappingFunction.Map(parameters, token);
-        await this.stateMachine.StateChange(Previous.State.StateValue, TransitionValue, Next.State.StateValue, token);
-        await Next.State.StateChange(Previous.State.StateValue, TransitionValue, parameters, token);
-    }
-
-    /// <inheritdoc />
     public override string ToString()
     {
-        return $"Mapped Transition: {ToDisplayString()}";
+        return $"Transition: {ToDisplayString()}";
     }
 
     private string ToDisplayString()

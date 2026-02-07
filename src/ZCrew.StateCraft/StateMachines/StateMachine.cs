@@ -8,6 +8,7 @@ using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Tracking;
 using ZCrew.StateCraft.Tracking.Contracts;
+using ZCrew.StateCraft.Transitions.Contracts;
 using ZCrew.StateCraft.Triggers.Contracts;
 
 namespace ZCrew.StateCraft.StateMachines;
@@ -34,14 +35,12 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     /// <param name="stateMachineActivator">The initial state producer.</param>
     /// <param name="onStateChanges">The handlers to invoke when the state changes.</param>
     /// <param name="onExceptionHandlers">The handlers to invoke when an exception is thrown.</param>
-    /// <param name="stateTable">The state table.</param>
     /// <param name="triggers">The triggers that can control this state machine.</param>
     /// <param name="options">The options to enable certain features on this state machine.</param>
     public StateMachine(
         IStateMachineActivator<TState, TTransition> stateMachineActivator,
         IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges,
         IReadOnlyList<IAsyncFunc<Exception, ExceptionResult>> onExceptionHandlers,
-        StateTable<TState, TTransition> stateTable,
         IReadOnlyList<ITrigger> triggers,
         StateMachineOptions options
     )
@@ -49,7 +48,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         this.stateMachineActivator = stateMachineActivator;
         this.onStateChanges = onStateChanges;
         this.onExceptionHandlers = onExceptionHandlers;
-        StateTable = stateTable;
         this.triggers = triggers;
         this.options = options;
 
@@ -57,7 +55,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     }
 
     /// <inheritdoc />
-    public StateTable<TState, TTransition> StateTable { get; }
+    public StateTable<TState, TTransition> StateTable { get; } = [];
 
     /// <inheritdoc />
     public ITracker<TState, TTransition>? Tracker { get; private set; }
@@ -167,7 +165,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
         this.internalState = InternalState.Transitioning;
-        await CurrentTransition.Transition(token);
+        await CurrentTransition.Transition(Parameters, token);
         this.internalState = InternalState.Transitioned;
 
         CurrentTransition = null;
@@ -348,7 +346,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         {
             CurrentTransition = await CurrentState.GetTransition(transition, token);
             Parameters.SetNextParameters([null]);
-            NextState = CurrentTransition.NextState;
+            NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
             await EnterState(transitionLock, token);
@@ -376,7 +374,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         {
             CurrentTransition = await CurrentState.GetTransition(transition, parameter, token);
             Parameters.SetNextParameters([parameter]);
-            NextState = CurrentTransition.NextState;
+            NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
             await EnterState(transitionLock, token);
@@ -439,7 +437,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         try
         {
             Parameters.SetNextParameters([null]);
-            NextState = CurrentTransition.NextState;
+            NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
             await EnterState(transitionLock, token);
@@ -473,7 +471,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         try
         {
             Parameters.SetNextParameters([parameter]);
-            NextState = CurrentTransition.NextState;
+            NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
             await EnterState(transitionLock, token);
@@ -502,6 +500,12 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
                 token
             );
         }
+    }
+
+    /// <inheritdoc />
+    public void AddState(IState<TState, TTransition> state)
+    {
+        StateTable.Add(state);
     }
 
     /// <inheritdoc />

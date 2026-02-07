@@ -24,22 +24,29 @@ internal class ParameterlessStateConfiguration<TState, TTransition>
     private readonly List<IParameterlessActionConfiguration> actionConfigurations = [];
     private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="ParameterlessStateConfiguration{TState, TTransition}"/> class.
+    /// </summary>
+    /// <param name="state">The state value that identifies this state configuration.</param>
     public ParameterlessStateConfiguration(TState state)
     {
         State = state;
     }
 
+    /// <inheritdoc />
     public TState State { get; }
 
+    /// <inheritdoc />
     public IReadOnlyList<Type> TypeParameters { get; } = [];
 
+    /// <inheritdoc />
     public IEnumerable<ITransitionConfiguration<TState, TTransition>> Transitions => this.transitionConfigurations;
 
     /// <inheritdoc />
     public IState<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var actions = this.actionConfigurations.Select(action => action.Build()).ToList();
-        var transitionTable = new TransitionTable<TState, TTransition>();
         var state = new ParameterlessState<TState, TTransition>(
             State,
             this.onActivateHandlers,
@@ -48,15 +55,10 @@ internal class ParameterlessStateConfiguration<TState, TTransition>
             this.onEntryHandlers,
             this.onExitHandlers,
             actions,
-            stateMachine,
-            transitionTable
+            stateMachine
         );
 
-        foreach (var transitionConfiguration in this.transitionConfigurations)
-        {
-            var transition = transitionConfiguration.Build(state);
-            transitionTable.Add(transition);
-        }
+        stateMachine.AddState(state);
 
         return state;
     }

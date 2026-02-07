@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.Transitions.Contracts;
+
 namespace ZCrew.StateCraft.Tracking.Contracts;
 
 /// <summary>

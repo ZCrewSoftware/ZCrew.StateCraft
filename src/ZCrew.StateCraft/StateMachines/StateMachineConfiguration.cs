@@ -47,13 +47,11 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
             StateMachineValidation.Validate(this);
         }
 
-        var stateTable = new StateTable<TState, TTransition>();
         var triggers = new List<ITrigger>();
         var stateMachine = new StateMachine<TState, TTransition>(
             this.initialStateProducer,
             this.onStateChanges,
             this.onExceptionHandlers,
-            stateTable,
             triggers,
             this.stateMachineOptions
         );
@@ -64,10 +62,17 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
             triggers.Add(trigger);
         }
 
+        // Defer transition configurations until all the states are populated so lookups can be made during building
+        var transitionConfigurations = new List<ITransitionConfiguration<TState, TTransition>>();
         foreach (var stateConfiguration in this.stateConfigurations)
         {
-            var state = stateConfiguration.Build(stateMachine);
-            stateTable.Add(state);
+            stateConfiguration.Build(stateMachine);
+            transitionConfigurations.AddRange(stateConfiguration.Transitions);
+        }
+
+        foreach (var transitionConfiguration in transitionConfigurations)
+        {
+            transitionConfiguration.Build(stateMachine);
         }
 
         return stateMachine;

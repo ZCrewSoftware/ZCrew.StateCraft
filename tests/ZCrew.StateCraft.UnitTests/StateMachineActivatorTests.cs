@@ -11,7 +11,7 @@ public class StateMachineActivatorTests
     public async Task Activate_WhenValueConstructor_ShouldReturnStateFromTable()
     {
         // Arrange
-        var expectedState = Substitute.ForPartsOf<StubParameterlessState<string, string>>("State");
+        var expectedState = Substitute.ForPartsOf<StubState<string, string>>("State");
         var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
         var activator = new StateMachineActivator<string, string>("State");
 
@@ -27,7 +27,7 @@ public class StateMachineActivatorTests
     public async Task Activate_WhenFuncConstructor_ShouldInvokeFuncAndReturnStateFromTable()
     {
         // Arrange
-        var expectedState = Substitute.ForPartsOf<StubParameterlessState<string, string>>("State");
+        var expectedState = Substitute.ForPartsOf<StubState<string, string>>("State");
         var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
         var func = Substitute.For<IAsyncFunc<string>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns("State");
@@ -45,7 +45,7 @@ public class StateMachineActivatorTests
     public async Task Activate_WhenFuncConstructorCalledMultipleTimes_ShouldInvokeFuncEachTime()
     {
         // Arrange
-        var expectedState = Substitute.ForPartsOf<StubParameterlessState<string, string>>("State");
+        var expectedState = Substitute.ForPartsOf<StubState<string, string>>("State");
         var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
         var func = Substitute.For<IAsyncFunc<string>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns("State");
@@ -64,7 +64,7 @@ public class StateMachineActivatorTests
     public async Task Activate_T_WhenValueConstructor_ShouldReturnParameterizedStateFromTable()
     {
         // Arrange
-        var expectedState = Substitute.ForPartsOf<StubParameterizedState<string, string, int>>("State");
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int>>("State");
         var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
         var activator = new StateMachineActivator<string, string, int>("State", 42);
 
@@ -80,7 +80,7 @@ public class StateMachineActivatorTests
     public async Task Activate_T_WhenFuncConstructor_ShouldInvokeFuncAndReturnStateFromTable()
     {
         // Arrange
-        var expectedState = Substitute.ForPartsOf<StubParameterizedState<string, string, int>>("State");
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int>>("State");
         var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
         var func = Substitute.For<IAsyncFunc<(string, int)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42));
@@ -98,7 +98,7 @@ public class StateMachineActivatorTests
     public async Task Activate_T_WhenFuncConstructorCalledMultipleTimes_ShouldInvokeFuncEachTime()
     {
         // Arrange
-        var expectedState = Substitute.ForPartsOf<StubParameterizedState<string, string, int>>("State");
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int>>("State");
         var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
         var func = Substitute.For<IAsyncFunc<(string, int)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42));
@@ -118,7 +118,7 @@ public class StateMachineActivatorTests
     {
         // Arrange
         using var cts = new CancellationTokenSource();
-        var expectedState = Substitute.ForPartsOf<StubParameterizedState<string, string, int>>("State");
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int>>("State");
         var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
         var func = Substitute.For<IAsyncFunc<(string, int)>>();
         func.InvokeAsync(cts.Token).Returns(("State", 42));

@@ -2,6 +2,7 @@ using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Tracking.Contracts;
+using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.UnitTests.Stubs;
 
@@ -65,6 +66,8 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
     public StateTable<TState, TTransition> StateTable { get; set; }
 
     public ITracker<TState, TTransition>? Tracker { get; set; }
+
+    public void AddState(IState<TState, TTransition> state) { }
 
     public virtual Task Activate(CancellationToken token = default)
     {

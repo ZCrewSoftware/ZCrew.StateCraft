@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ZCrew.StateCraft.Tracking.Contracts;
+using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.Tracking;
 

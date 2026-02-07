@@ -1,90 +1,75 @@
+using ZCrew.StateCraft.Parameters.Contracts;
+using ZCrew.StateCraft.States.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.UnitTests.Stubs;
 
 /// <remarks>
-///     This stub provides common behavior for the properties of
-///     <see cref="IParameterlessTransition{TState,TTransition}"/>. To verify method behavior you should mock the
+///     This stub provides common behavior for a parameterless-to-parameterless transition implementing
+///     <see cref="ITransition{TState,TTransition}"/>. To verify method behavior you should mock the
 ///     methods as necessary.
 /// </remarks>
-internal class StubParameterlessTransition<TState, TTransition> : IParameterlessTransition<TState, TTransition>
+internal class StubParameterlessTransition<TState, TTransition> : ITransition<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
     public StubParameterlessTransition(TState previousState, TTransition transition, TState nextState)
     {
-        PreviousStateValue = previousState;
-        PreviousState = new StubParameterlessState<TState, TTransition>(previousState);
+        Previous = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition>(previousState));
         TransitionValue = transition;
-        NextStateValue = nextState;
-        NextState = new StubParameterlessState<TState, TTransition>(nextState);
+        Next = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition>(nextState));
     }
 
-    public TState PreviousStateValue { get; }
+    public IPreviousState<TState, TTransition> Previous { get; }
 
-    public IState<TState, TTransition> PreviousState { get; }
+    public INextState<TState, TTransition> Next { get; }
 
     public TTransition TransitionValue { get; }
 
-    public TState NextStateValue { get; }
-
-    public IState<TState, TTransition> NextState { get; }
-
-    public IReadOnlyList<Type> PreviousStateTypeParameters => [];
     public IReadOnlyList<Type> TransitionTypeParameters => [];
-    public IReadOnlyList<Type> NextStateTypeParameters => [];
 
-    public virtual Task Transition(CancellationToken token)
-    {
-        return Task.CompletedTask;
-    }
-
-    public virtual Task<bool> EvaluateConditions(CancellationToken token)
+    public virtual Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.FromResult(true);
+    }
+
+    public virtual Task Transition(IStateMachineParameters parameters, CancellationToken token)
+    {
+        return Task.CompletedTask;
     }
 }
 
 /// <remarks>
-///     This stub provides common behavior for the properties of
-///     <see cref="IParameterlessTransition{TState,TTransition,TPrevious}"/>. To verify method behavior you should mock
-///     the methods as necessary.
+///     This stub provides common behavior for a parameterized-to-parameterless transition implementing
+///     <see cref="ITransition{TState,TTransition}"/>. To verify method behavior you should mock the
+///     methods as necessary.
 /// </remarks>
-internal class StubParameterlessTransition<TState, TTransition, TPrevious>
-    : IParameterlessTransition<TState, TTransition, TPrevious>
+internal class StubParameterlessTransition<TState, TTransition, TPrevious> : ITransition<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
     public StubParameterlessTransition(TState previousState, TTransition transition, TState nextState)
     {
-        PreviousStateValue = previousState;
-        PreviousState = new StubParameterizedState<TState, TTransition, TPrevious>(previousState);
+        Previous = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition, TPrevious>(previousState));
         TransitionValue = transition;
-        NextStateValue = nextState;
-        NextState = new StubParameterlessState<TState, TTransition>(nextState);
+        Next = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition>(nextState));
     }
 
-    public TState PreviousStateValue { get; }
+    public IPreviousState<TState, TTransition> Previous { get; }
 
-    public IState<TState, TTransition> PreviousState { get; }
+    public INextState<TState, TTransition> Next { get; }
 
     public TTransition TransitionValue { get; }
 
-    public TState NextStateValue { get; }
-
-    public IState<TState, TTransition> NextState { get; }
-
-    public IReadOnlyList<Type> PreviousStateTypeParameters => [typeof(TPrevious)];
     public IReadOnlyList<Type> TransitionTypeParameters => [];
-    public IReadOnlyList<Type> NextStateTypeParameters => [];
 
-    public virtual Task Transition(CancellationToken token)
-    {
-        return Task.CompletedTask;
-    }
-
-    public virtual Task<bool> EvaluateConditions(TPrevious previousParameter, CancellationToken token)
+    public virtual Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.FromResult(true);
+    }
+
+    public virtual Task Transition(IStateMachineParameters parameters, CancellationToken token)
+    {
+        return Task.CompletedTask;
     }
 }

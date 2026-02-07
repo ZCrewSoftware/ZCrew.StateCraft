@@ -1,5 +1,8 @@
 using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Mapping;
+using ZCrew.StateCraft.States;
+using ZCrew.StateCraft.States.Configuration;
 
 namespace ZCrew.StateCraft.Transitions;
 
@@ -17,36 +20,41 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{this.transitionValue}({this.previousStateValue}) → ?";
+    private string DisplayString => $"{this.transitionValue}({this.previousStateConfiguration.StateValue}) → ?";
 
-    private readonly List<IAsyncFunc<bool>> previousConditions = [];
-    private readonly TState previousStateValue;
+    private readonly IPartialPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly TTransition transitionValue;
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="InitialTransitionConfiguration{TState, TTransition}"/> class.
+    /// </summary>
+    /// <param name="previousState">The previous state value for this transition.</param>
+    /// <param name="transition">The transition value that triggers this transition.</param>
     public InitialTransitionConfiguration(TState previousState, TTransition transition)
     {
-        this.previousStateValue = previousState;
+        this.previousStateConfiguration = new PreviousStateConfiguration<TState, TTransition>(previousState);
         this.transitionValue = transition;
     }
 
     /// <inheritdoc />
     public IInitialTransitionConfiguration<TState, TTransition> If(Func<bool> condition)
     {
-        this.previousConditions.Add(condition.AsAsyncFunc());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc());
         return this;
     }
 
     /// <inheritdoc />
     public IInitialTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, Task<bool>> condition)
     {
-        this.previousConditions.Add(condition.AsAsyncFunc());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc());
         return this;
     }
 
     /// <inheritdoc />
     public IInitialTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, ValueTask<bool>> condition)
     {
-        this.previousConditions.Add(condition.AsAsyncFunc());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc());
         return this;
     }
 
@@ -54,9 +62,8 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     public IParameterlessTransitionConfiguration<TState, TTransition> WithNoParameters()
     {
         return new ParameterlessTransitionConfiguration<TState, TTransition>(
-            this.previousStateValue,
-            this.transitionValue,
-            this.previousConditions
+            this.previousStateConfiguration,
+            this.transitionValue
         );
     }
 
@@ -64,9 +71,8 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     public IParameterizedTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>()
     {
         return new ParameterizedTransitionConfiguration<TState, TTransition, TNext>(
-            this.previousStateValue,
-            this.transitionValue,
-            this.previousConditions
+            this.previousStateConfiguration,
+            this.transitionValue
         );
     }
 
@@ -92,22 +98,27 @@ internal class InitialTransitionConfiguration<TState, TTransition, TPrevious>
     where TTransition : notnull
 {
     private string DisplayString =>
-        $"{this.transitionValue}({this.previousStateValue}<{typeof(TPrevious).FriendlyName}>) → ?";
+        $"{this.transitionValue}({this.previousStateConfiguration.StateValue}<{typeof(TPrevious).FriendlyName}>) → ?";
 
-    private readonly List<IAsyncFunc<TPrevious, bool>> previousConditions = [];
-    private readonly TState previousStateValue;
+    private readonly IPartialPreviousStateConfiguration<TState, TTransition, TPrevious> previousStateConfiguration;
     private readonly TTransition transitionValue;
 
+    /// <summary>
+    ///     Initializes a new instance of the
+    ///     <see cref="InitialTransitionConfiguration{TState, TTransition, TPrevious}"/> class.
+    /// </summary>
+    /// <param name="previousState">The previous state value for this transition.</param>
+    /// <param name="transition">The transition value that triggers this transition.</param>
     public InitialTransitionConfiguration(TState previousState, TTransition transition)
     {
-        this.previousStateValue = previousState;
+        this.previousStateConfiguration = new PreviousStateConfiguration<TState, TTransition, TPrevious>(previousState);
         this.transitionValue = transition;
     }
 
     /// <inheritdoc />
     public IInitialTransitionConfiguration<TState, TTransition, TPrevious> If(Func<TPrevious, bool> condition)
     {
-        this.previousConditions.Add(condition.AsAsyncFunc());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc());
         return this;
     }
 
@@ -116,7 +127,7 @@ internal class InitialTransitionConfiguration<TState, TTransition, TPrevious>
         Func<TPrevious, CancellationToken, Task<bool>> condition
     )
     {
-        this.previousConditions.Add(condition.AsAsyncFunc());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc());
         return this;
     }
 
@@ -125,40 +136,37 @@ internal class InitialTransitionConfiguration<TState, TTransition, TPrevious>
         Func<TPrevious, CancellationToken, ValueTask<bool>> condition
     )
     {
-        this.previousConditions.Add(condition.AsAsyncFunc());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc());
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterlessTransitionConfiguration<TState, TTransition, TPrevious> WithNoParameters()
+    public IParameterlessTransitionConfiguration<TState, TTransition> WithNoParameters()
     {
-        return new ParameterlessTransitionConfiguration<TState, TTransition, TPrevious>(
-            this.previousStateValue,
-            this.transitionValue,
-            this.previousConditions
+        return new ParameterlessTransitionConfiguration<TState, TTransition>(
+            this.previousStateConfiguration,
+            this.transitionValue
         );
     }
 
     /// <inheritdoc />
-    public IParameterizedTransitionConfiguration<TState, TTransition, TPrevious, TNext> WithParameter<TNext>()
+    public IParameterizedTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>()
     {
-        return new ParameterizedTransitionConfiguration<TState, TTransition, TPrevious, TNext>(
-            this.previousStateValue,
-            this.transitionValue,
-            this.previousConditions
+        return new ParameterizedTransitionConfiguration<TState, TTransition, TNext>(
+            this.previousStateConfiguration,
+            this.transitionValue
         );
     }
 
     /// <inheritdoc />
-    public IMappedTransitionConfiguration<TState, TTransition, TPrevious, TNext> WithMappedParameter<TNext>(
+    public IMappedTransitionConfiguration<TState, TTransition, TNext> WithMappedParameter<TNext>(
         Func<TPrevious, TNext> map
     )
     {
-        return new MappedTransitionConfiguration<TState, TTransition, TPrevious, TNext>(
-            this.previousStateValue,
+        return new PartialMappedTransitionConfiguration<TState, TTransition, TNext>(
+            this.previousStateConfiguration,
             this.transitionValue,
-            this.previousConditions,
-            map
+            new MappingFunction<TPrevious, TNext>(map.AsAsyncFunc())
         );
     }
 

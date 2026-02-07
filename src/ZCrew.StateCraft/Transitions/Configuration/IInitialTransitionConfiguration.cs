@@ -136,14 +136,14 @@ public interface IInitialTransitionConfiguration<TState, TTransition, TPrevious>
     ///     configuration is explicitly made, such as calling <see cref="WithParameter{TNext}"/>.
     /// </summary>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessTransitionConfiguration<TState, TTransition, TPrevious> WithNoParameters();
+    IParameterlessTransitionConfiguration<TState, TTransition> WithNoParameters();
 
     /// <summary>
     ///     Configures the transition to have one parameter.
     /// </summary>
     /// <typeparam name="TNext">The type of the parameter for the next state.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterizedTransitionConfiguration<TState, TTransition, TPrevious, TNext> WithParameter<TNext>();
+    IParameterizedTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>();
 
     /// <summary>
     ///     Configures the transition to map the previous parameter of type <typeparamref name="TPrevious"/> to the next
@@ -157,15 +157,13 @@ public interface IInitialTransitionConfiguration<TState, TTransition, TPrevious>
     ///     next state.
     /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IMappedTransitionConfiguration<TState, TTransition, TPrevious, TNext> WithMappedParameter<TNext>(
-        Func<TPrevious, TNext> map
-    );
+    IMappedTransitionConfiguration<TState, TTransition, TNext> WithMappedParameter<TNext>(Func<TPrevious, TNext> map);
 
     /// <summary>
     ///     Configures the transition to pass the parameter from the previous state to the next state, unchanged.
     /// </summary>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IMappedTransitionConfiguration<TState, TTransition, TPrevious, TPrevious> WithSameParameter()
+    IMappedTransitionConfiguration<TState, TTransition, TPrevious> WithSameParameter()
     {
         return WithMappedParameter(previous => previous);
     }
