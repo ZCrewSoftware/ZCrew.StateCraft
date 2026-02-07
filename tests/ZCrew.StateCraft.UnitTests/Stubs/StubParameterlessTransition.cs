@@ -15,11 +15,9 @@ internal class StubParameterlessTransition<TState, TTransition> : ITransition<TS
 {
     public StubParameterlessTransition(TState previousState, TTransition transition, TState nextState)
     {
-        Previous = new StubStateRef<TState, TTransition>(
-            new StubParameterlessState<TState, TTransition>(previousState)
-        );
+        Previous = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition>(previousState));
         TransitionValue = transition;
-        Next = new StubStateRef<TState, TTransition>(new StubParameterlessState<TState, TTransition>(nextState));
+        Next = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition>(nextState));
     }
 
     public IPreviousState<TState, TTransition> Previous { get; }
@@ -52,11 +50,9 @@ internal class StubParameterlessTransition<TState, TTransition, TPrevious> : ITr
 {
     public StubParameterlessTransition(TState previousState, TTransition transition, TState nextState)
     {
-        Previous = new StubStateRef<TState, TTransition>(
-            new StubParameterizedState<TState, TTransition, TPrevious>(previousState)
-        );
+        Previous = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition, TPrevious>(previousState));
         TransitionValue = transition;
-        Next = new StubStateRef<TState, TTransition>(new StubParameterlessState<TState, TTransition>(nextState));
+        Next = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition>(nextState));
     }
 
     public IPreviousState<TState, TTransition> Previous { get; }

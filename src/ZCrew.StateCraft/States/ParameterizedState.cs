@@ -3,7 +3,6 @@ using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
-using ZCrew.StateCraft.States.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.States;
@@ -21,9 +20,7 @@ namespace ZCrew.StateCraft.States;
 /// </typeparam>
 /// <typeparam name="T">The type of the parameter for this state.</typeparam>
 [DebuggerDisplay("{DisplayString}")]
-internal class ParameterizedState<TState, TTransition, T>
-    : IState<TState, TTransition>,
-        IParameterizedState<TState, TTransition, T>
+internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -104,7 +101,7 @@ internal class ParameterizedState<TState, TTransition, T>
     }
 
     /// <inheritdoc />
-    public Task StateChange(
+    public async Task StateChange(
         TState previousState,
         TTransition transition,
         IStateMachineParameters parameters,
@@ -112,12 +109,6 @@ internal class ParameterizedState<TState, TTransition, T>
     )
     {
         var parameter = parameters.GetNextParameter<T>(0);
-        return StateChange(previousState, transition, parameter, token);
-    }
-
-    /// <inheritdoc />
-    public async Task StateChange(TState previousState, TTransition transition, T parameter, CancellationToken token)
-    {
         foreach (var handler in this.onStateChangeHandlers)
         {
             await StateMachine.RunWithExceptionHandling(

@@ -24,6 +24,11 @@ internal interface IPreviousState<TState, TTransition>
     IState<TState, TTransition> State { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether this previous state has any conditions that must be evaluated.
+    /// </summary>
+    public bool IsConditional { get; }
+
+    /// <summary>
     ///     Evaluates any conditions associated with this previous state.
     /// </summary>
     /// <param name="parameters">The parameters for the current transition.</param>

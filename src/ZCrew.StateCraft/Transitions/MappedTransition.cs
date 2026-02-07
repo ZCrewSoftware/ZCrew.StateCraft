@@ -76,10 +76,10 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
                 }
 
                 // Avoid mapping if there are no other conditions
-                // if (!Next.IsConditional)
-                // {
-                //     return true;
-                // }
+                if (!Next.IsConditional)
+                {
+                    return true;
+                }
 
                 await this.mappingFunction.Map(parameters, token);
 

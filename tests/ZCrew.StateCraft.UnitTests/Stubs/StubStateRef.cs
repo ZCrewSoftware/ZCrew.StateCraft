@@ -19,7 +19,9 @@ internal class StubStateRef<TState, TTransition> : IPreviousState<TState, TTrans
 
     public IState<TState, TTransition> State { get; }
 
-    public Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
+    public virtual bool IsConditional => false;
+
+    public virtual Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.FromResult(true);
     }

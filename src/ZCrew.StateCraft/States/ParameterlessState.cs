@@ -3,7 +3,6 @@ using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
-using ZCrew.StateCraft.States.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.States;
@@ -20,9 +19,7 @@ namespace ZCrew.StateCraft.States;
 ///     state machine behaves as expected.
 /// </typeparam>
 [DebuggerDisplay("{DisplayString}")]
-internal class ParameterlessState<TState, TTransition>
-    : IState<TState, TTransition>,
-        IParameterlessState<TState, TTransition>
+internal class ParameterlessState<TState, TTransition> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -101,18 +98,12 @@ internal class ParameterlessState<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public Task StateChange(
+    public async Task StateChange(
         TState previousState,
         TTransition transition,
         IStateMachineParameters parameters,
         CancellationToken token
     )
-    {
-        return StateChange(previousState, transition, token);
-    }
-
-    /// <inheritdoc />
-    public async Task StateChange(TState previousState, TTransition transition, CancellationToken token)
     {
         foreach (var handler in this.onStateChangeHandlers)
         {

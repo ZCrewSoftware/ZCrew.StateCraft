@@ -36,6 +36,9 @@ internal class NextState<TState, TTransition> : INextState<TState, TTransition>
     public IState<TState, TTransition> State { get; }
 
     /// <inheritdoc />
+    public bool IsConditional => this.conditions.Count > 0;
+
+    /// <inheritdoc />
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
         foreach (var condition in this.conditions)
@@ -82,6 +85,9 @@ internal class NextState<TState, TTransition, T> : INextState<TState, TTransitio
 
     /// <inheritdoc />
     public IState<TState, TTransition> State { get; }
+
+    /// <inheritdoc />
+    public bool IsConditional => this.conditions.Count > 0;
 
     /// <inheritdoc />
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)

@@ -24,6 +24,11 @@ internal interface INextState<TState, TTransition>
     IState<TState, TTransition> State { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether this next state has any conditions that must be evaluated.
+    /// </summary>
+    bool IsConditional { get; }
+
+    /// <summary>
     ///     Evaluates any conditions associated with this next state.
     /// </summary>
     /// <param name="parameters">The parameters for the current transition.</param>

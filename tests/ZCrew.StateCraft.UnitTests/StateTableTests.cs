@@ -8,7 +8,7 @@ public class StateTableTests
     public void LookupState_WhenStateExists_ShouldReturnState()
     {
         // Arrange
-        var state = new StubParameterlessState<string, string>("A");
+        var state = new StubState<string, string>("A");
         var stateTable = new StateTable<string, string>([state]);
 
         // Act
@@ -22,8 +22,8 @@ public class StateTableTests
     public void LookupState_WhenMultipleStatesExist_ShouldReturnCorrectState()
     {
         // Arrange
-        var stateA = new StubParameterlessState<string, string>("A");
-        var stateB = new StubParameterlessState<string, string>("B");
+        var stateA = new StubState<string, string>("A");
+        var stateB = new StubState<string, string>("B");
         var stateTable = new StateTable<string, string>([stateA, stateB]);
 
         // Act
@@ -39,7 +39,7 @@ public class StateTableTests
     public void LookupState_WhenStateDoesNotExist_ShouldThrowInvalidOperationException()
     {
         // Arrange
-        var state = new StubParameterlessState<string, string>("A");
+        var state = new StubState<string, string>("A");
         var stateTable = new StateTable<string, string>([state]);
 
         // Act
@@ -66,7 +66,7 @@ public class StateTableTests
     public void LookupState_T_WhenStateExists_ShouldReturnState()
     {
         // Arrange
-        var state = new StubParameterizedState<string, string, int>("A");
+        var state = new StubState<string, string, int>("A");
         var stateTable = new StateTable<string, string>([state]);
 
         // Act
@@ -80,8 +80,8 @@ public class StateTableTests
     public void LookupState_T_WhenMultipleStatesExist_ShouldReturnCorrectState()
     {
         // Arrange
-        var stateA = new StubParameterizedState<string, string, int>("A");
-        var stateB = new StubParameterizedState<string, string, string>("B");
+        var stateA = new StubState<string, string, int>("A");
+        var stateB = new StubState<string, string, string>("B");
         var stateTable = new StateTable<string, string>([stateA, stateB]);
 
         // Act
@@ -97,7 +97,7 @@ public class StateTableTests
     public void LookupState_T_WhenStateDoesNotExist_ShouldThrowInvalidOperationException()
     {
         // Arrange
-        var state = new StubParameterizedState<string, string, int>("A");
+        var state = new StubState<string, string, int>("A");
         var stateTable = new StateTable<string, string>([state]);
 
         // Act
@@ -111,7 +111,7 @@ public class StateTableTests
     public void LookupState_T_WhenWrongParameterType_ShouldThrowInvalidOperationException()
     {
         // Arrange
-        var state = new StubParameterizedState<string, string, int>("A");
+        var state = new StubState<string, string, int>("A");
         var stateTable = new StateTable<string, string>([state]);
 
         // Act
