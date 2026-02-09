@@ -130,4 +130,235 @@ public class StateMachineActivatorTests
         // Assert
         await func.Received(1).InvokeAsync(cts.Token);
     }
+
+    [Fact]
+    public async Task Activate_T1_T2_WhenValueConstructor_ShouldReturnParameterizedStateFromTable()
+    {
+        // Arrange
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var activator = new StateMachineActivator<string, string, int, string>("State", 42, "hello");
+
+        // Act
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(expectedState, stateMachine.NextState);
+        var (p1, p2) = stateMachine.Parameters.GetNextParameters<int, string>();
+        Assert.Equal(42, p1);
+        Assert.Equal("hello", p2);
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_WhenFuncConstructor_ShouldInvokeFuncAndReturnStateFromTable()
+    {
+        // Arrange
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var func = Substitute.For<IAsyncFunc<(string, int, string)>>();
+        func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello"));
+
+        var activator = new StateMachineActivator<string, string, int, string>(func);
+
+        // Act
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+
+        // Assert
+        await func.Received(1).InvokeAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_WhenFuncConstructorCalledMultipleTimes_ShouldInvokeFuncEachTime()
+    {
+        // Arrange
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var func = Substitute.For<IAsyncFunc<(string, int, string)>>();
+        func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello"));
+
+        var activator = new StateMachineActivator<string, string, int, string>(func);
+
+        // Act
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+
+        // Assert
+        await func.Received(2).InvokeAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_WhenFuncConstructor_ShouldPassCancellationToken()
+    {
+        // Arrange
+        using var cts = new CancellationTokenSource();
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var func = Substitute.For<IAsyncFunc<(string, int, string)>>();
+        func.InvokeAsync(cts.Token).Returns(("State", 42, "hello"));
+
+        var activator = new StateMachineActivator<string, string, int, string>(func);
+
+        // Act
+        await activator.Activate(stateMachine, cts.Token);
+
+        // Assert
+        await func.Received(1).InvokeAsync(cts.Token);
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_T3_WhenValueConstructor_ShouldReturnParameterizedStateFromTable()
+    {
+        // Arrange
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var activator = new StateMachineActivator<string, string, int, string, double>("State", 42, "hello", 3.14);
+
+        // Act
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(expectedState, stateMachine.NextState);
+        var (p1, p2, p3) = stateMachine.Parameters.GetNextParameters<int, string, double>();
+        Assert.Equal(42, p1);
+        Assert.Equal("hello", p2);
+        Assert.Equal(3.14, p3);
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_T3_WhenFuncConstructor_ShouldInvokeFuncAndReturnStateFromTable()
+    {
+        // Arrange
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var func = Substitute.For<IAsyncFunc<(string, int, string, double)>>();
+        func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello", 3.14));
+
+        var activator = new StateMachineActivator<string, string, int, string, double>(func);
+
+        // Act
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+
+        // Assert
+        await func.Received(1).InvokeAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_T3_WhenFuncConstructorCalledMultipleTimes_ShouldInvokeFuncEachTime()
+    {
+        // Arrange
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var func = Substitute.For<IAsyncFunc<(string, int, string, double)>>();
+        func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello", 3.14));
+
+        var activator = new StateMachineActivator<string, string, int, string, double>(func);
+
+        // Act
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+
+        // Assert
+        await func.Received(2).InvokeAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_T3_WhenFuncConstructor_ShouldPassCancellationToken()
+    {
+        // Arrange
+        using var cts = new CancellationTokenSource();
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var func = Substitute.For<IAsyncFunc<(string, int, string, double)>>();
+        func.InvokeAsync(cts.Token).Returns(("State", 42, "hello", 3.14));
+
+        var activator = new StateMachineActivator<string, string, int, string, double>(func);
+
+        // Act
+        await activator.Activate(stateMachine, cts.Token);
+
+        // Assert
+        await func.Received(1).InvokeAsync(cts.Token);
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_T3_T4_WhenValueConstructor_ShouldReturnParameterizedStateFromTable()
+    {
+        // Arrange
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double, bool>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var activator = new StateMachineActivator<string, string, int, string, double, bool>(
+            "State",
+            42,
+            "hello",
+            3.14,
+            true
+        );
+
+        // Act
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(expectedState, stateMachine.NextState);
+        var (p1, p2, p3, p4) = stateMachine.Parameters.GetNextParameters<int, string, double, bool>();
+        Assert.Equal(42, p1);
+        Assert.Equal("hello", p2);
+        Assert.Equal(3.14, p3);
+        Assert.True(p4);
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_T3_T4_WhenFuncConstructor_ShouldInvokeFuncAndReturnStateFromTable()
+    {
+        // Arrange
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double, bool>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var func = Substitute.For<IAsyncFunc<(string, int, string, double, bool)>>();
+        func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello", 3.14, true));
+
+        var activator = new StateMachineActivator<string, string, int, string, double, bool>(func);
+
+        // Act
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+
+        // Assert
+        await func.Received(1).InvokeAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_T3_T4_WhenFuncConstructorCalledMultipleTimes_ShouldInvokeFuncEachTime()
+    {
+        // Arrange
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double, bool>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var func = Substitute.For<IAsyncFunc<(string, int, string, double, bool)>>();
+        func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello", 3.14, true));
+
+        var activator = new StateMachineActivator<string, string, int, string, double, bool>(func);
+
+        // Act
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
+
+        // Assert
+        await func.Received(2).InvokeAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_T3_T4_WhenFuncConstructor_ShouldPassCancellationToken()
+    {
+        // Arrange
+        using var cts = new CancellationTokenSource();
+        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double, bool>>("State");
+        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
+        var func = Substitute.For<IAsyncFunc<(string, int, string, double, bool)>>();
+        func.InvokeAsync(cts.Token).Returns(("State", 42, "hello", 3.14, true));
+
+        var activator = new StateMachineActivator<string, string, int, string, double, bool>(func);
+
+        // Act
+        await activator.Activate(stateMachine, cts.Token);
+
+        // Assert
+        await func.Received(1).InvokeAsync(cts.Token);
+    }
 }

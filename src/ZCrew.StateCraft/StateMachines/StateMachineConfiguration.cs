@@ -150,6 +150,150 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     }
 
     /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
+        TState state,
+        T1 parameter1,
+        T2 parameter2
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(
+            state,
+            parameter1,
+            parameter2
+        );
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
+        Func<(TState, T1, T2)> stateProvider
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(stateProvider.AsAsyncFunc());
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
+        Func<CancellationToken, Task<(TState, T1, T2)>> stateProvider
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(stateProvider.AsAsyncFunc());
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
+        Func<CancellationToken, ValueTask<(TState, T1, T2)>> stateProvider
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(stateProvider.AsAsyncFunc());
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
+        TState state,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
+            state,
+            parameter1,
+            parameter2,
+            parameter3
+        );
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
+        Func<(TState, T1, T2, T3)> stateProvider
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
+            stateProvider.AsAsyncFunc()
+        );
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
+        Func<CancellationToken, Task<(TState, T1, T2, T3)>> stateProvider
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
+            stateProvider.AsAsyncFunc()
+        );
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
+        Func<CancellationToken, ValueTask<(TState, T1, T2, T3)>> stateProvider
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
+            stateProvider.AsAsyncFunc()
+        );
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
+        TState state,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3,
+        T4 parameter4
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
+            state,
+            parameter1,
+            parameter2,
+            parameter3,
+            parameter4
+        );
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
+        Func<(TState, T1, T2, T3, T4)> stateProvider
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
+            stateProvider.AsAsyncFunc()
+        );
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
+        Func<CancellationToken, Task<(TState, T1, T2, T3, T4)>> stateProvider
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
+            stateProvider.AsAsyncFunc()
+        );
+        return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
+        Func<CancellationToken, ValueTask<(TState, T1, T2, T3, T4)>> stateProvider
+    )
+    {
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
+            stateProvider.AsAsyncFunc()
+        );
+        return this;
+    }
+
+    /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> OnStateChange(Action<TState, TTransition, TState> handler)
     {
         this.onStateChanges.Add(handler.AsAsyncAction());
