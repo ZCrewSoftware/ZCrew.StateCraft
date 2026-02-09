@@ -1,4 +1,5 @@
 using NSubstitute;
+using ZCrew.StateCraft.Extensions;
 
 namespace ZCrew.StateCraft.IntegrationTests.ExceptionHandling;
 
@@ -25,9 +26,9 @@ public class ActivateExceptionTests
         Assert.Null(stateMachine.CurrentState);
         Assert.Null(stateMachine.PreviousState);
         Assert.Null(stateMachine.NextState);
-        Assert.Null(stateMachine.CurrentParameter);
-        Assert.Null(stateMachine.PreviousParameter);
-        Assert.Null(stateMachine.NextParameter);
+        Assert.False(stateMachine.Parameters.IsCurrentSet);
+        Assert.False(stateMachine.Parameters.IsPreviousSet);
+        Assert.False(stateMachine.Parameters.IsNextSet);
         Assert.Null(stateMachine.CurrentTransition);
     }
 
@@ -84,9 +85,9 @@ public class ActivateExceptionTests
         Assert.Null(stateMachine.CurrentState);
         Assert.Null(stateMachine.PreviousState);
         Assert.Null(stateMachine.NextState);
-        Assert.Null(stateMachine.CurrentParameter);
-        Assert.Null(stateMachine.PreviousParameter);
-        Assert.Null(stateMachine.NextParameter);
+        Assert.False(stateMachine.Parameters.IsCurrentSet);
+        Assert.False(stateMachine.Parameters.IsPreviousSet);
+        Assert.False(stateMachine.Parameters.IsNextSet);
         Assert.Null(stateMachine.CurrentTransition);
     }
 
@@ -120,7 +121,7 @@ public class ActivateExceptionTests
         // Assert
         Assert.NotNull(stateMachine.CurrentState);
         Assert.Equal("A", stateMachine.CurrentState.StateValue);
-        Assert.Equal(42, stateMachine.CurrentParameter);
+        Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
     }
 
     [Fact]
@@ -144,9 +145,9 @@ public class ActivateExceptionTests
         Assert.Null(stateMachine.CurrentState);
         Assert.Null(stateMachine.PreviousState);
         Assert.Null(stateMachine.NextState);
-        Assert.Null(stateMachine.CurrentParameter);
-        Assert.Null(stateMachine.PreviousParameter);
-        Assert.Null(stateMachine.NextParameter);
+        Assert.False(stateMachine.Parameters.IsCurrentSet);
+        Assert.False(stateMachine.Parameters.IsPreviousSet);
+        Assert.False(stateMachine.Parameters.IsNextSet);
         Assert.Null(stateMachine.CurrentTransition);
     }
 
@@ -202,9 +203,9 @@ public class ActivateExceptionTests
         Assert.Null(stateMachine.CurrentState);
         Assert.Null(stateMachine.PreviousState);
         Assert.Null(stateMachine.NextState);
-        Assert.Null(stateMachine.CurrentParameter);
-        Assert.Null(stateMachine.PreviousParameter);
-        Assert.Null(stateMachine.NextParameter);
+        Assert.False(stateMachine.Parameters.IsCurrentSet);
+        Assert.False(stateMachine.Parameters.IsPreviousSet);
+        Assert.False(stateMachine.Parameters.IsNextSet);
         Assert.Null(stateMachine.CurrentTransition);
     }
 
@@ -237,7 +238,7 @@ public class ActivateExceptionTests
         // Assert
         Assert.NotNull(stateMachine.CurrentState);
         Assert.Equal("A", stateMachine.CurrentState.StateValue);
-        Assert.Equal(42, stateMachine.CurrentParameter);
+        Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
     }
 
     [Fact]
@@ -261,9 +262,9 @@ public class ActivateExceptionTests
         Assert.Null(stateMachine.CurrentState);
         Assert.Null(stateMachine.PreviousState);
         Assert.Null(stateMachine.NextState);
-        Assert.Null(stateMachine.CurrentParameter);
-        Assert.Null(stateMachine.PreviousParameter);
-        Assert.Null(stateMachine.NextParameter);
+        Assert.False(stateMachine.Parameters.IsCurrentSet);
+        Assert.False(stateMachine.Parameters.IsPreviousSet);
+        Assert.False(stateMachine.Parameters.IsNextSet);
         Assert.Null(stateMachine.CurrentTransition);
     }
 
@@ -319,9 +320,9 @@ public class ActivateExceptionTests
         Assert.Null(stateMachine.CurrentState);
         Assert.Null(stateMachine.PreviousState);
         Assert.Null(stateMachine.NextState);
-        Assert.Null(stateMachine.CurrentParameter);
-        Assert.Null(stateMachine.PreviousParameter);
-        Assert.Null(stateMachine.NextParameter);
+        Assert.False(stateMachine.Parameters.IsCurrentSet);
+        Assert.False(stateMachine.Parameters.IsPreviousSet);
+        Assert.False(stateMachine.Parameters.IsNextSet);
         Assert.Null(stateMachine.CurrentTransition);
     }
 
@@ -354,6 +355,6 @@ public class ActivateExceptionTests
         // Assert
         Assert.NotNull(stateMachine.CurrentState);
         Assert.Equal("A", stateMachine.CurrentState.StateValue);
-        Assert.Equal(42, stateMachine.CurrentParameter);
+        Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
     }
 }

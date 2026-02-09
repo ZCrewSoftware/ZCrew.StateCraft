@@ -1,4 +1,5 @@
 using NSubstitute;
+using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.UnitTests.Stubs;
 
@@ -7,15 +8,18 @@ namespace ZCrew.StateCraft.UnitTests;
 public class TransitionTableTests
 {
     [Fact]
-    public async Task LookupParameterlessTransition_WhenTransitionExists_ShouldReturnTransition()
+    public async Task LookupTransition_WhenParameterlessTransitionExists_ShouldReturnTransition()
     {
         // Arrange
         var transition = new StubParameterlessTransition<string, string>("A", "GoTo B", "B");
         var transitionTable = new TransitionTable<string, string>([transition]);
+        var parameters = new StateMachineParameters();
+        parameters.SetEmptyNextParameters();
 
         // Act
-        var result = await transitionTable.LookupParameterlessTransition(
+        var result = await transitionTable.LookupTransition(
             "GoTo B",
+            parameters,
             TestContext.Current.CancellationToken
         );
 
@@ -24,17 +28,19 @@ public class TransitionTableTests
     }
 
     [Fact]
-    public async Task LookupParameterlessTransition_WhenMultipleTransitionsExist_ShouldReturnCorrectTransition()
+    public async Task LookupTransition_WhenMultipleTransitionsExist_ShouldReturnCorrectTransition()
     {
         // Arrange
         var transitionA = new StubParameterlessTransition<string, string>("A", "T1", "B");
         var transitionB = new StubParameterlessTransition<string, string>("B", "T2", "C");
         var transitionTable = new TransitionTable<string, string>([transitionA, transitionB]);
+        var parameters = new StateMachineParameters();
+        parameters.SetEmptyNextParameters();
 
         // Act
         var token = TestContext.Current.CancellationToken;
-        var resultA = await transitionTable.LookupParameterlessTransition("T1", token);
-        var resultB = await transitionTable.LookupParameterlessTransition("T2", token);
+        var resultA = await transitionTable.LookupTransition("T1", parameters, token);
+        var resultB = await transitionTable.LookupTransition("T2", parameters, token);
 
         // Assert
         Assert.Same(transitionA, resultA);
@@ -42,15 +48,18 @@ public class TransitionTableTests
     }
 
     [Fact]
-    public async Task LookupParameterlessTransition_WhenTransitionDoesNotExist_ShouldReturnNull()
+    public async Task LookupTransition_WhenTransitionDoesNotExist_ShouldReturnNull()
     {
         // Arrange
         var transition = new StubParameterlessTransition<string, string>("A", "T1", "B");
         var transitionTable = new TransitionTable<string, string>([transition]);
+        var parameters = new StateMachineParameters();
+        parameters.SetEmptyNextParameters();
 
         // Act
-        var result = await transitionTable.LookupParameterlessTransition(
+        var result = await transitionTable.LookupTransition(
             "NonExistent",
+            parameters,
             TestContext.Current.CancellationToken
         );
 
@@ -59,62 +68,66 @@ public class TransitionTableTests
     }
 
     [Fact]
-    public async Task LookupParameterlessTransition_WhenConditionFails_ShouldReturnNull()
+    public async Task LookupTransition_WhenConditionFails_ShouldReturnNull()
     {
         // Arrange
         var transition = Substitute.ForPartsOf<StubParameterlessTransition<string, string>>("A", "T1", "B");
         transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
         var transitionTable = new TransitionTable<string, string>([transition]);
+        var parameters = new StateMachineParameters();
+        parameters.SetEmptyNextParameters();
 
         // Act
-        var result = await transitionTable.LookupParameterlessTransition("T1", TestContext.Current.CancellationToken);
+        var result = await transitionTable.LookupTransition("T1", parameters, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task LookupParameterlessTransition_WhenTableIsEmpty_ShouldReturnNull()
+    public async Task LookupTransition_WhenTableIsEmpty_ShouldReturnNull()
     {
         // Arrange
         var transitionTable = new TransitionTable<string, string>([]);
+        var parameters = new StateMachineParameters();
+        parameters.SetEmptyNextParameters();
 
         // Act
-        var result = await transitionTable.LookupParameterlessTransition("T1", TestContext.Current.CancellationToken);
+        var result = await transitionTable.LookupTransition("T1", parameters, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task LookupParameterlessTransition_TPrevious_WhenTransitionExists_ShouldReturnTransition()
+    public async Task LookupTransition_WhenParameterizedTransitionExists_ShouldReturnTransition()
     {
         // Arrange
-        var transition = new StubParameterlessTransition<string, string, int>("A", "T1", "B");
+        var transition = new StubParameterizedTransition<string, string, int>("A", "T1", "B");
         var transitionTable = new TransitionTable<string, string>([transition]);
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter(42);
 
         // Act
-        var result = await transitionTable.LookupParameterlessTransition(
-            "T1",
-            42,
-            TestContext.Current.CancellationToken
-        );
+        var result = await transitionTable.LookupTransition("T1", parameters, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Same(transition, result);
     }
 
     [Fact]
-    public async Task LookupParameterlessTransition_TPrevious_WhenTransitionDoesNotExist_ShouldReturnNull()
+    public async Task LookupTransition_WhenParameterizedTransitionDoesNotExist_ShouldReturnNull()
     {
         // Arrange
-        var transition = new StubParameterlessTransition<string, string, int>("A", "T1", "B");
+        var transition = new StubParameterizedTransition<string, string, int>("A", "T1", "B");
         var transitionTable = new TransitionTable<string, string>([transition]);
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter(42);
 
         // Act
-        var result = await transitionTable.LookupParameterlessTransition(
+        var result = await transitionTable.LookupTransition(
             "NonExistent",
-            42,
+            parameters,
             TestContext.Current.CancellationToken
         );
 
@@ -123,284 +136,49 @@ public class TransitionTableTests
     }
 
     [Fact]
-    public async Task LookupParameterlessTransition_TPrevious_WhenWrongParameterType_ShouldReturnNull()
-    {
-        // Arrange
-        var transition = new StubParameterlessTransition<string, string, int>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterlessTransition(
-            "T1",
-            "wrong type",
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task LookupParameterlessTransition_TPrevious_WhenConditionFails_ShouldReturnNull()
-    {
-        // Arrange
-        var transition = Substitute.ForPartsOf<StubParameterlessTransition<string, string, int>>("A", "T1", "B");
-        transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterlessTransition(
-            "T1",
-            42,
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TNext_WhenTransitionExists_ShouldReturnTransition()
+    public async Task LookupTransition_WhenWrongNextParameterType_ShouldReturnNull()
     {
         // Arrange
         var transition = new StubParameterizedTransition<string, string, int>("A", "T1", "B");
         var transitionTable = new TransitionTable<string, string>([transition]);
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter("wrong type");
 
         // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            42,
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Same(transition, result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TNext_WhenTransitionDoesNotExist_ShouldReturnNull()
-    {
-        // Arrange
-        var transition = new StubParameterizedTransition<string, string, int>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "NonExistent",
-            42,
-            TestContext.Current.CancellationToken
-        );
+        var result = await transitionTable.LookupTransition("T1", parameters, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task LookupParameterizedTransition_TNext_WhenWrongParameterType_ShouldReturnNull()
-    {
-        // Arrange
-        var transition = new StubParameterizedTransition<string, string, int>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            "wrong type",
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TNext_WhenConditionFails_ShouldReturnNull()
+    public async Task LookupTransition_WhenParameterizedConditionFails_ShouldReturnNull()
     {
         // Arrange
         var transition = Substitute.ForPartsOf<StubParameterizedTransition<string, string, int>>("A", "T1", "B");
         transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
         var transitionTable = new TransitionTable<string, string>([transition]);
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter(42);
 
         // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            42,
-            TestContext.Current.CancellationToken
-        );
+        var result = await transitionTable.LookupTransition("T1", parameters, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task LookupParameterizedTransition_TPrevious_TNext_WhenTransitionExists_ShouldReturnTransition()
-    {
-        // Arrange
-        var transition = new StubParameterizedTransition<string, string, int, string>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            42,
-            "next",
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Same(transition, result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TPrevious_TNext_WhenTransitionDoesNotExist_ShouldReturnNull()
-    {
-        // Arrange
-        var transition = new StubParameterizedTransition<string, string, int, string>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "NonExistent",
-            42,
-            "next",
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TPrevious_TNext_WhenWrongParameterType_ShouldReturnNull()
-    {
-        // Arrange
-        var transition = new StubParameterizedTransition<string, string, int, string>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            "wrong type",
-            123,
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TPrevious_TNext_WhenConditionFails_ShouldReturnNull()
-    {
-        // Arrange
-        var transition = Substitute.ForPartsOf<StubParameterizedTransition<string, string, int, string>>(
-            "A",
-            "T1",
-            "B"
-        );
-        transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            42,
-            "next",
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public async Task LookupParameterlessTransition_TPrevious_WhenAssignableType_ShouldReturnTransition()
-    {
-        // Arrange
-        var transition = new StubParameterlessTransition<string, string, object>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterlessTransition(
-            "T1",
-            "a string value",
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Same(transition, result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TNext_WhenAssignableType_ShouldReturnTransition()
+    public async Task LookupTransition_WhenNextParameterIsAssignableType_ShouldReturnTransition()
     {
         // Arrange
         var transition = new StubParameterizedTransition<string, string, object>("A", "T1", "B");
         var transitionTable = new TransitionTable<string, string>([transition]);
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter("a string value");
 
         // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            "a string value",
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Same(transition, result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TPrevious_TNext_WhenAssignablePreviousType_ShouldReturnTransition()
-    {
-        // Arrange
-        var transition = new StubParameterizedTransition<string, string, object, int>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            "a string value",
-            42,
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Same(transition, result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TPrevious_TNext_WhenAssignableNextType_ShouldReturnTransition()
-    {
-        // Arrange
-        var transition = new StubParameterizedTransition<string, string, int, object>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            42,
-            "a string value",
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.Same(transition, result);
-    }
-
-    [Fact]
-    public async Task LookupParameterizedTransition_TPrevious_TNext_WhenBothAssignableTypes_ShouldReturnTransition()
-    {
-        // Arrange
-        var transition = new StubParameterizedTransition<string, string, object, object>("A", "T1", "B");
-        var transitionTable = new TransitionTable<string, string>([transition]);
-
-        // Act
-        var result = await transitionTable.LookupParameterizedTransition(
-            "T1",
-            "previous string",
-            "next string",
-            TestContext.Current.CancellationToken
-        );
+        var result = await transitionTable.LookupTransition("T1", parameters, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Same(transition, result);

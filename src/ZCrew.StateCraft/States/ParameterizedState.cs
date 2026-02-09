@@ -79,9 +79,9 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     public IEnumerable<ITransition<TState, TTransition>> Transitions => this.transitionTable;
 
     /// <inheritdoc />
-    public async Task Activate(CancellationToken token)
+    public async Task Activate(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = StateMachine.GetNextParameter<TState, TTransition, T>();
+        var parameter = parameters.GetNextParameter<T>();
         StateMachine.Tracker?.Activated(this, parameter);
         foreach (var handler in this.onActivateHandlers)
         {
@@ -90,9 +90,9 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     }
 
     /// <inheritdoc />
-    public async Task Deactivate(CancellationToken token)
+    public async Task Deactivate(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = StateMachine.GetPreviousParameter<TState, TTransition, T>();
+        var parameter = parameters.GetPreviousParameter<T>();
         StateMachine.Tracker?.Deactivated(this, parameter);
         foreach (var handler in this.onDeactivateHandlers)
         {
@@ -119,9 +119,9 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     }
 
     /// <inheritdoc />
-    public async Task Enter(CancellationToken token)
+    public async Task Enter(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = StateMachine.GetNextParameter<TState, TTransition, T>();
+        var parameter = parameters.GetNextParameter<T>();
         StateMachine.Tracker?.Entered(this, parameter);
         foreach (var handler in this.onEntryHandlers)
         {
@@ -130,9 +130,9 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     }
 
     /// <inheritdoc />
-    public async Task Exit(CancellationToken token)
+    public async Task Exit(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = StateMachine.GetPreviousParameter<TState, TTransition, T>();
+        var parameter = parameters.GetPreviousParameter<T>();
         StateMachine.Tracker?.Exited(this, parameter);
         foreach (var handler in this.onExitHandlers)
         {
@@ -141,9 +141,9 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     }
 
     /// <inheritdoc />
-    public async Task Action(CancellationToken token)
+    public async Task Action(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = StateMachine.GetCurrentParameter<TState, TTransition, T>();
+        var parameter = parameters.GetCurrentParameter<T>();
         foreach (var action in this.actions)
         {
             await StateMachine.RunWithExceptionHandling(
@@ -161,38 +161,16 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     }
 
     /// <inheritdoc />
-    public async Task<ITransition<TState, TTransition>> GetTransition(TTransition transition, CancellationToken token)
-    {
-        var parameter = StateMachine.GetCurrentParameter<TState, TTransition, T>();
-        var result = await this.transitionTable.LookupParameterlessTransition(transition, parameter, token);
-        if (result == null)
-        {
-            throw new InvalidOperationException(
-                $"No parameterless transition could be found for: Transition={transition}, Previous={typeof(T)}"
-            );
-        }
-        return result;
-    }
-
-    /// <inheritdoc />
-    public async Task<ITransition<TState, TTransition>> GetTransition<TNext>(
+    public async Task<ITransition<TState, TTransition>> GetTransition(
         TTransition transition,
-        TNext nextParameter,
+        IStateMachineParameters parameters,
         CancellationToken token
     )
     {
-        var parameter = StateMachine.GetCurrentParameter<TState, TTransition, T>();
-        var result = await this.transitionTable.LookupParameterizedTransition(
-            transition,
-            parameter,
-            nextParameter,
-            token
-        );
+        var result = await this.transitionTable.LookupTransition(transition, parameters, token);
         if (result == null)
         {
-            throw new InvalidOperationException(
-                $"No parameterized transition could be found for: Transition={transition}, Previous={typeof(T)}, Next={typeof(TNext)}"
-            );
+            throw new InvalidOperationException($"No transition could be found for: Transition={transition}");
         }
         return result;
     }
@@ -200,22 +178,11 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     /// <inheritdoc />
     public async Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(
         TTransition transition,
+        IStateMachineParameters parameters,
         CancellationToken token
     )
     {
-        var parameter = StateMachine.GetCurrentParameter<TState, TTransition, T>();
-        return await this.transitionTable.LookupParameterlessTransition(transition, parameter, token);
-    }
-
-    /// <inheritdoc />
-    public async Task<ITransition<TState, TTransition>?> GetTransitionOrDefault<TNext>(
-        TTransition transition,
-        TNext nextParameter,
-        CancellationToken token
-    )
-    {
-        var parameter = StateMachine.GetCurrentParameter<TState, TTransition, T>();
-        return await this.transitionTable.LookupParameterizedTransition(transition, parameter, nextParameter, token);
+        return await this.transitionTable.LookupTransition(transition, parameters, token);
     }
 
     /// <inheritdoc />

@@ -31,35 +31,6 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
 
     public IState<TState, TTransition>? NextState { get; set; }
 
-    [Obsolete($"Use {nameof(Parameters)} instead")]
-    public object? CurrentParameter
-    {
-        get =>
-            Parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet)
-                ? Parameters.GetCurrentParameter<object?>(0)
-                : null;
-    }
-
-    [Obsolete($"Use {nameof(Parameters)} instead")]
-    public object? PreviousParameter
-    {
-        get =>
-            Parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet)
-                ? Parameters.GetPreviousParameter<object?>(0)
-                : null;
-    }
-
-    [Obsolete($"Use {nameof(Parameters)} instead")]
-    public object? NextParameter
-    {
-        get =>
-            Parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet)
-            && Parameters.NextParameterTypes.Count > 0
-                ? Parameters.GetNextParameter<object?>(0)
-                : null;
-        set => Parameters.SetNextParameters([value]);
-    }
-
     public IStateMachineParameters Parameters { get; } = new StateMachineParameters();
 
     public ITransition<TState, TTransition>? CurrentTransition { get; set; }

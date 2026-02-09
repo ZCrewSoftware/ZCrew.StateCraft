@@ -27,14 +27,9 @@ internal class StubState<TState, TTransition> : IState<TState, TTransition>
 
     public void AddTransition(ITransition<TState, TTransition> transition) { }
 
-    public virtual Task<ITransition<TState, TTransition>> GetTransition(TTransition transition, CancellationToken token)
-    {
-        throw new NotImplementedException("Mock this method to verify call behavior");
-    }
-
-    public virtual Task<ITransition<TState, TTransition>> GetTransition<TNext>(
+    public virtual Task<ITransition<TState, TTransition>> GetTransition(
         TTransition transition,
-        TNext nextParameter,
+        IStateMachineParameters parameters,
         CancellationToken token
     )
     {
@@ -43,15 +38,7 @@ internal class StubState<TState, TTransition> : IState<TState, TTransition>
 
     public virtual Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(
         TTransition transition,
-        CancellationToken token
-    )
-    {
-        return Task.FromResult<ITransition<TState, TTransition>?>(null);
-    }
-
-    public virtual Task<ITransition<TState, TTransition>?> GetTransitionOrDefault<TNext>(
-        TTransition transition,
-        TNext nextParameter,
+        IStateMachineParameters parameters,
         CancellationToken token
     )
     {
@@ -68,27 +55,27 @@ internal class StubState<TState, TTransition> : IState<TState, TTransition>
         return Task.CompletedTask;
     }
 
-    public virtual Task Activate(CancellationToken token)
+    public virtual Task Activate(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
-    public virtual Task Deactivate(CancellationToken token)
+    public virtual Task Deactivate(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
-    public virtual Task Enter(CancellationToken token)
+    public virtual Task Enter(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
-    public virtual Task Action(CancellationToken token)
+    public virtual Task Action(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
-    public virtual Task Exit(CancellationToken token)
+    public virtual Task Exit(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }
@@ -117,14 +104,9 @@ internal class StubState<TState, TTransition, T> : IState<TState, TTransition>
 
     public void AddTransition(ITransition<TState, TTransition> transition) { }
 
-    public virtual Task<ITransition<TState, TTransition>> GetTransition(TTransition transition, CancellationToken token)
-    {
-        throw new NotImplementedException("Mock this method to verify call behavior");
-    }
-
-    public virtual Task<ITransition<TState, TTransition>> GetTransition<TNext>(
+    public virtual Task<ITransition<TState, TTransition>> GetTransition(
         TTransition transition,
-        TNext nextParameter,
+        IStateMachineParameters parameters,
         CancellationToken token
     )
     {
@@ -133,15 +115,7 @@ internal class StubState<TState, TTransition, T> : IState<TState, TTransition>
 
     public virtual Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(
         TTransition transition,
-        CancellationToken token
-    )
-    {
-        return Task.FromResult<ITransition<TState, TTransition>?>(null);
-    }
-
-    public virtual Task<ITransition<TState, TTransition>?> GetTransitionOrDefault<TNext>(
-        TTransition transition,
-        TNext nextParameter,
+        IStateMachineParameters parameters,
         CancellationToken token
     )
     {
@@ -158,27 +132,27 @@ internal class StubState<TState, TTransition, T> : IState<TState, TTransition>
         return Task.CompletedTask;
     }
 
-    public virtual Task Activate(CancellationToken token)
+    public virtual Task Activate(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
-    public virtual Task Deactivate(CancellationToken token)
+    public virtual Task Deactivate(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
-    public virtual Task Enter(CancellationToken token)
+    public virtual Task Enter(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
-    public virtual Task Action(CancellationToken token)
+    public virtual Task Action(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
-    public virtual Task Exit(CancellationToken token)
+    public virtual Task Exit(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
     }

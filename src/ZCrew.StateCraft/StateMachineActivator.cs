@@ -45,14 +45,14 @@ internal sealed class StateMachineActivator<TState, TTransition> : IStateMachine
         if (this.isValueSet)
         {
             var parameterlessState = stateMachine.StateTable.LookupState(this.stateValue!);
-            stateMachine.NextParameter = null;
+            stateMachine.Parameters.SetEmptyNextParameters();
             stateMachine.NextState = parameterlessState;
         }
         else
         {
             var fetchedStateValue = await this.func!.InvokeAsync(token);
             var parameterlessState = stateMachine.StateTable.LookupState(fetchedStateValue);
-            stateMachine.NextParameter = null;
+            stateMachine.Parameters.SetEmptyNextParameters();
             stateMachine.NextState = parameterlessState;
         }
     }
@@ -107,14 +107,14 @@ internal sealed class StateMachineActivator<TState, TTransition, T> : IStateMach
         if (this.isValueSet)
         {
             var parameterizedState = stateMachine.StateTable.LookupState<T>(this.stateValue!);
-            stateMachine.NextParameter = this.parameter;
+            stateMachine.Parameters.SetNextParameter(this.parameter);
             stateMachine.NextState = parameterizedState;
         }
         else
         {
             var (fetchedStateValue, fetchedParameter) = await this.func!.InvokeAsync(token);
             var parameterizedState = stateMachine.StateTable.LookupState<T>(fetchedStateValue);
-            stateMachine.NextParameter = fetchedParameter;
+            stateMachine.Parameters.SetNextParameter(fetchedParameter);
             stateMachine.NextState = parameterizedState;
         }
     }

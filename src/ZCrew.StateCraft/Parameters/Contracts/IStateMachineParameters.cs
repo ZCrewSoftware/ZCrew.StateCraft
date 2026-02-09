@@ -52,88 +52,6 @@ internal interface IStateMachineParameters
     IReadOnlyList<Type> NextParameterTypes { get; }
 
     /// <summary>
-    ///     Retrieves a parameter from the previous state.
-    /// </summary>
-    /// <typeparam name="T">The expected type of the parameter.</typeparam>
-    /// <param name="index">The zero-based index of the parameter.</param>
-    /// <returns>The parameter value cast to <typeparamref name="T"/>.</returns>
-    /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.PreviousParametersSet"/> status.
-    /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     If <paramref name="index"/> is negative or exceeds the parameter count.
-    /// </exception>
-    /// <exception cref="InvalidCastException">
-    ///     If the parameter cannot be cast to <typeparamref name="T"/>.
-    /// </exception>
-    [Obsolete($"Use {nameof(GetPreviousParameter)}<T>() instead")]
-    T GetPreviousParameter<T>(int index);
-
-    /// <summary>
-    ///     Retrieves a parameter from the current state.
-    /// </summary>
-    /// <typeparam name="T">The expected type of the parameter.</typeparam>
-    /// <param name="index">The zero-based index of the parameter.</param>
-    /// <returns>The parameter value cast to <typeparamref name="T"/>.</returns>
-    /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.CurrentParametersSet"/> status.
-    /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     If <paramref name="index"/> is negative or exceeds the parameter count.
-    /// </exception>
-    /// <exception cref="InvalidCastException">
-    ///     If the parameter cannot be cast to <typeparamref name="T"/>.
-    /// </exception>
-    [Obsolete($"Use {nameof(GetCurrentParameter)}<T>() instead")]
-    T GetCurrentParameter<T>(int index);
-
-    /// <summary>
-    ///     Retrieves a staged parameter that will become current upon commit.
-    /// </summary>
-    /// <typeparam name="T">The expected type of the parameter.</typeparam>
-    /// <param name="index">The zero-based index of the parameter.</param>
-    /// <returns>The parameter value cast to <typeparamref name="T"/>.</returns>
-    /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.NextParametersSet"/> status.
-    /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     If <paramref name="index"/> is negative or exceeds the parameter count.
-    /// </exception>
-    /// <exception cref="InvalidCastException">
-    ///     If the parameter cannot be cast to <typeparamref name="T"/>.
-    /// </exception>
-    [Obsolete($"Use {nameof(GetNextParameter)}<T>() instead")]
-    T GetNextParameter<T>(int index);
-
-    /// <summary>
-    ///     Stages parameters for the next state.
-    /// </summary>
-    /// <param name="nextParameters">
-    ///     The parameters to stage. These become current upon <see cref="CommitTransition"/>.
-    /// </param>
-    [Obsolete($"Use {nameof(SetNextParameter)} instead")]
-    void SetNextParameters(object?[] nextParameters);
-
-    /// <summary>
-    ///     Stages a parameter for the next state.
-    /// </summary>
-    /// <typeparam name="T">The type of the parameter.</typeparam>
-    /// <param name="index">The zero-based index of the parameter.</param>
-    /// <param name="nextParameter">
-    ///     The parameter to stage. This becomes current upon <see cref="CommitTransition"/>.
-    /// </param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     If <paramref name="index"/> is negative or exceeds the maximum parameter count.
-    /// </exception>
-    [Obsolete($"Use {nameof(SetNextParameter)}<T>(T) instead")]
-    void SetNextParameter<T>(int index, T nextParameter);
-
-    #region Arity-specific setters
-
-    /// <summary>
     ///     Stages empty parameters for a parameterless transition.
     /// </summary>
     void SetEmptyNextParameters();
@@ -179,10 +97,6 @@ internal interface IStateMachineParameters
     /// <param name="parameter3">The third parameter to stage.</param>
     /// <param name="parameter4">The fourth parameter to stage.</param>
     void SetNextParameters<T1, T2, T3, T4>(T1 parameter1, T2 parameter2, T3 parameter3, T4 parameter4);
-
-    #endregion
-
-    #region Arity-specific getters — Previous
 
     /// <summary>
     ///     Retrieves a single parameter from the previous state.
@@ -250,10 +164,6 @@ internal interface IStateMachineParameters
     /// </exception>
     (T1, T2, T3, T4) GetPreviousParameters<T1, T2, T3, T4>();
 
-    #endregion
-
-    #region Arity-specific getters — Current
-
     /// <summary>
     ///     Retrieves a single parameter from the current state.
     /// </summary>
@@ -320,10 +230,6 @@ internal interface IStateMachineParameters
     /// </exception>
     (T1, T2, T3, T4) GetCurrentParameters<T1, T2, T3, T4>();
 
-    #endregion
-
-    #region Arity-specific getters — Next
-
     /// <summary>
     ///     Retrieves a single staged parameter that will become current upon commit.
     /// </summary>
@@ -389,8 +295,6 @@ internal interface IStateMachineParameters
     ///     If any parameter cannot be cast to its expected type.
     /// </exception>
     (T1, T2, T3, T4) GetNextParameters<T1, T2, T3, T4>();
-
-    #endregion
 
     /// <summary>
     ///     Begins a transition by capturing the current parameters for potential rollback.
