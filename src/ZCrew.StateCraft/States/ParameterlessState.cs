@@ -78,7 +78,7 @@ internal class ParameterlessState<TState, TTransition> : IState<TState, TTransit
     public IEnumerable<ITransition<TState, TTransition>> Transitions => this.transitionTable;
 
     /// <inheritdoc />
-    public async Task Activate(CancellationToken token)
+    public async Task Activate(IStateMachineParameters parameters, CancellationToken token)
     {
         StateMachine.Tracker?.Activated(this);
         foreach (var handler in this.onActivateHandlers)
@@ -88,7 +88,7 @@ internal class ParameterlessState<TState, TTransition> : IState<TState, TTransit
     }
 
     /// <inheritdoc />
-    public async Task Deactivate(CancellationToken token)
+    public async Task Deactivate(IStateMachineParameters parameters, CancellationToken token)
     {
         StateMachine.Tracker?.Deactivated(this);
         foreach (var handler in this.onDeactivateHandlers)
@@ -115,7 +115,7 @@ internal class ParameterlessState<TState, TTransition> : IState<TState, TTransit
     }
 
     /// <inheritdoc />
-    public async Task Enter(CancellationToken token)
+    public async Task Enter(IStateMachineParameters parameters, CancellationToken token)
     {
         StateMachine.Tracker?.Entered(this);
         foreach (var handler in this.onEntryHandlers)
@@ -125,7 +125,7 @@ internal class ParameterlessState<TState, TTransition> : IState<TState, TTransit
     }
 
     /// <inheritdoc />
-    public async Task Exit(CancellationToken token)
+    public async Task Exit(IStateMachineParameters parameters, CancellationToken token)
     {
         StateMachine.Tracker?.Exited(this);
         foreach (var handler in this.onExitHandlers)
@@ -135,7 +135,7 @@ internal class ParameterlessState<TState, TTransition> : IState<TState, TTransit
     }
 
     /// <inheritdoc />
-    public async Task Action(CancellationToken token)
+    public async Task Action(IStateMachineParameters parameters, CancellationToken token)
     {
         foreach (var action in this.actions)
         {
@@ -150,31 +150,16 @@ internal class ParameterlessState<TState, TTransition> : IState<TState, TTransit
     }
 
     /// <inheritdoc />
-    public async Task<ITransition<TState, TTransition>> GetTransition(TTransition transition, CancellationToken token)
-    {
-        var result = await this.transitionTable.LookupParameterlessTransition(transition, token);
-        if (result == null)
-        {
-            throw new InvalidOperationException(
-                $"No parameterless transition could be found for: Transition={transition}"
-            );
-        }
-        return result;
-    }
-
-    /// <inheritdoc />
-    public async Task<ITransition<TState, TTransition>> GetTransition<TNext>(
+    public async Task<ITransition<TState, TTransition>> GetTransition(
         TTransition transition,
-        TNext nextParameter,
+        IStateMachineParameters parameters,
         CancellationToken token
     )
     {
-        var result = await this.transitionTable.LookupParameterizedTransition(transition, nextParameter, token);
+        var result = await this.transitionTable.LookupTransition(transition, parameters, token);
         if (result == null)
         {
-            throw new InvalidOperationException(
-                $"No parameterized transition could be found for: Transition={transition}, Next={typeof(TNext)}"
-            );
+            throw new InvalidOperationException($"No transition could be found for: Transition={transition}");
         }
         return result;
     }
@@ -182,20 +167,11 @@ internal class ParameterlessState<TState, TTransition> : IState<TState, TTransit
     /// <inheritdoc />
     public async Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(
         TTransition transition,
+        IStateMachineParameters parameters,
         CancellationToken token
     )
     {
-        return await this.transitionTable.LookupParameterlessTransition(transition, token);
-    }
-
-    /// <inheritdoc />
-    public async Task<ITransition<TState, TTransition>?> GetTransitionOrDefault<TNext>(
-        TTransition transition,
-        TNext nextParameter,
-        CancellationToken token
-    )
-    {
-        return await this.transitionTable.LookupParameterizedTransition(transition, nextParameter, token);
+        return await this.transitionTable.LookupTransition(transition, parameters, token);
     }
 
     /// <inheritdoc />

@@ -70,59 +70,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     public IState<TState, TTransition>? NextState { get; set; }
 
     /// <inheritdoc />
-    [Obsolete($"Use {nameof(Parameters)} instead")]
-    public object? CurrentParameter
-    {
-        get
-        {
-            return
-                Parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet)
-                && Parameters.CurrentParameterTypes.Count > 0
-                ? Parameters.GetCurrentParameter<object?>(0)
-                : null;
-        }
-    }
-
-    /// <inheritdoc />
-    [Obsolete($"Use {nameof(Parameters)} instead")]
-    public object? PreviousParameter
-    {
-        get
-        {
-            return
-                Parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet)
-                && Parameters.PreviousParameterTypes.Count > 0
-                ? Parameters.GetPreviousParameter<object?>(0)
-                : null;
-        }
-    }
-
-    /// <inheritdoc />
-    [Obsolete($"Use {nameof(Parameters)} instead")]
-    public object? NextParameter
-    {
-        get
-        {
-            return
-                Parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet)
-                && Parameters.NextParameterTypes.Count > 0
-                ? Parameters.GetNextParameter<object?>(0)
-                : null;
-        }
-        set
-        {
-            if (value == null)
-            {
-                Parameters.SetEmptyNextParameters();
-            }
-            else
-            {
-                Parameters.SetNextParameters([value]);
-            }
-        }
-    }
-
-    /// <inheritdoc />
     public IStateMachineParameters Parameters { get; } = new StateMachineParameters();
 
     /// <inheritdoc />
@@ -134,12 +81,8 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         {
             return;
         }
-        Debug.Assert(PreviousState == null, $"Expected {nameof(PreviousState)} to be null.");
-        Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
-
-        Parameters.BeginTransition();
-        PreviousState = CurrentState;
-        CurrentState = null;
+        Debug.Assert(PreviousState != null, $"Expected {nameof(PreviousState)} to be set.");
+        Debug.Assert(CurrentState == null, $"Expected {nameof(CurrentState)} to be null.");
 
         this.internalState = InternalState.Exiting;
         if (this.options.HasFlag(StateMachineOptions.RunActionsAsynchronously))
@@ -163,7 +106,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             }
         }
 
-        await PreviousState.Exit(token);
+        await PreviousState.Exit(Parameters, token);
 
         this.internalState = InternalState.Exited;
     }
@@ -205,7 +148,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
         this.internalState = InternalState.Entering;
-        await NextState.Enter(token);
+        await NextState.Enter(Parameters, token);
         this.internalState = InternalState.Entered;
 
         Parameters.CommitTransition();
@@ -220,7 +163,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             // Start the execution of the action and allow the state machine to be transitioned or deactivated.
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
             // always released.
-            var action = CurrentState.Action(actionCts.Token);
+            var action = CurrentState.Action(Parameters, actionCts.Token);
             this.internalState = InternalState.Active;
             methodLock.Dispose();
 
@@ -242,13 +185,26 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             // Start the execution of the action and allow the state machine to be transitioned or deactivated.
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
             // always released.
-            var action = CurrentState.Action(token);
+            var action = CurrentState.Action(Parameters, token);
             this.internalState = InternalState.Active;
             methodLock.Dispose();
 
             // Then await the action - which is now free to transition the state machine without deadlocking
             await action;
         }
+    }
+
+    [MemberNotNull(nameof(PreviousState))]
+    private void BeginTransition()
+    {
+        Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
+
+        Parameters.BeginTransition();
+        PreviousState = CurrentState;
+        CurrentState = null;
+        NextState = null;
+
+        CurrentTransition = null;
     }
 
     private void Rollback()
@@ -293,7 +249,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             await this.stateMachineActivator.Activate(this, token);
             Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
-            await NextState.Activate(token);
+            await NextState.Activate(Parameters, token);
             this.internalState = InternalState.Idle;
             await ActivateTriggers(token);
             await EnterState(activationLock, token);
@@ -329,11 +285,11 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
         try
         {
+            BeginTransition();
             await ExitState(token);
             await DeactivateTriggers(token);
-            Debug.Assert(PreviousState != null, $"Expected {nameof(PreviousState)} to be set.");
 
-            await PreviousState.Deactivate(token);
+            await PreviousState.Deactivate(Parameters, token);
 
             Parameters.Clear();
             PreviousState = null;
@@ -356,12 +312,11 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             throw new InvalidOperationException("The state machine has not been activated.");
         }
 
-        Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
-
         try
         {
-            CurrentTransition = await CurrentState.GetTransition(transition, token);
+            BeginTransition();
             Parameters.SetEmptyNextParameters();
+            CurrentTransition = await PreviousState.GetTransition(transition, Parameters, token);
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
@@ -384,18 +339,17 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             throw new InvalidOperationException("The state machine has not been activated.");
         }
 
-        Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
-
         try
         {
-            CurrentTransition = await CurrentState.GetTransition(transition, parameter, token);
+            BeginTransition();
             Parameters.SetNextParameter(parameter);
+            CurrentTransition = await PreviousState.GetTransition(transition, Parameters, token);
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
             await EnterState(transitionLock, token);
         }
-        catch when (CurrentState == null)
+        catch (Exception) when (CurrentState == null)
         {
             Rollback();
             this.internalState = InternalState.Recovery;
@@ -412,10 +366,17 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             return false;
         }
 
-        Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
-
-        var nextTransition = await CurrentState.GetTransitionOrDefault(transition, token);
-        return nextTransition != null;
+        try
+        {
+            BeginTransition();
+            Parameters.SetEmptyNextParameters();
+            var nextTransition = await PreviousState.GetTransitionOrDefault(transition, Parameters, token);
+            return nextTransition != null;
+        }
+        finally
+        {
+            Rollback();
+        }
     }
 
     /// <inheritdoc />
@@ -427,10 +388,17 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             return false;
         }
 
-        Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
-
-        var nextTransition = await CurrentState.GetTransitionOrDefault(transition, parameter, token);
-        return nextTransition != null;
+        try
+        {
+            BeginTransition();
+            Parameters.SetNextParameter(parameter);
+            var nextTransition = await PreviousState.GetTransitionOrDefault(transition, Parameters, token);
+            return nextTransition != null;
+        }
+        finally
+        {
+            Rollback();
+        }
     }
 
     /// <inheritdoc />
@@ -442,17 +410,25 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             return false;
         }
 
-        Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
-
-        CurrentTransition = await CurrentState.GetTransitionOrDefault(transition, token);
-        if (CurrentTransition == null)
+        try
         {
-            return false;
+            BeginTransition();
+            Parameters.SetEmptyNextParameters();
+            CurrentTransition = await PreviousState.GetTransitionOrDefault(transition, Parameters, token);
+            if (CurrentTransition == null)
+            {
+                Rollback();
+                return false;
+            }
+        }
+        catch
+        {
+            Rollback();
+            throw;
         }
 
         try
         {
-            Parameters.SetEmptyNextParameters();
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
@@ -476,17 +452,25 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             return false;
         }
 
-        Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
-
-        CurrentTransition = await CurrentState.GetTransitionOrDefault(transition, parameter, token);
-        if (CurrentTransition == null)
+        try
         {
-            return false;
+            BeginTransition();
+            Parameters.SetNextParameter(parameter);
+            CurrentTransition = await PreviousState.GetTransitionOrDefault(transition, Parameters, token);
+            if (CurrentTransition == null)
+            {
+                Rollback();
+                return false;
+            }
+        }
+        catch
+        {
+            Rollback();
+            throw;
         }
 
         try
         {
-            Parameters.SetNextParameter(parameter);
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);

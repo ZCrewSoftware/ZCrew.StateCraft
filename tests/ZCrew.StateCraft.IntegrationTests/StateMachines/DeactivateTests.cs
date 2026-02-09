@@ -1,4 +1,5 @@
 using NSubstitute;
+using ZCrew.StateCraft.Extensions;
 
 namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 
@@ -39,8 +40,9 @@ public class DeactivateTests
         await stateMachine.Deactivate(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Null(stateMachine.PreviousParameter);
-        Assert.Null(stateMachine.CurrentParameter);
+        Assert.False(stateMachine.Parameters.IsPreviousSet);
+        Assert.False(stateMachine.Parameters.IsCurrentSet);
+        Assert.False(stateMachine.Parameters.IsNextSet);
         Assert.Null(stateMachine.CurrentState);
     }
 

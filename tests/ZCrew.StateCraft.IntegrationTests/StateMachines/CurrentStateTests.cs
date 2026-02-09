@@ -18,38 +18,4 @@ public class CurrentStateTests
         // Assert
         Assert.Null(state);
     }
-
-    [Fact]
-    public void CurrentParameter_WhenBeforeActivation_ShouldBeNull()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A")
-            .WithState("A", state => state)
-            .Build();
-
-        // Act
-        var currentParameter = stateMachine.CurrentParameter;
-
-        // Assert
-        Assert.Null(currentParameter);
-    }
-
-    [Fact]
-    public void PreviousParameter_WhenBeforeActivation_ShouldBeNull()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A")
-            .WithState("A", state => state)
-            .Build();
-
-        // Act
-        var previousParameter = stateMachine.PreviousParameter;
-
-        // Assert
-        Assert.Null(previousParameter);
-    }
 }

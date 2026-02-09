@@ -46,43 +46,14 @@ internal interface IState<TState, TTransition>
     void AddTransition(ITransition<TState, TTransition> transition);
 
     /// <summary>
-    ///     Gets the transition to a parameterless next state.
-    /// </summary>
-    /// <param name="transition">The transition to look up.</param>
-    /// <param name="token">The token to monitor for cancellation requests.</param>
-    /// <returns>The first matching transition whose conditions evaluate to true.</returns>
-    /// <exception cref="InvalidOperationException">No matching transition was found.</exception>
-    Task<ITransition<TState, TTransition>> GetTransition(TTransition transition, CancellationToken token);
-
-    /// <summary>
-    ///     Gets the transition to a parameterized next state.
-    /// </summary>
-    /// <typeparam name="TNext">The type of the next state's parameter.</typeparam>
-    /// <param name="transition">The transition to look up.</param>
-    /// <param name="nextParameter">
-    ///     The parameter for the next state (used for type matching and condition evaluation).
-    /// </param>
-    /// <param name="token">The token to monitor for cancellation requests.</param>
-    /// <returns>The first matching transition whose type and conditions match.</returns>
-    /// <exception cref="InvalidOperationException">No matching transition was found.</exception>
-    Task<ITransition<TState, TTransition>> GetTransition<TNext>(
-        TTransition transition,
-        TNext nextParameter,
-        CancellationToken token
-    );
-
-    /// <summary>
     ///     Gets the transition to the next state.
     /// </summary>
-    /// <typeparam name="TNext">The type of the next state's parameter.</typeparam>
     /// <param name="transition">The transition to look up.</param>
-    /// <param name="parameters">
-    ///     The current parameters and transition parameters.
-    /// </param>
+    /// <param name="parameters">The current parameters and transition parameters.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     /// <returns>The first matching transition whose type and conditions match.</returns>
     /// <exception cref="InvalidOperationException">No matching transition was found.</exception>
-    Task<ITransition<TState, TTransition>> GetTransition<TNext>(
+    Task<ITransition<TState, TTransition>> GetTransition(
         TTransition transition,
         IStateMachineParameters parameters,
         CancellationToken token
@@ -93,63 +64,53 @@ internal interface IState<TState, TTransition>
     ///     found.
     /// </summary>
     /// <param name="transition">The transition to look up.</param>
+    /// <param name="parameters">The current parameters and transition parameters.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     /// <returns>
     ///     The first matching transition with passing conditions.
     ///     Otherwise, <see langword="null"/> if no transition can be found.
     /// </returns>
-    Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(TTransition transition, CancellationToken token);
-
-    /// <summary>
-    ///     Gets the transition to a parameterized next state, or <see langword="null"/> if no matching transition was
-    ///     found.
-    /// </summary>
-    /// <typeparam name="TNext">The type of the next state's parameter.</typeparam>
-    /// <param name="transition">The transition to look up.</param>
-    /// <param name="nextParameter">
-    ///     The parameter for the next state (used for type matching and condition evaluation).
-    /// </param>
-    /// <param name="token">The token to monitor for cancellation requests.</param>
-    /// <returns>
-    ///     The first matching transition with the same type and passing conditions.
-    ///     Otherwise, <see langword="null"/> if no transition can be found.
-    /// </returns>
-    Task<ITransition<TState, TTransition>?> GetTransitionOrDefault<TNext>(
+    Task<ITransition<TState, TTransition>?> GetTransitionOrDefault(
         TTransition transition,
-        TNext nextParameter,
+        IStateMachineParameters parameters,
         CancellationToken token
     );
 
     /// <summary>
     ///     Invoke the activation handlers when the state machine is activated with this state.
     /// </summary>
+    /// <param name="parameters">The current parameters and transition parameters.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
-    Task Activate(CancellationToken token);
+    Task Activate(IStateMachineParameters parameters, CancellationToken token);
 
     /// <summary>
     ///     Invoke the deactivation handlers when the state machine is deactivated with this state.
     /// </summary>
+    /// <param name="parameters">The current parameters and transition parameters.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
-    Task Deactivate(CancellationToken token);
+    Task Deactivate(IStateMachineParameters parameters, CancellationToken token);
 
     /// <summary>
     ///     Invoke the actions when entering this state after the state has been changed successfully.
     /// </summary>
+    /// <param name="parameters">The current parameters and transition parameters.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
-    Task Enter(CancellationToken token);
+    Task Enter(IStateMachineParameters parameters, CancellationToken token);
 
     /// <summary>
     ///     Invoke the actions when exiting this state before the state has been changed and after the next transition
     ///     has been identified successfully.
     /// </summary>
+    /// <param name="parameters">The current parameters and transition parameters.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
-    Task Exit(CancellationToken token);
+    Task Exit(IStateMachineParameters parameters, CancellationToken token);
 
     /// <summary>
     ///     Invoke the actions representing the main functionality of the state.
     /// </summary>
+    /// <param name="parameters">The current parameters and transition parameters.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
-    Task Action(CancellationToken token);
+    Task Action(IStateMachineParameters parameters, CancellationToken token);
 
     /// <summary>
     ///     Invoke the state change handlers when transitioning into this state.
