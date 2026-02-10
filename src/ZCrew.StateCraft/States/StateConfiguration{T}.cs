@@ -8,8 +8,7 @@ namespace ZCrew.StateCraft.States;
 
 /// <inheritdoc />
 [DebuggerDisplay("{DisplayString}")]
-internal class ParameterizedStateConfiguration<TState, TTransition, T>
-    : IParameterizedStateConfiguration<TState, TTransition, T>
+internal class StateConfiguration<TState, TTransition, T> : IParameterizedStateConfiguration<TState, TTransition, T>
     where TState : notnull
     where TTransition : notnull
 {
@@ -20,15 +19,15 @@ internal class ParameterizedStateConfiguration<TState, TTransition, T>
     private readonly List<IAsyncAction<TState, TTransition, TState, T>> onStateChangeHandlers = [];
     private readonly List<IAsyncAction<T>> onEntryHandlers = [];
     private readonly List<IAsyncAction<T>> onExitHandlers = [];
-    private readonly List<IParameterizedActionConfiguration<T>> actionConfigurations = [];
+    private readonly List<IActionConfiguration<T>> actionConfigurations = [];
     private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
     /// <summary>
     ///     Initializes a new instance of the
-    ///     <see cref="ParameterizedStateConfiguration{TState, TTransition, T}"/> class.
+    ///     <see cref="StateConfiguration{TState, TTransition, T}"/> class.
     /// </summary>
     /// <param name="state">The state value that identifies this state configuration.</param>
-    public ParameterizedStateConfiguration(TState state)
+    public StateConfiguration(TState state)
     {
         State = state;
     }
@@ -46,7 +45,7 @@ internal class ParameterizedStateConfiguration<TState, TTransition, T>
     public IState<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var actions = this.actionConfigurations.Select(action => action.Build()).ToList();
-        var state = new ParameterizedState<TState, TTransition, T>(
+        var state = new State<TState, TTransition, T>(
             State,
             this.onActivateHandlers,
             this.onDeactivateHandlers,
@@ -64,10 +63,10 @@ internal class ParameterizedStateConfiguration<TState, TTransition, T>
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T> WithAction(
-        Func<IInitialParameterizedActionConfiguration<T>, IFinalParameterizedActionConfiguration<T>> configureAction
+        Func<IInitialActionConfiguration<T>, IActionConfiguration<T>> configureAction
     )
     {
-        var initialActionConfiguration = new InitialParameterizedActionConfiguration<T>();
+        var initialActionConfiguration = new InitialActionConfiguration<T>();
         var finalActionConfiguration = configureAction(initialActionConfiguration);
         this.actionConfigurations.Add(finalActionConfiguration);
         return this;

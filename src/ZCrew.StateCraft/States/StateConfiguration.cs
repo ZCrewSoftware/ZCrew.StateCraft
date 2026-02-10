@@ -8,7 +8,7 @@ namespace ZCrew.StateCraft.States;
 
 /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}"/>
 [DebuggerDisplay("{DisplayString}")]
-internal class ParameterlessStateConfiguration<TState, TTransition>
+internal class StateConfiguration<TState, TTransition>
     : IInitialStateConfiguration<TState, TTransition>,
         IParameterlessStateConfiguration<TState, TTransition>
     where TState : notnull
@@ -21,15 +21,15 @@ internal class ParameterlessStateConfiguration<TState, TTransition>
     private readonly List<IAsyncAction<TState, TTransition, TState>> onStateChangeHandlers = [];
     private readonly List<IAsyncAction> onEntryHandlers = [];
     private readonly List<IAsyncAction> onExitHandlers = [];
-    private readonly List<IParameterlessActionConfiguration> actionConfigurations = [];
+    private readonly List<IActionConfiguration> actionConfigurations = [];
     private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
     /// <summary>
     ///     Initializes a new instance of the
-    ///     <see cref="ParameterlessStateConfiguration{TState, TTransition}"/> class.
+    ///     <see cref="StateConfiguration{TState, TTransition}"/> class.
     /// </summary>
     /// <param name="state">The state value that identifies this state configuration.</param>
-    public ParameterlessStateConfiguration(TState state)
+    public StateConfiguration(TState state)
     {
         State = state;
     }
@@ -47,7 +47,7 @@ internal class ParameterlessStateConfiguration<TState, TTransition>
     public IState<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var actions = this.actionConfigurations.Select(action => action.Build()).ToList();
-        var state = new ParameterlessState<TState, TTransition>(
+        var state = new State<TState, TTransition>(
             State,
             this.onActivateHandlers,
             this.onDeactivateHandlers,
@@ -65,10 +65,10 @@ internal class ParameterlessStateConfiguration<TState, TTransition>
 
     /// <inheritdoc />
     public IParameterlessStateConfiguration<TState, TTransition> WithAction(
-        Func<IInitialParameterlessActionConfiguration, IFinalParameterlessActionConfiguration> configureAction
+        Func<IInitialActionConfiguration, IActionConfiguration> configureAction
     )
     {
-        var initialActionConfiguration = new InitialParameterlessActionConfiguration();
+        var initialActionConfiguration = new InitialActionConfiguration();
         var finalActionConfiguration = configureAction(initialActionConfiguration);
         this.actionConfigurations.Add(finalActionConfiguration);
         return this;
@@ -217,7 +217,25 @@ internal class ParameterlessStateConfiguration<TState, TTransition>
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T> WithParameter<T>()
     {
-        return new ParameterizedStateConfiguration<TState, TTransition, T>(State);
+        return new StateConfiguration<TState, TTransition, T>(State);
+    }
+
+    /// <inheritdoc />
+    public IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithParameters<T1, T2>()
+    {
+        return new StateConfiguration<TState, TTransition, T1, T2>(State);
+    }
+
+    /// <inheritdoc />
+    public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3> WithParameters<T1, T2, T3>()
+    {
+        return new StateConfiguration<TState, TTransition, T1, T2, T3>(State);
+    }
+
+    /// <inheritdoc />
+    public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>()
+    {
+        return new StateConfiguration<TState, TTransition, T1, T2, T3, T4>(State);
     }
 
     /// <inheritdoc />
