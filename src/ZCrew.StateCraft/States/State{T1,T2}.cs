@@ -8,51 +8,34 @@ using ZCrew.StateCraft.Transitions.Contracts;
 namespace ZCrew.StateCraft.States;
 
 /// <summary>
-///     Standard implementation of a state with a single parameter.
+///     Standard implementation of a state with two parameters.
 /// </summary>
-/// <typeparam name="TState">
-///     The state type. This should be an <see langword="enum"/> type or it should be an equatable type so the state
-///     machine behaves as expected.
-/// </typeparam>
-/// <typeparam name="TTransition">
-///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
-///     state machine behaves as expected.
-/// </typeparam>
-/// <typeparam name="T">The type of the parameter for this state.</typeparam>
 [DebuggerDisplay("{DisplayString}")]
-internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTransition>
+internal class State<TState, TTransition, T1, T2> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{StateValue}<{typeof(T).FriendlyName}>";
+    private string DisplayString => $"{StateValue}<{typeof(T1).FriendlyName}, {typeof(T2).FriendlyName}>";
 
-    private readonly IReadOnlyList<IAsyncAction<TState, T>> onActivateHandlers;
-    private readonly IReadOnlyList<IAsyncAction<TState, T>> onDeactivateHandlers;
-    private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState, T>> onStateChangeHandlers;
-    private readonly IReadOnlyList<IAsyncAction<T>> onEntryHandlers;
-    private readonly IReadOnlyList<IAsyncAction<T>> onExitHandlers;
-    private readonly IReadOnlyList<IParameterizedAction<T>> actions;
+    private readonly IReadOnlyList<IAsyncAction<TState, T1, T2>> onActivateHandlers;
+    private readonly IReadOnlyList<IAsyncAction<TState, T1, T2>> onDeactivateHandlers;
+    private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState, T1, T2>> onStateChangeHandlers;
+    private readonly IReadOnlyList<IAsyncAction<T1, T2>> onEntryHandlers;
+    private readonly IReadOnlyList<IAsyncAction<T1, T2>> onExitHandlers;
+    private readonly IReadOnlyList<IAction<T1, T2>> actions;
     private readonly TransitionTable<TState, TTransition> transitionTable = [];
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="ParameterizedState{TState, TTransition, T}"/> class.
+    ///     Initializes a new instance of the <see cref="State{TState, TTransition, T1, T2}"/> class.
     /// </summary>
-    /// <param name="state">The state value that identifies this state.</param>
-    /// <param name="onActivateHandlers">Handlers invoked when the state machine is activated.</param>
-    /// <param name="onDeactivateHandlers">Handlers invoked when the state machine is deactivated.</param>
-    /// <param name="onStateChangeHandlers">Handlers invoked when a state change occurs.</param>
-    /// <param name="onEntryHandlers">Handlers invoked when entering this state.</param>
-    /// <param name="onExitHandlers">Handlers invoked when exiting this state.</param>
-    /// <param name="actions">The actions associated with this state.</param>
-    /// <param name="stateMachine">The state machine that owns this state.</param>
-    public ParameterizedState(
+    public State(
         TState state,
-        IReadOnlyList<IAsyncAction<TState, T>> onActivateHandlers,
-        IReadOnlyList<IAsyncAction<TState, T>> onDeactivateHandlers,
-        IReadOnlyList<IAsyncAction<TState, TTransition, TState, T>> onStateChangeHandlers,
-        IReadOnlyList<IAsyncAction<T>> onEntryHandlers,
-        IReadOnlyList<IAsyncAction<T>> onExitHandlers,
-        IReadOnlyList<IParameterizedAction<T>> actions,
+        IReadOnlyList<IAsyncAction<TState, T1, T2>> onActivateHandlers,
+        IReadOnlyList<IAsyncAction<TState, T1, T2>> onDeactivateHandlers,
+        IReadOnlyList<IAsyncAction<TState, TTransition, TState, T1, T2>> onStateChangeHandlers,
+        IReadOnlyList<IAsyncAction<T1, T2>> onEntryHandlers,
+        IReadOnlyList<IAsyncAction<T1, T2>> onExitHandlers,
+        IReadOnlyList<IAction<T1, T2>> actions,
         IStateMachine<TState, TTransition> stateMachine
     )
     {
@@ -70,7 +53,7 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     public TState StateValue { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T)];
+    public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T1), typeof(T2)];
 
     /// <inheritdoc />
     public IStateMachine<TState, TTransition> StateMachine { get; }
@@ -81,22 +64,22 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     /// <inheritdoc />
     public async Task Activate(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = parameters.GetNextParameter<T>();
-        StateMachine.Tracker?.Activated(this, parameter);
+        var (p1, p2) = parameters.GetNextParameters<T1, T2>();
+        StateMachine.Tracker?.Activated(this, (p1, p2));
         foreach (var handler in this.onActivateHandlers)
         {
-            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(StateValue, parameter, token), token);
+            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(StateValue, p1, p2, token), token);
         }
     }
 
     /// <inheritdoc />
     public async Task Deactivate(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = parameters.GetPreviousParameter<T>();
-        StateMachine.Tracker?.Deactivated(this, parameter);
+        var (p1, p2) = parameters.GetPreviousParameters<T1, T2>();
+        StateMachine.Tracker?.Deactivated(this, (p1, p2));
         foreach (var handler in this.onDeactivateHandlers)
         {
-            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(StateValue, parameter, token), token);
+            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(StateValue, p1, p2, token), token);
         }
     }
 
@@ -108,11 +91,11 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
         CancellationToken token
     )
     {
-        var parameter = parameters.GetNextParameter<T>();
+        var (p1, p2) = parameters.GetNextParameters<T1, T2>();
         foreach (var handler in this.onStateChangeHandlers)
         {
             await StateMachine.RunWithExceptionHandling(
-                () => handler.InvokeAsync(previousState, transition, StateValue, parameter, token),
+                () => handler.InvokeAsync(previousState, transition, StateValue, p1, p2, token),
                 token
             );
         }
@@ -121,33 +104,33 @@ internal class ParameterizedState<TState, TTransition, T> : IState<TState, TTran
     /// <inheritdoc />
     public async Task Enter(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = parameters.GetNextParameter<T>();
-        StateMachine.Tracker?.Entered(this, parameter);
+        var (p1, p2) = parameters.GetNextParameters<T1, T2>();
+        StateMachine.Tracker?.Entered(this, (p1, p2));
         foreach (var handler in this.onEntryHandlers)
         {
-            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(parameter, token), token);
+            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(p1, p2, token), token);
         }
     }
 
     /// <inheritdoc />
     public async Task Exit(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = parameters.GetPreviousParameter<T>();
-        StateMachine.Tracker?.Exited(this, parameter);
+        var (p1, p2) = parameters.GetPreviousParameters<T1, T2>();
+        StateMachine.Tracker?.Exited(this, (p1, p2));
         foreach (var handler in this.onExitHandlers)
         {
-            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(parameter, token), token);
+            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(p1, p2, token), token);
         }
     }
 
     /// <inheritdoc />
     public async Task Action(IStateMachineParameters parameters, CancellationToken token)
     {
-        var parameter = parameters.GetCurrentParameter<T>();
+        var (p1, p2) = parameters.GetCurrentParameters<T1, T2>();
         foreach (var action in this.actions)
         {
             await StateMachine.RunWithExceptionHandling(
-                () => action.Invoke(parameter, token),
+                () => action.Invoke(p1, p2, token),
                 throwOnCancellation: false,
                 token
             );

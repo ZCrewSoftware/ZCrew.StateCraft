@@ -120,7 +120,6 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T> : ISta
     ///     Configures a <see cref="handler"/> delegate which will be called when the state changes. The parameters to
     ///     the <paramref name="handler"/> are: the previous state, the transition, the next state, the transition
     ///     parameter, and a token to monitor for cancellation.
-    ///     parameter.
     ///     </para>
     ///     <para>
     ///     Since this is configured for a specific state, the 'next state' will always be 'this state'.
@@ -187,7 +186,7 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T> : ISta
     /// <param name="configureAction">The delegate to call representing the primary function of the state.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterizedStateConfiguration<TState, TTransition, T> WithAction(
-        Func<IInitialParameterizedActionConfiguration<T>, IFinalParameterizedActionConfiguration<T>> configureAction
+        Func<IInitialActionConfiguration<T>, IActionConfiguration<T>> configureAction
     );
 
     /// <summary>

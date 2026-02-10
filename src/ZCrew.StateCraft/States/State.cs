@@ -19,7 +19,7 @@ namespace ZCrew.StateCraft.States;
 ///     state machine behaves as expected.
 /// </typeparam>
 [DebuggerDisplay("{DisplayString}")]
-internal class ParameterlessState<TState, TTransition> : IState<TState, TTransition>
+internal class State<TState, TTransition> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -30,11 +30,11 @@ internal class ParameterlessState<TState, TTransition> : IState<TState, TTransit
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChangeHandlers;
     private readonly IReadOnlyList<IAsyncAction> onEntryHandlers;
     private readonly IReadOnlyList<IAsyncAction> onExitHandlers;
-    private readonly IReadOnlyList<IParameterlessAction> actions;
+    private readonly IReadOnlyList<IAction> actions;
     private readonly TransitionTable<TState, TTransition> transitionTable = [];
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="ParameterlessState{TState, TTransition}"/> class.
+    ///     Initializes a new instance of the <see cref="State{TState, TTransition}"/> class.
     /// </summary>
     /// <param name="state">The state value that identifies this state.</param>
     /// <param name="onActivateHandlers">Handlers invoked when the state machine is activated.</param>
@@ -44,14 +44,14 @@ internal class ParameterlessState<TState, TTransition> : IState<TState, TTransit
     /// <param name="onExitHandlers">Handlers invoked when exiting this state.</param>
     /// <param name="actions">The actions associated with this state.</param>
     /// <param name="stateMachine">The state machine that owns this state.</param>
-    public ParameterlessState(
+    public State(
         TState state,
         IReadOnlyList<IAsyncAction<TState>> onActivateHandlers,
         IReadOnlyList<IAsyncAction<TState>> onDeactivateHandlers,
         IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChangeHandlers,
         IReadOnlyList<IAsyncAction> onEntryHandlers,
         IReadOnlyList<IAsyncAction> onExitHandlers,
-        IReadOnlyList<IParameterlessAction> actions,
+        IReadOnlyList<IAction> actions,
         IStateMachine<TState, TTransition> stateMachine
     )
     {

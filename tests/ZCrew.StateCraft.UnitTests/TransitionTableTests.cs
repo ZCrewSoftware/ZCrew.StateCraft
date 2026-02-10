@@ -11,7 +11,7 @@ public class TransitionTableTests
     public async Task LookupTransition_WhenParameterlessTransitionExists_ShouldReturnTransition()
     {
         // Arrange
-        var transition = new StubParameterlessTransition<string, string>("A", "GoTo B", "B");
+        var transition = new StubTransition<string, string>("A", "GoTo B", "B");
         var transitionTable = new TransitionTable<string, string>([transition]);
         var parameters = new StateMachineParameters();
         parameters.SetEmptyNextParameters();
@@ -31,8 +31,8 @@ public class TransitionTableTests
     public async Task LookupTransition_WhenMultipleTransitionsExist_ShouldReturnCorrectTransition()
     {
         // Arrange
-        var transitionA = new StubParameterlessTransition<string, string>("A", "T1", "B");
-        var transitionB = new StubParameterlessTransition<string, string>("B", "T2", "C");
+        var transitionA = new StubTransition<string, string>("A", "T1", "B");
+        var transitionB = new StubTransition<string, string>("B", "T2", "C");
         var transitionTable = new TransitionTable<string, string>([transitionA, transitionB]);
         var parameters = new StateMachineParameters();
         parameters.SetEmptyNextParameters();
@@ -51,7 +51,7 @@ public class TransitionTableTests
     public async Task LookupTransition_WhenTransitionDoesNotExist_ShouldReturnNull()
     {
         // Arrange
-        var transition = new StubParameterlessTransition<string, string>("A", "T1", "B");
+        var transition = new StubTransition<string, string>("A", "T1", "B");
         var transitionTable = new TransitionTable<string, string>([transition]);
         var parameters = new StateMachineParameters();
         parameters.SetEmptyNextParameters();
@@ -71,7 +71,7 @@ public class TransitionTableTests
     public async Task LookupTransition_WhenConditionFails_ShouldReturnNull()
     {
         // Arrange
-        var transition = Substitute.ForPartsOf<StubParameterlessTransition<string, string>>("A", "T1", "B");
+        var transition = Substitute.ForPartsOf<StubTransition<string, string>>("A", "T1", "B");
         transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
         var transitionTable = new TransitionTable<string, string>([transition]);
         var parameters = new StateMachineParameters();
@@ -103,7 +103,7 @@ public class TransitionTableTests
     public async Task LookupTransition_WhenParameterizedTransitionExists_ShouldReturnTransition()
     {
         // Arrange
-        var transition = new StubParameterizedTransition<string, string, int>("A", "T1", "B");
+        var transition = new StubTransition<string, string>("A", "T1", "B", typeof(int));
         var transitionTable = new TransitionTable<string, string>([transition]);
         var parameters = new StateMachineParameters();
         parameters.SetNextParameter(42);
@@ -119,7 +119,7 @@ public class TransitionTableTests
     public async Task LookupTransition_WhenParameterizedTransitionDoesNotExist_ShouldReturnNull()
     {
         // Arrange
-        var transition = new StubParameterizedTransition<string, string, int>("A", "T1", "B");
+        var transition = new StubTransition<string, string>("A", "T1", "B", typeof(int));
         var transitionTable = new TransitionTable<string, string>([transition]);
         var parameters = new StateMachineParameters();
         parameters.SetNextParameter(42);
@@ -139,7 +139,7 @@ public class TransitionTableTests
     public async Task LookupTransition_WhenWrongNextParameterType_ShouldReturnNull()
     {
         // Arrange
-        var transition = new StubParameterizedTransition<string, string, int>("A", "T1", "B");
+        var transition = new StubTransition<string, string>("A", "T1", "B", typeof(int));
         var transitionTable = new TransitionTable<string, string>([transition]);
         var parameters = new StateMachineParameters();
         parameters.SetNextParameter("wrong type");
@@ -155,7 +155,7 @@ public class TransitionTableTests
     public async Task LookupTransition_WhenParameterizedConditionFails_ShouldReturnNull()
     {
         // Arrange
-        var transition = Substitute.ForPartsOf<StubParameterizedTransition<string, string, int>>("A", "T1", "B");
+        var transition = Substitute.ForPartsOf<StubTransition<string, string>>("A", "T1", "B", new[] { typeof(int) });
         transition.EvaluateConditions(Arg.Any<IStateMachineParameters>(), Arg.Any<CancellationToken>()).Returns(false);
         var transitionTable = new TransitionTable<string, string>([transition]);
         var parameters = new StateMachineParameters();
@@ -172,7 +172,7 @@ public class TransitionTableTests
     public async Task LookupTransition_WhenNextParameterIsAssignableType_ShouldReturnTransition()
     {
         // Arrange
-        var transition = new StubParameterizedTransition<string, string, object>("A", "T1", "B");
+        var transition = new StubTransition<string, string>("A", "T1", "B", typeof(object));
         var transitionTable = new TransitionTable<string, string>([transition]);
         var parameters = new StateMachineParameters();
         parameters.SetNextParameter("a string value");
