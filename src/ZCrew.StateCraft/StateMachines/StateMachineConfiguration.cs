@@ -205,7 +205,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         Func<IInitialStateConfiguration<TState, TTransition>, IStateConfiguration<TState, TTransition>> configureState
     )
     {
-        var initialStateConfiguration = new ParameterlessStateConfiguration<TState, TTransition>(state);
+        var initialStateConfiguration = new StateConfiguration<TState, TTransition>(state);
         var finalStateConfiguration = configureState(initialStateConfiguration);
         this.stateConfigurations.Add(finalStateConfiguration);
         return this;

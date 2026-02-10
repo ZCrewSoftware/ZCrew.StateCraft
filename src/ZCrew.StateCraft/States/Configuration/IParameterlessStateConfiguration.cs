@@ -177,7 +177,7 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
     /// <param name="configureAction">The delegate to call representing the primary function of the state.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> WithAction(
-        Func<IInitialParameterlessActionConfiguration, IFinalParameterlessActionConfiguration> configureAction
+        Func<IInitialActionConfiguration, IActionConfiguration> configureAction
     );
 
     /// <summary>
