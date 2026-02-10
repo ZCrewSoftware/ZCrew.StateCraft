@@ -2,7 +2,7 @@ using NSubstitute;
 
 namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 
-public class ActivateTests
+public partial class ActivateTests
 {
     [Fact]
     public async Task Activate_WhenCalled_ShouldSetStateToInitialState()
@@ -200,39 +200,5 @@ public class ActivateTests
 
         // Assert
         onActivate.Received(1).Invoke("A");
-    }
-
-    [Fact]
-    public async Task Activate_WhenParameterizedStateWithoutParameter_ShouldThrow()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A")
-            .WithState("A", state => state.WithParameter<int>())
-            .Build();
-
-        // Act
-        var activate = () => stateMachine.Activate(TestContext.Current.CancellationToken);
-
-        // Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(activate);
-    }
-
-    [Fact]
-    public async Task Activate_WhenParameterlessStateWithParameter_ShouldThrow()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A", 42)
-            .WithState("A", state => state.WithNoParameters())
-            .Build();
-
-        // Act
-        var activate = () => stateMachine.Activate(TestContext.Current.CancellationToken);
-
-        // Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(activate);
     }
 }
