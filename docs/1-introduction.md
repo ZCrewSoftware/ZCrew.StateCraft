@@ -5,7 +5,7 @@
 - **Type Safety** - Generic state and transition types with compile-time checking
 - **Thread Safety** - Prevents concurrent state updates to guarantee reliability
 - **Async-First** - Native `async` / `await` throughout with cancellation support
-- **Parameterized States** - States can carry typed data, with parameter mapping between transitions
+- **Parameterized States** - States can carry up to 4 typed parameters, with parameter mapping between transitions
 - **Rich Lifecycle** - Hooks for activation, entry, exit, deactivation, and state changes
 - **Triggers** - Autonomous transitions based on signals or timers
 - **Exception Handling** - Configurable handlers with automatic partial rollback on failures
@@ -19,7 +19,7 @@ Each state can have:
 - Entry / exit handlers
 - An action (the work performed while in the state)
 - Outgoing transitions
-- An optional typed parameter
+- Optional typed parameters (up to 4)
 
 ### Transitions
 

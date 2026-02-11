@@ -4,6 +4,13 @@
     <File Path="docs/2-getting-started.md" />
     <File Path="docs/3-general-concepts.md" />
     <File Path="docs/4-state-lifecycle.md" />
+    <File Path="docs/5-actions.md" />
+    <File Path="docs/6-parameterless-transitions.md" />
+    <File Path="docs/7-parameterized-transitions.md" />
+    <File Path="docs/8-mapped-transitions.md" />
+    <File Path="docs/9-reentrant-transitions.md" />
+    <File Path="docs/10-triggers.md" />
+    <File Path="docs/11-exception-handling.md" />
   </Folder>
   <Folder Name="/samples/" />
   <Folder Name="/src/">

@@ -5,7 +5,7 @@ The parameter is provided at runtime when triggering the transition and is recei
 
 ## Configuration
 
-### Full Configuration
+### Single Parameter
 
 Use `WithParameter<T>()` to declare that the transition carries a parameter:
 
@@ -22,16 +22,39 @@ Use `WithParameter<T>()` to declare that the transition carries a parameter:
 
 The target state must be configured with a matching parameter type via `WithParameter<T>()`.
 
+### Multiple Parameters
+
+Use `WithParameters<T1, T2>()` (up to 4 type parameters) to declare that the transition carries multiple parameters:
+
+```csharp
+.WithState(State.Idle, state => state
+    .WithTransition(Transition.Start, t => t
+        .WithParameters<JobConfig, UserContext>()
+        .To(State.Processing)))
+
+.WithState(State.Processing, state => state
+    .WithParameters<JobConfig, UserContext>()
+    .OnEntry((config, context) =>
+        Console.WriteLine($"Processing: {config.Name} for {context.User}")))
+```
+
+The target state must be configured with matching parameter types via `WithParameters<T1, T2>()`.
+
 ### Shortcut
 
 The shortcut passes the type parameter directly on `WithTransition`:
 
 ```csharp
-// Shortcut
+// Single parameter shortcut
 .WithTransition<JobConfig>(Transition.Start, State.Processing)
 
 // Equivalent to
 .WithTransition(Transition.Start, t => t.WithParameter<JobConfig>().To(State.Processing))
+
+// Multi-parameter shortcuts
+.WithTransition<JobConfig, UserContext>(Transition.Start, State.Processing)
+.WithTransition<T1, T2, T3>(Transition.Start, State.Processing)
+.WithTransition<T1, T2, T3, T4>(Transition.Start, State.Processing)
 ```
 
 ## Triggering Parameterized Transitions
@@ -41,8 +64,16 @@ At runtime, provide the parameter when calling `Transition`:
 ```csharp
 var config = new JobConfig { Name = "Import", Items = items };
 
-// Parameterized transition requires the parameter
+// Single-parameter transition
 await machine.Transition(Transition.Start, config, cancellationToken);
+
+// Multi-parameter transition
+var context = new UserContext { User = "admin" };
+await machine.Transition(Transition.Start, config, context, cancellationToken);
+
+// CanTransition and TryTransition also support multiple parameters
+bool canStart = await machine.CanTransition(Transition.Start, config, context, cancellationToken);
+bool started = await machine.TryTransition(Transition.Start, config, context, cancellationToken);
 ```
 
 Calling the parameterless `Transition(transition)` overload on a parameterized transition will throw.
@@ -69,6 +100,36 @@ At runtime:
 
 ```csharp
 await machine.Transition(Transition.Fail, new ErrorReport { Message = "Timeout" }, cancellationToken);
+```
+
+## From Multi-Parameter States
+
+When the previous state has multiple parameters, all parameters are available in conditions before the parameter
+configuration. The transition can target any parameter configuration (parameterless, single, or multi):
+
+```csharp
+.WithState(State.Processing, state => state
+    .WithParameters<JobConfig, UserContext>()
+
+    // Transition to a single-parameter state
+    .WithTransition(Transition.Fail, t => t
+        .WithParameter<ErrorReport>()
+        .To(State.Failed))
+
+    // Transition to a multi-parameter state
+    .WithTransition(Transition.Escalate, t => t
+        .WithParameters<ErrorReport, UserContext>()
+        .To(State.Escalated)))
+```
+
+At runtime, provide all the transition parameters:
+
+```csharp
+// Single parameter
+await machine.Transition(Transition.Fail, new ErrorReport { Message = "Timeout" }, cancellationToken);
+
+// Multiple parameters
+await machine.Transition(Transition.Escalate, report, context, cancellationToken);
 ```
 
 ## Conditional Transitions
@@ -98,16 +159,35 @@ From a parameterized state, these conditions receive the previous state's parame
         .To(State.Failed)))
 ```
 
-### Conditions After WithParameter
-
-Conditions added after `WithParameter<T>()` receive the transition's parameter (the value that will be passed to the
-next state):
+From a multi-parameter state, conditions receive all previous parameters:
 
 ```csharp
+.WithState(State.Processing, state => state
+    .WithParameters<JobConfig, UserContext>()
+    .WithTransition(Transition.Fail, t => t
+        .If((config, context) => config.RetryCount >= 3 && context.HasPermission)
+        .WithParameter<ErrorReport>()
+        .To(State.Failed)))
+```
+
+### Conditions After WithParameter / WithParameters
+
+Conditions added after `WithParameter<T>()` or `WithParameters<T1, T2>()` receive the transition's parameter(s) (the
+values that will be passed to the next state):
+
+```csharp
+// Single parameter
 .WithState(State.Idle, state => state
     .WithTransition(Transition.Start, t => t
         .WithParameter<JobConfig>()
         .If(config => config.Items.Count > 0)
+        .To(State.Processing)))
+
+// Multiple parameters
+.WithState(State.Idle, state => state
+    .WithTransition(Transition.Start, t => t
+        .WithParameters<JobConfig, UserContext>()
+        .If((config, context) => config.Items.Count > 0 && context.HasPermission)
         .To(State.Processing)))
 ```
 

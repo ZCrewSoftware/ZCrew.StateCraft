@@ -5,7 +5,7 @@
 Add a reference to the `ZCrew.StateCraft` project:
 
 ```xml
-TODO NUGET PACKAGE
+<PackageReference Include="ZCrew.StateCraft" />
 ```
 
 Then add the namespace:
@@ -90,6 +90,12 @@ Move between states by triggering transitions:
 ```csharp
 // Transition (throws if invalid)
 await machine.Transition(Transition.Start, cancellationToken);
+
+// Parameterized transition (single parameter)
+await machine.Transition(Transition.Start, config, cancellationToken);
+
+// Multi-parameter transition (up to 4 parameters)
+await machine.Transition(Transition.Start, config, context, cancellationToken);
 
 // Check if a transition is valid
 bool canStop = await machine.CanTransition(Transition.Stop, cancellationToken);

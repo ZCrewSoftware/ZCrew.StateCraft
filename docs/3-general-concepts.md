@@ -121,6 +121,36 @@ The target state must be configured with a matching parameter type:
     .OnEntry(config => Console.WriteLine($"Processing: {config.Name}")))
 ```
 
+### Multi-Parameter Initial State
+
+Initial states can carry up to 4 typed parameters:
+
+```csharp
+// Static state with two parameters
+.WithInitialState<JobConfig, UserContext>(State.Processing, config, userContext)
+
+// Provider returning tuple
+.WithInitialState<JobConfig, UserContext>(async token =>
+{
+    var config = await LoadConfigAsync(token);
+    var context = await LoadContextAsync(token);
+    return (State.Processing, config, context);
+})
+
+// Three and four parameters follow the same pattern
+.WithInitialState<T1, T2, T3>(State.X, p1, p2, p3)
+.WithInitialState<T1, T2, T3, T4>(State.X, p1, p2, p3, p4)
+```
+
+The target state must be configured with matching parameter types:
+
+```csharp
+.WithState(State.Processing, state => state
+    .WithParameters<JobConfig, UserContext>()
+    .OnEntry((config, context) =>
+        Console.WriteLine($"Processing {config.Name} for {context.User}")))
+```
+
 ## Build and Validation
 
 The `Build()` method creates a state machine instance from the configuration.

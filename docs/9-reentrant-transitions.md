@@ -9,6 +9,8 @@ convert the parameter to a different type, see [Mapped Transitions](./8-mapped-t
 
 ## Configuration
 
+### Single Parameter
+
 Use `WithSameParameter()` to pass the parameter through unchanged:
 
 ```csharp
@@ -22,10 +24,24 @@ Use `WithSameParameter()` to pass the parameter through unchanged:
 This re-enters `State.Processing` with the same `JobData` parameter.
 The full lifecycle runs: `OnExit` for the current state, then `OnEntry` for the re-entered state.
 
+### Multiple Parameters
+
+Use `WithSameParameters()` (plural) to pass all parameters through unchanged:
+
+```csharp
+.WithState(State.Processing, state => state
+    .WithParameters<JobData, UserContext>()
+    .WithTransition(Transition.Retry, t => t
+        .WithSameParameters()
+        .To(State.Processing)))
+```
+
+This re-enters `State.Processing` with the same `JobData` and `UserContext` parameters.
+
 ### Transitioning to a Different State
 
-Reentrant transitions are not limited to re-entering the same state. `WithSameParameter()` can target any state that
-accepts the same parameter type:
+Reentrant transitions are not limited to re-entering the same state. `WithSameParameter()` / `WithSameParameters()` can
+target any state that accepts the same parameter type(s):
 
 ```csharp
 .WithState(State.Processing, state => state
@@ -41,19 +57,16 @@ accepts the same parameter type:
 
 ### Shortcut
 
-On parameterized states, the shortcut `.WithTransition(transition, state)` uses `WithSameParameter()` to preserve the
-current parameter:
+On single-parameter states, the shortcut `.WithTransition(transition, state)` uses `WithSameParameter()` to preserve
+the current parameter:
 
 ```csharp
-// Shortcut (from a parameterized state)
+// Shortcut (from a single-parameter state)
 .WithTransition(Transition.Retry, State.Processing)
 
 // Equivalent to
 .WithTransition(Transition.Retry, t => t.WithSameParameter().To(State.Processing))
 ```
-
-> **Note:** This differs from parameterless states, where the same shortcut creates a
-> [parameterless transition](./6-parameterless-transitions.md).
 
 ## No Runtime Parameter Required
 
@@ -68,23 +81,32 @@ parameter at runtime.
 
 ## Conditional Transitions
 
-### Conditions Before WithSameParameter
+### Conditions Before WithSameParameter / WithSameParameters
 
-Conditions added before `WithSameParameter()` receive the previous state's parameter:
+Conditions added before `WithSameParameter()` / `WithSameParameters()` receive the previous state's parameter(s):
 
 ```csharp
+// Single parameter
 .WithState(State.Processing, state => state
     .WithParameter<JobData>()
     .WithTransition(Transition.Retry, t => t
         .If(job => job.RetryCount < 3)
         .WithSameParameter()
         .To(State.Processing)))
+
+// Multiple parameters
+.WithState(State.Processing, state => state
+    .WithParameters<JobData, UserContext>()
+    .WithTransition(Transition.Retry, t => t
+        .If((job, context) => job.RetryCount < 3 && context.HasPermission)
+        .WithSameParameters()
+        .To(State.Processing)))
 ```
 
-### Conditions After WithSameParameter
+### Conditions After WithSameParameter / WithSameParameters
 
-This has no real impact compared to placing the conditions before `WithSameParameter()`.
-Conditions added after `WithSameParameter()` receive the same parameter (since it is passed through unchanged):
+This has no real impact compared to placing the conditions before `WithSameParameter()` / `WithSameParameters()`.
+Conditions added after receive the same parameter(s) (since they are passed through unchanged):
 
 ```csharp
 .WithState(State.Processing, state => state
@@ -97,8 +119,8 @@ Conditions added after `WithSameParameter()` receive the same parameter (since i
 
 ### Combining Conditions
 
-Conditions can be placed both before and after `WithSameParameter()`.
-This has no real impact compared to placing the conditions before `WithSameParameter()`.
+Conditions can be placed both before and after `WithSameParameter()` / `WithSameParameters()`.
+This has no real impact compared to placing the conditions before.
 All conditions are evaluated in order: conditions added before are evaluated first, followed by conditions added after:
 
 ```csharp
