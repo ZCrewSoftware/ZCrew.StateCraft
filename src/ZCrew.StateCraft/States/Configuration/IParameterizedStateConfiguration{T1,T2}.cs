@@ -111,7 +111,7 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T1, T2>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithTransition(TTransition transition, TState to)
     {
-        return WithTransition(transition, t => t.WithSameParameters().To(to));
+        return WithTransition(transition, t => t.WithNoParameters().To(to));
     }
 
     /// <summary>
