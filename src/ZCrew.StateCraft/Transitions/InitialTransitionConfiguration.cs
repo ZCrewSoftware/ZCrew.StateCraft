@@ -59,18 +59,45 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public IParameterlessTransitionConfiguration<TState, TTransition> WithNoParameters()
+    public IDirectTransitionConfiguration<TState, TTransition> WithNoParameters()
     {
-        return new ParameterlessTransitionConfiguration<TState, TTransition>(
+        return new PartialDirectTransitionConfiguration<TState, TTransition>(
             this.previousStateConfiguration,
             this.transitionValue
         );
     }
 
     /// <inheritdoc />
-    public IParameterizedTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>()
+    public IDirectTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>()
     {
-        return new ParameterizedTransitionConfiguration<TState, TTransition, TNext>(
+        return new PartialDirectTransitionConfiguration<TState, TTransition, TNext>(
+            this.previousStateConfiguration,
+            this.transitionValue
+        );
+    }
+
+    /// <inheritdoc />
+    public IDirectTransitionConfiguration<TState, TTransition, T1, T2> WithParameters<T1, T2>()
+    {
+        return new PartialDirectTransitionConfiguration<TState, TTransition, T1, T2>(
+            this.previousStateConfiguration,
+            this.transitionValue
+        );
+    }
+
+    /// <inheritdoc />
+    public IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3> WithParameters<T1, T2, T3>()
+    {
+        return new PartialDirectTransitionConfiguration<TState, TTransition, T1, T2, T3>(
+            this.previousStateConfiguration,
+            this.transitionValue
+        );
+    }
+
+    /// <inheritdoc />
+    public IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>()
+    {
+        return new PartialDirectTransitionConfiguration<TState, TTransition, T1, T2, T3, T4>(
             this.previousStateConfiguration,
             this.transitionValue
         );
@@ -141,18 +168,45 @@ internal class InitialTransitionConfiguration<TState, TTransition, TPrevious>
     }
 
     /// <inheritdoc />
-    public IParameterlessTransitionConfiguration<TState, TTransition> WithNoParameters()
+    public IDirectTransitionConfiguration<TState, TTransition> WithNoParameters()
     {
-        return new ParameterlessTransitionConfiguration<TState, TTransition>(
+        return new PartialDirectTransitionConfiguration<TState, TTransition>(
             this.previousStateConfiguration,
             this.transitionValue
         );
     }
 
     /// <inheritdoc />
-    public IParameterizedTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>()
+    public IDirectTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>()
     {
-        return new ParameterizedTransitionConfiguration<TState, TTransition, TNext>(
+        return new PartialDirectTransitionConfiguration<TState, TTransition, TNext>(
+            this.previousStateConfiguration,
+            this.transitionValue
+        );
+    }
+
+    /// <inheritdoc />
+    public IDirectTransitionConfiguration<TState, TTransition, T1, T2> WithParameters<T1, T2>()
+    {
+        return new PartialDirectTransitionConfiguration<TState, TTransition, T1, T2>(
+            this.previousStateConfiguration,
+            this.transitionValue
+        );
+    }
+
+    /// <inheritdoc />
+    public IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3> WithParameters<T1, T2, T3>()
+    {
+        return new PartialDirectTransitionConfiguration<TState, TTransition, T1, T2, T3>(
+            this.previousStateConfiguration,
+            this.transitionValue
+        );
+    }
+
+    /// <inheritdoc />
+    public IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>()
+    {
+        return new PartialDirectTransitionConfiguration<TState, TTransition, T1, T2, T3, T4>(
             this.previousStateConfiguration,
             this.transitionValue
         );

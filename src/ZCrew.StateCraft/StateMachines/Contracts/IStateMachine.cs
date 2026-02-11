@@ -90,6 +90,58 @@ public interface IStateMachine<TState, TTransition> : IDisposable
     Task Transition<T>(TTransition transition, T parameter, CancellationToken token = default);
 
     /// <summary>
+    ///     Transitions the state machine moving from the current state to a new state with two parameters.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <param name="transition">The transition to apply.</param>
+    /// <param name="parameter1">The first parameter for the next state.</param>
+    /// <param name="parameter2">The second parameter for the next state.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    Task Transition<T1, T2>(TTransition transition, T1 parameter1, T2 parameter2, CancellationToken token = default);
+
+    /// <summary>
+    ///     Transitions the state machine moving from the current state to a new state with three parameters.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the next state.</typeparam>
+    /// <param name="transition">The transition to apply.</param>
+    /// <param name="parameter1">The first parameter for the next state.</param>
+    /// <param name="parameter2">The second parameter for the next state.</param>
+    /// <param name="parameter3">The third parameter for the next state.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    Task Transition<T1, T2, T3>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3,
+        CancellationToken token = default
+    );
+
+    /// <summary>
+    ///     Transitions the state machine moving from the current state to a new state with four parameters.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the next state.</typeparam>
+    /// <typeparam name="T4">The type of the fourth parameter for the next state.</typeparam>
+    /// <param name="transition">The transition to apply.</param>
+    /// <param name="parameter1">The first parameter for the next state.</param>
+    /// <param name="parameter2">The second parameter for the next state.</param>
+    /// <param name="parameter3">The third parameter for the next state.</param>
+    /// <param name="parameter4">The fourth parameter for the next state.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    Task Transition<T1, T2, T3, T4>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3,
+        T4 parameter4,
+        CancellationToken token = default
+    );
+
+    /// <summary>
     ///     Determines whether a transition to a parameterless next state can be made from the current state.
     /// </summary>
     /// <param name="transition">The transition to check.</param>

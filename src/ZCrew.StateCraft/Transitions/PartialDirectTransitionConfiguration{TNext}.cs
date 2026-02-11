@@ -5,32 +5,33 @@ using ZCrew.StateCraft.States.Configuration;
 
 namespace ZCrew.StateCraft.Transitions;
 
-/// <inheritdoc />
+/// <inheritdoc cref="IDirectTransitionConfiguration{TState,TTransition,TNext}"/>
 [DebuggerDisplay("{DisplayString}")]
-internal class ParameterlessTransitionConfiguration<TState, TTransition>
-    : IParameterlessTransitionConfiguration<TState, TTransition>
+internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext>
+    : IDirectTransitionConfiguration<TState, TTransition, TNext>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{this.transitionValue}({this.previousStateConfiguration.StateValue}) → ?";
+    private string DisplayString =>
+        $"{this.transitionValue}({this.previousStateConfiguration.StateValue}) → ?<{typeof(TNext).FriendlyName}>";
 
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
-    private readonly IPartialNextStateConfiguration<TState, TTransition> nextStateConfiguration;
+    private readonly IPartialNextStateConfiguration<TState, TTransition, TNext> nextStateConfiguration;
     private readonly TTransition transitionValue;
 
     /// <summary>
     ///     Initializes a new instance of the
-    ///     <see cref="ParameterlessTransitionConfiguration{TState, TTransition}"/> class.
+    ///     <see cref="PartialDirectTransitionConfiguration{TState, TTransition, TNext}"/> class.
     /// </summary>
     /// <param name="previousStateConfiguration">The configuration for the previous state.</param>
     /// <param name="transition">The transition value that triggers this transition.</param>
-    public ParameterlessTransitionConfiguration(
+    public PartialDirectTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
         TTransition transition
     )
     {
         this.previousStateConfiguration = previousStateConfiguration;
-        this.nextStateConfiguration = new PartialNextStateConfiguration<TState, TTransition>();
+        this.nextStateConfiguration = new PartialNextStateConfiguration<TState, TTransition, TNext>();
         this.transitionValue = transition;
     }
 
@@ -51,22 +52,24 @@ internal class ParameterlessTransitionConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public IParameterlessTransitionConfiguration<TState, TTransition> If(Func<bool> condition)
+    public IDirectTransitionConfiguration<TState, TTransition, TNext> If(Func<TNext, bool> condition)
     {
         this.nextStateConfiguration.Add(condition.AsAsyncFunc());
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterlessTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, Task<bool>> condition)
+    public IDirectTransitionConfiguration<TState, TTransition, TNext> If(
+        Func<TNext, CancellationToken, Task<bool>> condition
+    )
     {
         this.nextStateConfiguration.Add(condition.AsAsyncFunc());
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterlessTransitionConfiguration<TState, TTransition> If(
-        Func<CancellationToken, ValueTask<bool>> condition
+    public IDirectTransitionConfiguration<TState, TTransition, TNext> If(
+        Func<TNext, CancellationToken, ValueTask<bool>> condition
     )
     {
         this.nextStateConfiguration.Add(condition.AsAsyncFunc());

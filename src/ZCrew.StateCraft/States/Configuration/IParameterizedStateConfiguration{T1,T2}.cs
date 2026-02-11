@@ -87,4 +87,100 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T1, T2>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithAction(
         Func<IInitialActionConfiguration<T1, T2>, IActionConfiguration<T1, T2>> configureAction
     );
+
+    /// <summary>
+    ///     Configures a new transition for this state.
+    /// </summary>
+    /// <param name="transition">The transition to configure.</param>
+    /// <param name="configureTransition">The configuration setup.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithTransition(
+        TTransition transition,
+        Func<
+            IInitialTransitionConfiguration<TState, TTransition>,
+            ITransitionConfiguration<TState, TTransition>
+        > configureTransition
+    );
+
+    /// <summary>
+    ///     Configures a new parameterless transition for this state. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithNoParameters().To(to))</c>.
+    /// </summary>
+    /// <param name="transition">The transition to configure.</param>
+    /// <param name="to">The target state.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithTransition(TTransition transition, TState to)
+    {
+        return WithTransition(transition, t => t.WithNoParameters().To(to));
+    }
+
+    /// <summary>
+    ///     Configures a new single-parameter transition for this state. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithParameter&lt;TNext&gt;().To(to))</c>.
+    /// </summary>
+    /// <typeparam name="TNext">The type of the parameter for the target state.</typeparam>
+    /// <param name="transition">The transition to configure.</param>
+    /// <param name="to">The target state.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithTransition<TNext>(
+        TTransition transition,
+        TState to
+    )
+    {
+        return WithTransition(transition, t => t.WithParameter<TNext>().To(to));
+    }
+
+    /// <summary>
+    ///     Configures a new two-parameter transition for this state. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithParameters&lt;TNext1, TNext2&gt;().To(to))</c>.
+    /// </summary>
+    /// <typeparam name="TNext1">The type of the first parameter for the target state.</typeparam>
+    /// <typeparam name="TNext2">The type of the second parameter for the target state.</typeparam>
+    /// <param name="transition">The transition to configure.</param>
+    /// <param name="to">The target state.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithTransition<TNext1, TNext2>(
+        TTransition transition,
+        TState to
+    )
+    {
+        return WithTransition(transition, t => t.WithParameters<TNext1, TNext2>().To(to));
+    }
+
+    /// <summary>
+    ///     Configures a new three-parameter transition for this state. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithParameters&lt;TNext1, TNext2, TNext3&gt;().To(to))</c>.
+    /// </summary>
+    /// <typeparam name="TNext1">The type of the first parameter for the target state.</typeparam>
+    /// <typeparam name="TNext2">The type of the second parameter for the target state.</typeparam>
+    /// <typeparam name="TNext3">The type of the third parameter for the target state.</typeparam>
+    /// <param name="transition">The transition to configure.</param>
+    /// <param name="to">The target state.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithTransition<TNext1, TNext2, TNext3>(
+        TTransition transition,
+        TState to
+    )
+    {
+        return WithTransition(transition, t => t.WithParameters<TNext1, TNext2, TNext3>().To(to));
+    }
+
+    /// <summary>
+    ///     Configures a new four-parameter transition for this state. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithParameters&lt;TNext1, TNext2, TNext3, TNext4&gt;().To(to))</c>.
+    /// </summary>
+    /// <typeparam name="TNext1">The type of the first parameter for the target state.</typeparam>
+    /// <typeparam name="TNext2">The type of the second parameter for the target state.</typeparam>
+    /// <typeparam name="TNext3">The type of the third parameter for the target state.</typeparam>
+    /// <typeparam name="TNext4">The type of the fourth parameter for the target state.</typeparam>
+    /// <param name="transition">The transition to configure.</param>
+    /// <param name="to">The target state.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithTransition<TNext1, TNext2, TNext3, TNext4>(
+        TTransition transition,
+        TState to
+    )
+    {
+        return WithTransition(transition, t => t.WithParameters<TNext1, TNext2, TNext3, TNext4>().To(to));
+    }
 }
