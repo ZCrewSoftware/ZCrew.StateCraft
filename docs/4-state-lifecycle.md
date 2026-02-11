@@ -15,7 +15,7 @@ StateCraft provides hooks at key points in a state machine's lifecycle:
 | `OnDeactivate`  | Called once when the state machine stops  | ✘                    | ✔                  |
 
 Each handler supports both synchronous and asynchronous signatures.
-Each state-level handler will have the same parameters as the state, if any.
+Each state-level handler will have the same parameters as the state, if any (up to 4 parameters).
 
 ## State Machine Flow
 
@@ -77,6 +77,17 @@ For parameterized states, the handler receives both the state and its parameter:
         Console.WriteLine($"Activated in {currentState} with job: {config.Name}")))
 ```
 
+### Multi-Parameter States
+
+For states with multiple parameters, the handler receives the state and all parameters:
+
+```csharp
+.WithState(State.Processing, state => state
+    .WithParameters<JobConfig, UserContext>()
+    .OnActivate((currentState, config, context) =>
+        Console.WriteLine($"Activated in {currentState} with job: {config.Name} for {context.User}")))
+```
+
 ## Entry and Exit
 
 The `OnEntry` and `OnExit` handlers run during state transitions.
@@ -109,6 +120,21 @@ For parameterized states, handlers receive the state parameter:
     .OnExit(async (job, token) => await StopAsync(job, token)))
 ```
 
+### Multi-Parameter States
+
+For states with multiple parameters, handlers receive all parameters:
+
+```csharp
+.WithState(State.Running, state => state
+    .WithParameters<JobData, UserContext>()
+    // Synchronous multi-parameter handlers
+    .OnEntry((job, context) => Console.WriteLine($"Running job: {job.Id} for {context.User}"))
+    .OnExit((job, context) => Console.WriteLine($"Stopping job: {job.Id}"))
+    // Asynchronous multi-parameter handlers
+    .OnEntry(async (job, context, token) => await RunAsync(job, context, token))
+    .OnExit(async (job, context, token) => await StopAsync(job, context, token)))
+```
+
 ## State Change Handlers
 
 StateCraft provides two levels of state change handlers:
@@ -133,6 +159,15 @@ If the state has a parameter then that parameter will be present on the state-le
     .WithParameter<JobData>()
     .OnStateChange((from, transition, to, job) =>
         Console.WriteLine($"Entering Running from {from} via {transition} for job: {job.Id}")))
+```
+
+For multi-parameter states, all parameters are passed to the handler:
+
+```csharp
+.WithState(State.Running, state => state
+    .WithParameters<JobData, UserContext>()
+    .OnStateChange((from, transition, to, job, context) =>
+        Console.WriteLine($"Entering Running from {from} for job: {job.Id} by {context.User}")))
 ```
 
 ### Machine-Level Handler
@@ -181,6 +216,21 @@ If the state has a parameter then that parameter will be present on the deactiva
     {
         await ReleaseResourcesAsync(token);
         Console.WriteLine($"Deactivated from {currentState} for job: {job.Id}");
+    }))
+```
+
+### Multi-Parameter States
+
+For multi-parameter states, all parameters are passed to the deactivation handler:
+
+```csharp
+.WithState(State.Running, state => state
+    .WithParameters<JobData, UserContext>()
+    .OnDeactivate((currentState, job, context) =>
+        Console.WriteLine($"Deactivating from {currentState} for job: {job.Id}"))
+    .OnDeactivate(async (currentState, job, context, token) =>
+    {
+        await ReleaseResourcesAsync(token);
     }))
 ```
 

@@ -53,6 +53,24 @@ For states with parameters, the action receives the state parameter:
         })))
 ```
 
+### Multi-Parameter Actions
+
+For states with multiple parameters, the action receives all parameters:
+
+```csharp
+.WithState(State.Processing, state => state
+    .WithParameters<JobConfig, UserContext>()
+    .WithAction(action => action
+        .Invoke(async (job, context, token) =>
+        {
+            foreach (var item in job.Items)
+            {
+                token.ThrowIfCancellationRequested();
+                await ProcessItemAsync(item, context.User, token);
+            }
+        })))
+```
+
 ### Running Actions Asynchronously
 
 The state machine can be configured to run all actions asynchronously:

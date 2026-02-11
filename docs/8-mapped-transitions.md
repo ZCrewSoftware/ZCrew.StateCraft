@@ -6,7 +6,9 @@ function. They are only available from parameterized states and do not require a
 
 ## Configuration
 
-Use `WithMappedParameter<TNext>(Func<TPrevious, TNext> map)` to define the mapping:
+### Single Parameter Mapping
+
+Use `WithMappedParameter<TNext>(Func<TPrevious, TNext> map)` to define a mapping that produces a single parameter:
 
 ```csharp
 .WithState(State.Processing, state => state
@@ -18,6 +20,44 @@ Use `WithMappedParameter<TNext>(Func<TPrevious, TNext> map)` to define the mappi
 .WithState(State.Completed, state => state
     .WithParameter<JobResult>()
     .OnEntry(result => Console.WriteLine($"Done: {result.ItemsProcessed} items")))
+```
+
+### Multi-Parameter Mapping
+
+Use `WithMappedParameters<TN1, TN2>(...)` (up to 4 output parameters) to map to multiple parameters. The mapping
+function returns a tuple:
+
+```csharp
+.WithState(State.Processing, state => state
+    .WithParameter<JobData>()
+    .WithTransition(Transition.Complete, t => t
+        .WithMappedParameters<JobResult, AuditLog>(
+            job => (new JobResult(job.ItemsProcessed), new AuditLog(job.Name)))
+        .To(State.Completed)))
+
+.WithState(State.Completed, state => state
+    .WithParameters<JobResult, AuditLog>()
+    .OnEntry((result, log) =>
+        Console.WriteLine($"Done: {result.ItemsProcessed} items, logged: {log.Name}")))
+```
+
+### Mapping from Multi-Parameter States
+
+When the source state has multiple parameters, the mapping function receives all of them:
+
+```csharp
+.WithState(State.Processing, state => state
+    .WithParameters<JobData, UserContext>()
+    .WithTransition(Transition.Complete, t => t
+        // Map two parameters to one
+        .WithMappedParameter<JobResult>(
+            (job, context) => new JobResult(job.ItemsProcessed, context.User))
+        .To(State.Completed))
+    .WithTransition(Transition.Archive, t => t
+        // Map two parameters to two
+        .WithMappedParameters<ArchiveRecord, AuditLog>(
+            (job, context) => (new ArchiveRecord(job), new AuditLog(context.User)))
+        .To(State.Archived)))
 ```
 
 ## No Runtime Parameter Required
@@ -37,29 +77,49 @@ parameter at runtime.
 
 ## Conditional Transitions
 
-### Conditions Before WithMappedParameter
+### Conditions Before WithMappedParameter / WithMappedParameters
 
-Conditions added before the mapping receive the previous state's parameter:
+Conditions added before the mapping receive the previous state's parameter(s):
 
 ```csharp
+// Single-parameter state
 .WithState(State.Processing, state => state
     .WithParameter<JobData>()
     .WithTransition(Transition.Complete, t => t
         .If(job => job.IsFinished)
         .WithMappedParameter<JobResult>(job => new JobResult(job.ItemsProcessed))
         .To(State.Completed)))
+
+// Multi-parameter state
+.WithState(State.Processing, state => state
+    .WithParameters<JobData, UserContext>()
+    .WithTransition(Transition.Complete, t => t
+        .If((job, context) => job.IsFinished && context.HasPermission)
+        .WithMappedParameter<JobResult>(
+            (job, context) => new JobResult(job.ItemsProcessed))
+        .To(State.Completed)))
 ```
 
-### Conditions After WithMappedParameter
+### Conditions After WithMappedParameter / WithMappedParameters
 
-Conditions added after the mapping receive the mapped (next) parameter:
+Conditions added after the mapping receive the mapped (next) parameter(s):
 
 ```csharp
+// Single mapped parameter
 .WithState(State.Processing, state => state
     .WithParameter<JobData>()
     .WithTransition(Transition.Complete, t => t
         .WithMappedParameter<JobResult>(job => new JobResult(job.ItemsProcessed))
         .If(result => result.ItemsProcessed > 0)
+        .To(State.Completed)))
+
+// Multiple mapped parameters
+.WithState(State.Processing, state => state
+    .WithParameter<JobData>()
+    .WithTransition(Transition.Complete, t => t
+        .WithMappedParameters<JobResult, AuditLog>(
+            job => (new JobResult(job.ItemsProcessed), new AuditLog(job.Name)))
+        .If((result, log) => result.ItemsProcessed > 0)
         .To(State.Completed)))
 ```
 

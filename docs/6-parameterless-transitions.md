@@ -53,6 +53,16 @@ When leaving a parameterized state, a parameterless transition drops the previou
 
 The target state (`State.Idle`) does not receive any parameter.
 
+This also applies to multi-parameter states:
+
+```csharp
+.WithState(State.Processing, state => state
+    .WithParameters<JobData, UserContext>()
+    .WithTransition(Transition.Cancel, t => t
+        .WithNoParameters()
+        .To(State.Idle)))
+```
+
 ## Conditional Transitions
 
 Conditions control whether a transition is allowed. All conditions must pass for the transition to proceed.
@@ -79,6 +89,17 @@ From a parameterized state, these conditions receive the previous state's parame
     .WithParameter<JobData>()
     .WithTransition(Transition.Cancel, t => t
         .If(job => job.IsCancellable)
+        .WithNoParameters()
+        .To(State.Idle)))
+```
+
+From a multi-parameter state, conditions receive all of the previous state's parameters:
+
+```csharp
+.WithState(State.Processing, state => state
+    .WithParameters<JobData, UserContext>()
+    .WithTransition(Transition.Cancel, t => t
+        .If((job, context) => job.IsCancellable && context.HasPermission)
         .WithNoParameters()
         .To(State.Idle)))
 ```
