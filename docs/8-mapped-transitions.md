@@ -24,7 +24,7 @@ Use `WithMappedParameter<TNext>(Func<TPrevious, TNext> map)` to define a mapping
 
 ### Multi-Parameter Mapping
 
-Use `WithMappedParameters<TN1, TN2>(...)` (up to 4 output parameters) to map to multiple parameters. The mapping
+Use `WithMappedParameters<TNext1, TNext2>(...)` (up to 4 output parameters) to map to multiple parameters. The mapping
 function returns a tuple:
 
 ```csharp

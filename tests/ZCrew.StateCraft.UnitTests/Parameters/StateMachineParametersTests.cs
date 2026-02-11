@@ -126,6 +126,19 @@ public class StateMachineParametersTests
     }
 
     [Fact]
+    public void SetNextParameters_T1_T2_WhenCalled_ShouldSetNextParametersSetFlag()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        parameters.SetNextParameters("first", 42);
+
+        // Assert
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+    }
+
+    [Fact]
     public void SetNextParameters_T1_T2_T3_WhenCalled_ShouldStageParameters()
     {
         // Arrange
@@ -173,6 +186,19 @@ public class StateMachineParametersTests
         Assert.Equal("value", s);
         Assert.Equal(42, i);
         Assert.True(b);
+    }
+
+    [Fact]
+    public void SetNextParameters_T1_T2_T3_WhenCalled_ShouldSetNextParametersSetFlag()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        parameters.SetNextParameters("first", 42, true);
+
+        // Assert
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
     }
 
     [Fact]
@@ -226,6 +252,19 @@ public class StateMachineParametersTests
         Assert.Equal(42, i);
         Assert.True(b);
         Assert.Equal('x', c);
+    }
+
+    [Fact]
+    public void SetNextParameters_T1_T2_T3_T4_WhenCalled_ShouldSetNextParametersSetFlag()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        parameters.SetNextParameters("first", 42, true, 'x');
+
+        // Assert
+        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
     }
 
     [Fact]
@@ -346,6 +385,19 @@ public class StateMachineParametersTests
     }
 
     [Fact]
+    public void GetPreviousParameters_T1_T2_WhenNoParametersSet_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        Action act = () => parameters.GetPreviousParameters<string, int>();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
     public void GetPreviousParameters_T1_T2_WhenParametersExist_ShouldReturnValues()
     {
         // Arrange
@@ -373,6 +425,19 @@ public class StateMachineParametersTests
 
         // Act
         Action act = () => parameters.GetPreviousParameters<string, int>();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void GetPreviousParameters_T1_T2_T3_WhenNoParametersSet_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        Action act = () => parameters.GetPreviousParameters<string, int, bool>();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
@@ -407,6 +472,19 @@ public class StateMachineParametersTests
 
         // Act
         Action act = () => parameters.GetPreviousParameters<string, int, bool>();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void GetPreviousParameters_T1_T2_T3_T4_WhenNoParametersSet_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        Action act = () => parameters.GetPreviousParameters<string, int, bool, char>();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
@@ -506,6 +584,19 @@ public class StateMachineParametersTests
     }
 
     [Fact]
+    public void GetCurrentParameters_T1_T2_WhenNoParametersSet_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        Action act = () => parameters.GetCurrentParameters<string, int>();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
     public void GetCurrentParameters_T1_T2_WhenParametersExist_ShouldReturnValues()
     {
         // Arrange
@@ -531,6 +622,19 @@ public class StateMachineParametersTests
 
         // Act
         Action act = () => parameters.GetCurrentParameters<string, int>();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void GetCurrentParameters_T1_T2_T3_WhenNoParametersSet_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        Action act = () => parameters.GetCurrentParameters<string, int, bool>();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
@@ -563,6 +667,19 @@ public class StateMachineParametersTests
 
         // Act
         Action act = () => parameters.GetCurrentParameters<string, int, bool>();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void GetCurrentParameters_T1_T2_T3_T4_WhenNoParametersSet_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        Action act = () => parameters.GetCurrentParameters<string, int, bool, char>();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
@@ -671,6 +788,19 @@ public class StateMachineParametersTests
     }
 
     [Fact]
+    public void GetNextParameters_T1_T2_WhenNoParametersSet_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        Action act = () => parameters.GetNextParameters<string, int>();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
     public void GetNextParameters_T1_T2_WhenParametersExist_ShouldReturnValues()
     {
         // Arrange
@@ -694,6 +824,19 @@ public class StateMachineParametersTests
 
         // Act
         Action act = () => parameters.GetNextParameters<string, int>();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void GetNextParameters_T1_T2_T3_WhenNoParametersSet_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        Action act = () => parameters.GetNextParameters<string, int, bool>();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
@@ -724,6 +867,19 @@ public class StateMachineParametersTests
 
         // Act
         Action act = () => parameters.GetNextParameters<string, int, bool>();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void GetNextParameters_T1_T2_T3_T4_WhenNoParametersSet_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        Action act = () => parameters.GetNextParameters<string, int, bool, char>();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
@@ -1111,6 +1267,55 @@ public class StateMachineParametersTests
 
         // Act
         parameters.RollbackTransition();
+
+        // Assert
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
+    }
+
+    [Fact]
+    public void Status_AfterRollbackTransition_ShouldNotHaveNextParametersSet()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter("value");
+        parameters.CommitTransition();
+        parameters.BeginTransition();
+        parameters.SetNextParameter("staged");
+
+        // Act
+        parameters.RollbackTransition();
+
+        // Assert
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+    }
+
+    [Fact]
+    public void Status_AfterBeginTransition_ShouldNotHaveNextParametersSet()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter("value");
+        parameters.CommitTransition();
+
+        // Act
+        parameters.BeginTransition();
+
+        // Assert
+        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+    }
+
+    [Fact]
+    public void Status_AfterCommitTransition_ShouldNotHavePreviousParametersSet()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter("first");
+        parameters.CommitTransition();
+        parameters.BeginTransition();
+        parameters.SetNextParameter("second");
+
+        // Act
+        parameters.CommitTransition();
 
         // Assert
         Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
