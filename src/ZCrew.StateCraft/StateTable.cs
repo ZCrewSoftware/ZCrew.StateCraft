@@ -44,9 +44,10 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
     ///     Looks up a parameterless state by its state value.
     /// </summary>
     /// <param name="stateValue">The state value to match.</param>
+    /// <param name="types">The parameter types for the state to match.</param>
     /// <returns>The first matching state.</returns>
     /// <exception cref="InvalidOperationException">No matching state was found.</exception>
-    public IState<TState, TTransition> LookupState(TState stateValue)
+    public IState<TState, TTransition> LookupState(TState stateValue, params Type[] types)
     {
         foreach (var state in this.states)
         {
@@ -56,8 +57,7 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
                 continue;
             }
 
-            // TODO MWZ: this pattern is messy and could be replaced once the state machine is refactored
-            if (state.TypeParameters.Count != 0)
+            if (!state.TypeParameters.IsAssignableFrom(types))
             {
                 continue;
             }
@@ -77,31 +77,7 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
     /// <exception cref="InvalidOperationException">No matching state was found.</exception>
     public IState<TState, TTransition> LookupState<T>(TState stateValue)
     {
-        foreach (var state in this.states)
-        {
-            // Filter out states with other values
-            if (!EqualityComparer<TState>.Default.Equals(state.StateValue, stateValue))
-            {
-                continue;
-            }
-
-            // TODO MWZ: this pattern is messy and could be replaced once the state machine is refactored
-            if (state.TypeParameters.Count != 1)
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[0].IsAssignableFrom(typeof(T)))
-            {
-                continue;
-            }
-
-            return state;
-        }
-
-        throw new InvalidOperationException(
-            $"No state could be found for: State={stateValue}, ParameterType={typeof(T)}"
-        );
+        return LookupState(stateValue, typeof(T));
     }
 
     /// <summary>
@@ -114,35 +90,7 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
     /// <exception cref="InvalidOperationException">No matching state was found.</exception>
     public IState<TState, TTransition> LookupState<T1, T2>(TState stateValue)
     {
-        foreach (var state in this.states)
-        {
-            // Filter out states with other values
-            if (!EqualityComparer<TState>.Default.Equals(state.StateValue, stateValue))
-            {
-                continue;
-            }
-
-            if (state.TypeParameters.Count != 2)
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[0].IsAssignableFrom(typeof(T1)))
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[1].IsAssignableFrom(typeof(T2)))
-            {
-                continue;
-            }
-
-            return state;
-        }
-
-        throw new InvalidOperationException(
-            $"No state could be found for: State={stateValue}, " + $"ParameterTypes=({typeof(T1)}, {typeof(T2)})"
-        );
+        return LookupState(stateValue, typeof(T1), typeof(T2));
     }
 
     /// <summary>
@@ -156,41 +104,7 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
     /// <exception cref="InvalidOperationException">No matching state was found.</exception>
     public IState<TState, TTransition> LookupState<T1, T2, T3>(TState stateValue)
     {
-        foreach (var state in this.states)
-        {
-            // Filter out states with other values
-            if (!EqualityComparer<TState>.Default.Equals(state.StateValue, stateValue))
-            {
-                continue;
-            }
-
-            if (state.TypeParameters.Count != 3)
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[0].IsAssignableFrom(typeof(T1)))
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[1].IsAssignableFrom(typeof(T2)))
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[2].IsAssignableFrom(typeof(T3)))
-            {
-                continue;
-            }
-
-            return state;
-        }
-
-        throw new InvalidOperationException(
-            $"No state could be found for: State={stateValue}, "
-                + $"ParameterTypes=({typeof(T1)}, {typeof(T2)}, {typeof(T3)})"
-        );
+        return LookupState(stateValue, typeof(T1), typeof(T2), typeof(T3));
     }
 
     /// <summary>
@@ -205,46 +119,7 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
     /// <exception cref="InvalidOperationException">No matching state was found.</exception>
     public IState<TState, TTransition> LookupState<T1, T2, T3, T4>(TState stateValue)
     {
-        foreach (var state in this.states)
-        {
-            // Filter out states with other values
-            if (!EqualityComparer<TState>.Default.Equals(state.StateValue, stateValue))
-            {
-                continue;
-            }
-
-            if (state.TypeParameters.Count != 4)
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[0].IsAssignableFrom(typeof(T1)))
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[1].IsAssignableFrom(typeof(T2)))
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[2].IsAssignableFrom(typeof(T3)))
-            {
-                continue;
-            }
-
-            if (!state.TypeParameters[3].IsAssignableFrom(typeof(T4)))
-            {
-                continue;
-            }
-
-            return state;
-        }
-
-        throw new InvalidOperationException(
-            $"No state could be found for: State={stateValue}, "
-                + $"ParameterTypes=({typeof(T1)}, {typeof(T2)}, {typeof(T3)}, {typeof(T4)})"
-        );
+        return LookupState(stateValue, typeof(T1), typeof(T2), typeof(T3), typeof(T4));
     }
 
     /// <inheritdoc/>

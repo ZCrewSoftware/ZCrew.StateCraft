@@ -168,6 +168,116 @@ public class TransitionTests_T1_T2
     }
 
     [Fact]
+    public async Task Transition_T1_T2_WithCondition_Async_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state.WithTransition(
+                        "To B",
+                        t => t.WithParameters<int, string>().If((_, _, _) => Task.FromResult(true)).To("B")
+                    )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithCondition_Async_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state.WithTransition(
+                        "To B",
+                        t => t.WithParameters<int, string>().If((_, _, _) => Task.FromResult(false)).To("B")
+                    )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithCondition_ValueTaskAsync_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state.WithTransition(
+                        "To B",
+                        t => t.WithParameters<int, string>().If((_, _, _) => ValueTask.FromResult(true)).To("B")
+                    )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithCondition_ValueTaskAsync_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state.WithTransition(
+                        "To B",
+                        t => t.WithParameters<int, string>().If((_, _, _) => ValueTask.FromResult(false)).To("B")
+                    )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
     public async Task Transition_T1_T2_WhenFromParameterizedState_ShouldChangeState()
     {
         // Arrange
@@ -207,5 +317,1049 @@ public class TransitionTests_T1_T2
         // Assert
         Assert.NotNull(stateMachine.CurrentState);
         Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WhenCalled_ShouldCallOnStateChangeForNextState()
+    {
+        // Arrange
+        var onStateChange = Substitute.For<Action<string, string, string, int, string>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithTransition<int, string>("To B", "B"))
+            .WithState("B", state => state.WithParameters<int, string>().OnStateChange(onStateChange))
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        onStateChange.Received(1).Invoke("A", "To B", "B", 42, "hello");
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WhenCalled_ShouldCallMethodsInCorrectOrderIncludingStateChange()
+    {
+        // Arrange
+        var onStateChangeMachine = Substitute.For<Action<string, string, string>>();
+        var onStateChangeState = Substitute.For<Action<string, string, string, int, string>>();
+        var onEntry = Substitute.For<Action<int, string>>();
+        var invoke = Substitute.For<Action<int, string>>();
+        var onExit = Substitute.For<Action>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .OnStateChange(onStateChangeMachine)
+            .WithState("A", state => state.OnExit(onExit).WithTransition<int, string>("To B", "B"))
+            .WithState(
+                "B",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .OnStateChange(onStateChangeState)
+                        .OnEntry(onEntry)
+                        .WithAction(action => action.Invoke(invoke))
+            )
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Received.InOrder(() =>
+        {
+            onExit.Received(1).Invoke();
+            onStateChangeMachine.Received(1).Invoke("A", "To B", "B");
+            onStateChangeState.Received(1).Invoke("A", "To B", "B", 42, "hello");
+            onEntry.Received(1).Invoke(42, "hello");
+            invoke.Received(1).Invoke(42, "hello");
+        });
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WhenFromMultiParamState_ShouldCallOnExitWithParameters()
+    {
+        // Arrange
+        var onExit = Substitute.For<Action<int, string>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state => state.WithParameters<int, string>().OnExit(onExit).WithTransition("To B", t => t.To("B"))
+            )
+            .WithState("B", state => state)
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert
+        onExit.Received(1).Invoke(42, "hello");
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithAsyncOnEntryHandler_ShouldCallHandler()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Func<int, string, CancellationToken, Task>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithTransition<int, string>("To B", "B"))
+            .WithState("B", state => state.WithParameters<int, string>().OnEntry(onEntry))
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await onEntry.Received(1).Invoke(42, "hello", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithValueTaskOnEntryHandler_ShouldCallHandler()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Func<int, string, CancellationToken, ValueTask>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithTransition<int, string>("To B", "B"))
+            .WithState("B", state => state.WithParameters<int, string>().OnEntry(onEntry))
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await onEntry.Received(1).Invoke(42, "hello", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithAsyncOnExitHandler_ShouldCallHandler()
+    {
+        // Arrange
+        var onExit = Substitute.For<Func<int, string, CancellationToken, Task>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state => state.WithParameters<int, string>().OnExit(onExit).WithTransition("To B", t => t.To("B"))
+            )
+            .WithState("B", state => state)
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert
+        await onExit.Received(1).Invoke(42, "hello", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithValueTaskOnExitHandler_ShouldCallHandler()
+    {
+        // Arrange
+        var onExit = Substitute.For<Func<int, string, CancellationToken, ValueTask>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state => state.WithParameters<int, string>().OnExit(onExit).WithTransition("To B", t => t.To("B"))
+            )
+            .WithState("B", state => state)
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert
+        await onExit.Received(1).Invoke(42, "hello", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithAsyncOnStateChangeHandler_ShouldCallHandler()
+    {
+        // Arrange
+        var onStateChange = Substitute.For<Func<string, string, string, int, string, CancellationToken, Task>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithTransition<int, string>("To B", "B"))
+            .WithState("B", state => state.WithParameters<int, string>().OnStateChange(onStateChange))
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await onStateChange.Received(1).Invoke("A", "To B", "B", 42, "hello", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state => state.WithTransition("To B", t => t.If(() => true).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state => state.WithTransition("To B", t => t.If(() => false).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_Async_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state.WithTransition(
+                        "To B",
+                        t => t.If(_ => Task.FromResult(true)).WithParameters<int, string>().To("B")
+                    )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_Async_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state.WithTransition(
+                        "To B",
+                        t => t.If(_ => Task.FromResult(false)).WithParameters<int, string>().To("B")
+                    )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_ValueTaskAsync_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state.WithTransition(
+                        "To B",
+                        t => t.If(_ => ValueTask.FromResult(true)).WithParameters<int, string>().To("B")
+                    )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_ValueTaskAsync_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state.WithTransition(
+                        "To B",
+                        t => t.If(_ => ValueTask.FromResult(false)).WithParameters<int, string>().To("B")
+                    )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameter<int>()
+                        .WithTransition("To B", t => t.If(_ => true).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameter<int>()
+                        .WithTransition("To B", t => t.If(_ => false).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT_Async_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameter<int>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _) => Task.FromResult(true)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT_Async_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameter<int>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _) => Task.FromResult(false)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT_ValueTaskAsync_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameter<int>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _) => ValueTask.FromResult(true)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT_ValueTaskAsync_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameter<int>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _) => ValueTask.FromResult(false)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition("To B", t => t.If((_, _) => true).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition("To B", t => t.If((_, _) => false).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_Async_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _) => Task.FromResult(true)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_Async_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _) => Task.FromResult(false)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_ValueTaskAsync_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _) => ValueTask.FromResult(true)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_ValueTaskAsync_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _) => ValueTask.FromResult(false)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool>()
+                        .WithTransition("To B", t => t.If((_, _, _) => true).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool>()
+                        .WithTransition("To B", t => t.If((_, _, _) => false).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_Async_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _, _) => Task.FromResult(true)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_Async_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _, _) => Task.FromResult(false)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_ValueTaskAsync_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _, _) => ValueTask.FromResult(true)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_ValueTaskAsync_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _, _) => ValueTask.FromResult(false)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_T4_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true, 3.14)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition("To B", t => t.If((_, _, _, _) => true).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_T4_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true, 3.14)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition("To B", t => t.If((_, _, _, _) => false).WithParameters<int, string>().To("B"))
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_T4_Async_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true, 3.14)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _, _, _) => Task.FromResult(true)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_T4_Async_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true, 3.14)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition(
+                            "To B",
+                            t => t.If((_, _, _, _, _) => Task.FromResult(false)).WithParameters<int, string>().To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_T4_ValueTaskAsync_WhenConditionIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true, 3.14)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition(
+                            "To B",
+                            t =>
+                                t.If((_, _, _, _, _) => ValueTask.FromResult(true))
+                                    .WithParameters<int, string>()
+                                    .To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_T1_T2_WithInitialCondition_FromT1_T2_T3_T4_ValueTaskAsync_WhenConditionIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 10, "x", true, 3.14)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition(
+                            "To B",
+                            t =>
+                                t.If((_, _, _, _, _) => ValueTask.FromResult(false))
+                                    .WithParameters<int, string>()
+                                    .To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", 42, "hello", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
     }
 }

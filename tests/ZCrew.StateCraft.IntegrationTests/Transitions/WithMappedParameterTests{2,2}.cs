@@ -457,4 +457,238 @@ public class WithMappedParameterTests_2_2
         // Assert
         await Assert.ThrowsAsync<InvalidOperationException>(transition);
     }
+
+    [Fact]
+    public async Task Transition_WithMappedParameters_WithTaskMapping_ShouldTransformParameter()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Action<int, string>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t =>
+                                t.WithMappedParameters<int, string>(
+                                        (Func<int, string, CancellationToken, Task<(int, string)>>)(
+                                            async (a, b, _) => await Task.FromResult((a * 2, b + "!"))
+                                        )
+                                    )
+                                    .To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>().OnEntry(onEntry))
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert
+        onEntry.Received(1).Invoke(84, "hello!");
+    }
+
+    [Fact]
+    public async Task Transition_WithMappedParameters_WithValueTaskMapping_ShouldTransformParameter()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Action<int, string>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t =>
+                                t.WithMappedParameters<int, string>(
+                                        (Func<int, string, CancellationToken, ValueTask<(int, string)>>)(
+                                            (a, b, _) => new ValueTask<(int, string)>((a * 2, b + "!"))
+                                        )
+                                    )
+                                    .To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>().OnEntry(onEntry))
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert
+        onEntry.Received(1).Invoke(84, "hello!");
+    }
+
+    [Fact]
+    public async Task Transition_WithMappedParameters_ToSameState_ShouldTransitionToSameState()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Action<int, string>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .OnEntry(onEntry)
+                        .WithTransition(
+                            "Loop",
+                            t => t.WithMappedParameters<int, string>((a, b) => (a * 2, b + "!")).ToSameState()
+                        )
+            )
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("Loop", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("A", stateMachine.CurrentState.StateValue);
+        onEntry.Received(1).Invoke(84, "hello!");
+    }
+
+    [Fact]
+    public async Task Transition_WithMappedParameters_WhenTaskConditionOnMappedIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t =>
+                                t.WithMappedParameters<int, string>((a, b) => (a * 2, b + "!"))
+                                    .If((_, _, _) => Task.FromResult(true))
+                                    .To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_WithMappedParameters_WhenTaskConditionOnMappedIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t =>
+                                t.WithMappedParameters<int, string>((a, b) => (a * 2, b + "!"))
+                                    .If((_, _, _) => Task.FromResult(false))
+                                    .To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task Transition_WithMappedParameters_WhenValueTaskConditionOnMappedIsTrue_ShouldTransition()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t =>
+                                t.WithMappedParameters<int, string>((a, b) => (a * 2, b + "!"))
+                                    .If((_, _, _) => new ValueTask<bool>(true))
+                                    .To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("B", stateMachine.CurrentState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_WithMappedParameters_WhenValueTaskConditionOnMappedIsFalse_ShouldThrow()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .WithTransition(
+                            "To B",
+                            t =>
+                                t.WithMappedParameters<int, string>((a, b) => (a * 2, b + "!"))
+                                    .If((_, _, _) => new ValueTask<bool>(false))
+                                    .To("B")
+                        )
+            )
+            .WithState("B", state => state.WithParameters<int, string>())
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
 }
