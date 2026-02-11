@@ -104,6 +104,39 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
         return Task.FromResult(false);
     }
 
+    public virtual Task<bool> CanTransition<T1, T2>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        CancellationToken token = default
+    )
+    {
+        return Task.FromResult(false);
+    }
+
+    public virtual Task<bool> CanTransition<T1, T2, T3>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3,
+        CancellationToken token = default
+    )
+    {
+        return Task.FromResult(false);
+    }
+
+    public virtual Task<bool> CanTransition<T1, T2, T3, T4>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3,
+        T4 parameter4,
+        CancellationToken token = default
+    )
+    {
+        return Task.FromResult(false);
+    }
+
     public virtual Task<bool> TryTransition(TTransition transition, CancellationToken token = default)
     {
         return Task.FromResult(false);
