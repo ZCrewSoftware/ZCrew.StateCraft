@@ -2,7 +2,7 @@ using NSubstitute;
 
 namespace ZCrew.StateCraft.IntegrationTests.Transitions;
 
-public class WithMappedParameterTests
+public class WithMappedParameterTests_4_1
 {
     [Fact]
     public async Task Transition_WithMappedParameter_ShouldChangeState()
@@ -10,13 +10,16 @@ public class WithMappedParameterTests
         // Arrange
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
-                        .WithTransition("To B", t => t.WithMappedParameter<string>(x => x.ToString()).To("B"))
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition(
+                            "To B",
+                            t => t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}").To("B")
+                        )
             )
             .WithState("B", state => state.WithParameter<string>())
             .Build();
@@ -35,17 +38,19 @@ public class WithMappedParameterTests
     public async Task Transition_WithMappedParameter_ShouldCallMappingFunction()
     {
         // Arrange
-        var mappingFunction = Substitute.For<Func<int, string>>();
-        mappingFunction.Invoke(Arg.Any<int>()).Returns(x => x.Arg<int>().ToString());
+        var mappingFunction = Substitute.For<Func<int, string, bool, double, string>>();
+        mappingFunction
+            .Invoke(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<double>())
+            .Returns(x => $"{x.ArgAt<int>(0)}-{x.ArgAt<string>(1)}-{x.ArgAt<bool>(2)}-{x.ArgAt<double>(3)}");
 
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
+                        .WithParameters<int, string, bool, double>()
                         .WithTransition("To B", t => t.WithMappedParameter(mappingFunction).To("B"))
             )
             .WithState("B", state => state.WithParameter<string>())
@@ -57,7 +62,7 @@ public class WithMappedParameterTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        mappingFunction.Received(1).Invoke(42);
+        mappingFunction.Received(1).Invoke(42, "hello", true, 3.14);
     }
 
     [Fact]
@@ -67,13 +72,13 @@ public class WithMappedParameterTests
         var onEntry = Substitute.For<Action<string>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
-                        .WithTransition("To B", t => t.WithMappedParameter<string>(x => $"value: {x}").To("B"))
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition("To B", t => t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}").To("B"))
             )
             .WithState("B", state => state.WithParameter<string>().OnEntry(onEntry))
             .Build();
@@ -84,23 +89,25 @@ public class WithMappedParameterTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        onEntry.Received(1).Invoke("value: 42");
+        onEntry.Received(1).Invoke("42-hello");
     }
 
     [Fact]
     public async Task Transition_WithMappedParameter_ShouldTransformParameter()
     {
         // Arrange
-        var onEntry = Substitute.For<Action<int>>();
+        var onEntry = Substitute.For<Action<string>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
-                    state.WithParameter<int>().WithTransition("To B", t => t.WithMappedParameter(x => x * 2).To("B"))
+                    state
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition("To B", t => t.WithMappedParameter<string>((a, b, c, d) => $"{a * 2}").To("B"))
             )
-            .WithState("B", state => state.WithParameter<int>().OnEntry(onEntry))
+            .WithState("B", state => state.WithParameter<string>().OnEntry(onEntry))
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
@@ -109,24 +116,27 @@ public class WithMappedParameterTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        onEntry.Received(1).Invoke(84);
+        onEntry.Received(1).Invoke("84");
     }
 
     [Fact]
     public async Task Transition_WithMappedParameter_ShouldCallOnExitWithPreviousParameter()
     {
         // Arrange
-        var onExit = Substitute.For<Action<int>>();
+        var onExit = Substitute.For<Action<int, string, bool, double>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
+                        .WithParameters<int, string, bool, double>()
                         .OnExit(onExit)
-                        .WithTransition("To B", t => t.WithMappedParameter<string>(x => x.ToString()).To("B"))
+                        .WithTransition(
+                            "To B",
+                            t => t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}").To("B")
+                        )
             )
             .WithState("B", state => state.WithParameter<string>())
             .Build();
@@ -137,7 +147,7 @@ public class WithMappedParameterTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        onExit.Received(1).Invoke(42);
+        onExit.Received(1).Invoke(42, "hello", true, 3.14);
     }
 
     [Fact]
@@ -147,13 +157,16 @@ public class WithMappedParameterTests
         var onEntry = Substitute.For<Action<string>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
-                        .WithTransition("To B", t => t.WithMappedParameter<string>(x => x.ToString()).To("B"))
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition(
+                            "To B",
+                            t => t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}").To("B")
+                        )
             )
             .WithState("B", state => state.WithParameter<string>().OnEntry(onEntry))
             .Build();
@@ -164,7 +177,7 @@ public class WithMappedParameterTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        onEntry.Received(1).Invoke("42");
+        onEntry.Received(1).Invoke("42-hello-True-3.14");
     }
 
     [Fact]
@@ -174,13 +187,16 @@ public class WithMappedParameterTests
         var onStateChange = Substitute.For<Action<string, string, string, string>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
-                        .WithTransition("To B", t => t.WithMappedParameter<string>(x => x.ToString()).To("B"))
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition(
+                            "To B",
+                            t => t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}").To("B")
+                        )
             )
             .WithState("B", state => state.WithParameter<string>().OnStateChange(onStateChange))
             .Build();
@@ -191,7 +207,7 @@ public class WithMappedParameterTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        onStateChange.Received(1).Invoke("A", "To B", "B", "42");
+        onStateChange.Received(1).Invoke("A", "To B", "B", "42-hello-True-3.14");
     }
 
     [Fact]
@@ -201,14 +217,17 @@ public class WithMappedParameterTests
         var onStateChange = Substitute.For<Action<string, string, string>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .OnStateChange(onStateChange)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
-                        .WithTransition("To B", t => t.WithMappedParameter<string>(x => x.ToString()).To("B"))
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition(
+                            "To B",
+                            t => t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}").To("B")
+                        )
             )
             .WithState("B", state => state.WithParameter<string>())
             .Build();
@@ -229,13 +248,16 @@ public class WithMappedParameterTests
         var invoke = Substitute.For<Action<string>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
-                        .WithTransition("To B", t => t.WithMappedParameter<string>(x => x.ToString()).To("B"))
+                        .WithParameters<int, string, bool, double>()
+                        .WithTransition(
+                            "To B",
+                            t => t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}").To("B")
+                        )
             )
             .WithState("B", state => state.WithParameter<string>().WithAction(action => action.Invoke(invoke)))
             .Build();
@@ -246,7 +268,7 @@ public class WithMappedParameterTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        invoke.Received(1).Invoke("42");
+        invoke.Received(1).Invoke("42-hello-True-3.14");
     }
 
     [Fact]
@@ -257,18 +279,21 @@ public class WithMappedParameterTests
         var onStateChangeState = Substitute.For<Action<string, string, string, string>>();
         var onEntry = Substitute.For<Action<string>>();
         var invoke = Substitute.For<Action<string>>();
-        var onExit = Substitute.For<Action<int>>();
+        var onExit = Substitute.For<Action<int, string, bool, double>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .OnStateChange(onStateChangeMachine)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
+                        .WithParameters<int, string, bool, double>()
                         .OnExit(onExit)
-                        .WithTransition("To B", t => t.WithMappedParameter<string>(x => x.ToString()).To("B"))
+                        .WithTransition(
+                            "To B",
+                            t => t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}").To("B")
+                        )
             )
             .WithState(
                 "B",
@@ -289,11 +314,11 @@ public class WithMappedParameterTests
         // Assert
         Received.InOrder(() =>
         {
-            onExit.Received(1).Invoke(42);
+            onExit.Received(1).Invoke(42, "hello", true, 3.14);
             onStateChangeMachine.Received(1).Invoke("A", "To B", "B");
-            onStateChangeState.Received(1).Invoke("A", "To B", "B", "42");
-            onEntry.Received(1).Invoke("42");
-            invoke.Received(1).Invoke("42");
+            onStateChangeState.Received(1).Invoke("A", "To B", "B", "42-hello-True-3.14");
+            onEntry.Received(1).Invoke("42-hello-True-3.14");
+            invoke.Received(1).Invoke("42-hello-True-3.14");
         });
     }
 
@@ -303,15 +328,15 @@ public class WithMappedParameterTests
         // Arrange
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
+                        .WithParameters<int, string, bool, double>()
                         .WithTransition(
                             "To B",
-                            t => t.WithMappedParameter<string>(x => x.ToString()).If(s => s.Length > 0).To("B")
+                            t => t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}").If(_ => true).To("B")
                         )
             )
             .WithState("B", state => state.WithParameter<string>())
@@ -333,15 +358,16 @@ public class WithMappedParameterTests
         // Arrange
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
+                        .WithParameters<int, string, bool, double>()
                         .WithTransition(
                             "To B",
-                            t => t.WithMappedParameter<string>(x => x.ToString()).If(_ => false).To("B")
+                            t =>
+                                t.WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}").If(_ => false).To("B")
                         )
             )
             .WithState("B", state => state.WithParameter<string>())
@@ -362,15 +388,18 @@ public class WithMappedParameterTests
         // Arrange
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
+                        .WithParameters<int, string, bool, double>()
                         .WithTransition(
                             "To B",
-                            t => t.If(prevParam => prevParam > 0).WithMappedParameter<string>(x => x.ToString()).To("B")
+                            t =>
+                                t.If((_, _, _, _) => true)
+                                    .WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}")
+                                    .To("B")
                         )
             )
             .WithState("B", state => state.WithParameter<string>())
@@ -392,15 +421,18 @@ public class WithMappedParameterTests
         // Arrange
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithInitialState("A", 42)
+            .WithInitialState("A", 42, "hello", true, 3.14)
             .WithState(
                 "A",
                 state =>
                     state
-                        .WithParameter<int>()
+                        .WithParameters<int, string, bool, double>()
                         .WithTransition(
                             "To B",
-                            t => t.If(_ => false).WithMappedParameter<string>(x => x.ToString()).To("B")
+                            t =>
+                                t.If((_, _, _, _) => false)
+                                    .WithMappedParameter<string>((a, b, c, d) => $"{a}-{b}-{c}-{d}")
+                                    .To("B")
                         )
             )
             .WithState("B", state => state.WithParameter<string>())

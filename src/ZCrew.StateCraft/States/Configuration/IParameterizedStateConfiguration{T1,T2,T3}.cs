@@ -100,21 +100,21 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T1, T2, T
     IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3> WithTransition(
         TTransition transition,
         Func<
-            IInitialTransitionConfiguration<TState, TTransition>,
+            IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3>,
             ITransitionConfiguration<TState, TTransition>
         > configureTransition
     );
 
     /// <summary>
-    ///     Configures a new parameterless transition for this state. This is a shortcut for
-    ///     <c>.WithTransition(transition, t =&gt; t.WithNoParameters().To(to))</c>.
+    ///     Configures a new transition for this state that keeps the same parameter types. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithSameParameters().To(to))</c>.
     /// </summary>
     /// <param name="transition">The transition to configure.</param>
     /// <param name="to">The target state.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3> WithTransition(TTransition transition, TState to)
     {
-        return WithTransition(transition, t => t.WithNoParameters().To(to));
+        return WithTransition(transition, t => t.WithSameParameters().To(to));
     }
 
     /// <summary>
