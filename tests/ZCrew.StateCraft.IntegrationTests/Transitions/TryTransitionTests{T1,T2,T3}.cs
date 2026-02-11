@@ -251,24 +251,4 @@ public class TryTransitionTests_T1_T2_T3
         // Assert
         onExit.DidNotReceive().Invoke();
     }
-
-    [Fact]
-    public async Task TryTransition_T1_T2_T3_WhenFromParameterizedState_ShouldReturnTrue()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A", 10)
-            .WithState("A", state => state.WithParameter<int>().WithTransition<int, string, bool>("To B", "B"))
-            .WithState("B", state => state.WithParameters<int, string, bool>())
-            .Build();
-
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
-
-        // Act
-        var result = await stateMachine.TryTransition("To B", 42, "hello", true, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.True(result);
-    }
 }

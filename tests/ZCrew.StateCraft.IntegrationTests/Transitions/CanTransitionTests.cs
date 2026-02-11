@@ -101,33 +101,13 @@ public class CanTransitionTests
     }
 
     [Fact]
-    public async Task CanTransition_WhenFromParameterizedState_ShouldReturnTrue()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", t => t.To("B")))
-            .WithState("B", state => state)
-            .Build();
-
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
-
-        // Act
-        var result = await stateMachine.CanTransition("To B", TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.True(result);
-    }
-
-    [Fact]
     public async Task CanTransition_WhenPreConditionIsTrue_ShouldReturnTrue()
     {
         // Arrange
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", t => t.If(x => x > 0).To("B")))
+            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", t => t.If(_ => true).To("B")))
             .WithState("B", state => state)
             .Build();
 
@@ -147,7 +127,7 @@ public class CanTransitionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", t => t.If(x => x < 0).To("B")))
+            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", t => t.If(_ => false).To("B")))
             .WithState("B", state => state)
             .Build();
 

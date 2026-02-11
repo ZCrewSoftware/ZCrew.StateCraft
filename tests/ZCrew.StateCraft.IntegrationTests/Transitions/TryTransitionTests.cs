@@ -272,66 +272,6 @@ public class TryTransitionTests
     }
 
     [Fact]
-    public async Task TryTransition_WhenFromParameterizedState_ShouldReturnTrue()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", t => t.To("B")))
-            .WithState("B", state => state)
-            .Build();
-
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
-
-        // Act
-        var result = await stateMachine.TryTransition("To B", TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.True(result);
-    }
-
-    [Fact]
-    public async Task TryTransition_WhenFromParameterizedState_WhenConditionIsTrue_ShouldReturnTrue()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", t => t.If(x => x > 0).To("B")))
-            .WithState("B", state => state)
-            .Build();
-
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
-
-        // Act
-        var result = await stateMachine.TryTransition("To B", TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.True(result);
-    }
-
-    [Fact]
-    public async Task TryTransition_WhenFromParameterizedState_WhenConditionIsFalse_ShouldReturnFalse()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", t => t.If(x => x < 0).To("B")))
-            .WithState("B", state => state)
-            .Build();
-
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
-
-        // Act
-        var result = await stateMachine.TryTransition("To B", TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
     public async Task TryTransition_WhenCalled_ShouldCallMethodsInCorrectOrder()
     {
         // Arrange

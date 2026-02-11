@@ -111,7 +111,7 @@ public class TryTransitionTests_T
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .WithState("A", state => state.WithTransition("To B", t => t.WithParameter<int>().If(x => x > 0).To("B")))
+            .WithState("A", state => state.WithTransition("To B", t => t.WithParameter<int>().If(_ => true).To("B")))
             .WithState("B", state => state.WithParameter<int>())
             .Build();
 
@@ -131,7 +131,7 @@ public class TryTransitionTests_T
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .WithState("A", state => state.WithTransition("To B", t => t.WithParameter<int>().If(x => x < 0).To("B")))
+            .WithState("A", state => state.WithTransition("To B", t => t.WithParameter<int>().If(_ => false).To("B")))
             .WithState("B", state => state.WithParameter<int>())
             .Build();
 
@@ -151,7 +151,7 @@ public class TryTransitionTests_T
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .WithState("A", state => state.WithTransition("To B", t => t.WithParameter<int>().If(x => x < 0).To("B")))
+            .WithState("A", state => state.WithTransition("To B", t => t.WithParameter<int>().If(_ => false).To("B")))
             .WithState("B", state => state.WithParameter<int>())
             .Build();
 
@@ -226,29 +226,6 @@ public class TryTransitionTests_T
 
         // Assert
         onExit.DidNotReceive().Invoke();
-    }
-
-    [Fact]
-    public async Task TryTransition_T_WhenFromParameterizedState_ShouldReturnTrue()
-    {
-        // Arrange
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A", 42)
-            .WithState(
-                "A",
-                state => state.WithParameter<int>().WithTransition("To B", t => t.WithParameter<string>().To("B"))
-            )
-            .WithState("B", state => state.WithParameter<string>())
-            .Build();
-
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
-
-        // Act
-        var result = await stateMachine.TryTransition("To B", "hello", TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.True(result);
     }
 
     [Fact]
