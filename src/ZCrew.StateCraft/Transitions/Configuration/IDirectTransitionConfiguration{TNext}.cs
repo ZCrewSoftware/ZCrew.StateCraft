@@ -25,7 +25,7 @@ namespace ZCrew.StateCraft;
 ///     <see cref="IInitialTransitionConfiguration{TState, TTransition}"/>.
 ///     </para>
 /// </remarks>
-public interface IParameterizedTransitionConfiguration<TState, TTransition, TNext>
+public interface IDirectTransitionConfiguration<TState, TTransition, TNext>
     where TState : notnull
     where TTransition : notnull
 {
@@ -35,7 +35,7 @@ public interface IParameterizedTransitionConfiguration<TState, TTransition, TNex
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterizedTransitionConfiguration<TState, TTransition, TNext> If(Func<TNext, bool> condition);
+    IDirectTransitionConfiguration<TState, TTransition, TNext> If(Func<TNext, bool> condition);
 
     /// <summary>
     ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
@@ -43,9 +43,7 @@ public interface IParameterizedTransitionConfiguration<TState, TTransition, TNex
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterizedTransitionConfiguration<TState, TTransition, TNext> If(
-        Func<TNext, CancellationToken, Task<bool>> condition
-    );
+    IDirectTransitionConfiguration<TState, TTransition, TNext> If(Func<TNext, CancellationToken, Task<bool>> condition);
 
     /// <summary>
     ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
@@ -53,7 +51,7 @@ public interface IParameterizedTransitionConfiguration<TState, TTransition, TNex
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterizedTransitionConfiguration<TState, TTransition, TNext> If(
+    IDirectTransitionConfiguration<TState, TTransition, TNext> If(
         Func<TNext, CancellationToken, ValueTask<bool>> condition
     );
 

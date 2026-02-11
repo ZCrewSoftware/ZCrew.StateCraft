@@ -2,6 +2,7 @@ using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.StateMachines.Contracts;
+using ZCrew.StateCraft.Transitions;
 
 namespace ZCrew.StateCraft.States;
 
@@ -64,6 +65,21 @@ internal class StateConfiguration<TState, TTransition, T1, T2>
         var initialActionConfiguration = new InitialActionConfiguration<T1, T2>();
         var finalActionConfiguration = configureAction(initialActionConfiguration);
         this.actionConfigurations.Add(finalActionConfiguration);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithTransition(
+        TTransition transition,
+        Func<
+            IInitialTransitionConfiguration<TState, TTransition>,
+            ITransitionConfiguration<TState, TTransition>
+        > configureTransition
+    )
+    {
+        var initialTransitionConfiguration = new InitialTransitionConfiguration<TState, TTransition>(State, transition);
+        var finalTransitionConfiguration = configureTransition(initialTransitionConfiguration);
+        this.transitionConfigurations.Add(finalTransitionConfiguration);
         return this;
     }
 

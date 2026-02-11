@@ -23,7 +23,7 @@ namespace ZCrew.StateCraft;
 ///     <see cref="IInitialTransitionConfiguration{TState, TTransition}"/>.
 ///     </para>
 /// </remarks>
-public interface IParameterlessTransitionConfiguration<TState, TTransition>
+public interface IDirectTransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -32,21 +32,21 @@ public interface IParameterlessTransitionConfiguration<TState, TTransition>
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessTransitionConfiguration<TState, TTransition> If(Func<bool> condition);
+    IDirectTransitionConfiguration<TState, TTransition> If(Func<bool> condition);
 
     /// <summary>
     ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, Task<bool>> condition);
+    IDirectTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, Task<bool>> condition);
 
     /// <summary>
     ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, ValueTask<bool>> condition);
+    IDirectTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, ValueTask<bool>> condition);
 
     /// <summary>
     ///     Configure the state to transition to.

@@ -218,4 +218,52 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
     {
         return WithTransition(transition, t => t.WithParameter<TNext>().To(to));
     }
+
+    /// <summary>
+    ///     Configures a new two-parameter transition for this state. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithParameters&lt;T1, T2&gt;().To(to))</c>.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the target state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the target state.</typeparam>
+    /// <param name="transition">The transition to configure.</param>
+    /// <param name="to">The target state.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterlessStateConfiguration<TState, TTransition> WithTransition<T1, T2>(TTransition transition, TState to)
+    {
+        return WithTransition(transition, t => t.WithParameters<T1, T2>().To(to));
+    }
+
+    /// <summary>
+    ///     Configures a new three-parameter transition for this state. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithParameters&lt;T1, T2, T3&gt;().To(to))</c>.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the target state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the target state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the target state.</typeparam>
+    /// <param name="transition">The transition to configure.</param>
+    /// <param name="to">The target state.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterlessStateConfiguration<TState, TTransition> WithTransition<T1, T2, T3>(TTransition transition, TState to)
+    {
+        return WithTransition(transition, t => t.WithParameters<T1, T2, T3>().To(to));
+    }
+
+    /// <summary>
+    ///     Configures a new four-parameter transition for this state. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithParameters&lt;T1, T2, T3, T4&gt;().To(to))</c>.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the target state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the target state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the target state.</typeparam>
+    /// <typeparam name="T4">The type of the fourth parameter for the target state.</typeparam>
+    /// <param name="transition">The transition to configure.</param>
+    /// <param name="to">The target state.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterlessStateConfiguration<TState, TTransition> WithTransition<T1, T2, T3, T4>(
+        TTransition transition,
+        TState to
+    )
+    {
+        return WithTransition(transition, t => t.WithParameters<T1, T2, T3, T4>().To(to));
+    }
 }

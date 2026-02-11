@@ -358,6 +358,105 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     }
 
     /// <inheritdoc />
+    public async Task Transition<T1, T2>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        CancellationToken token = default
+    )
+    {
+        using var transitionLock = await this.stateMachineLock.LockAsync(token);
+        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        {
+            throw new InvalidOperationException("The state machine has not been activated.");
+        }
+
+        try
+        {
+            BeginTransition();
+            Parameters.SetNextParameters(parameter1, parameter2);
+            CurrentTransition = await PreviousState.GetTransition(transition, Parameters, token);
+            NextState = CurrentTransition.Next.State;
+            await ExitState(token);
+            await Transition(token);
+            await EnterState(transitionLock, token);
+        }
+        catch (Exception) when (CurrentState == null)
+        {
+            Rollback();
+            this.internalState = InternalState.Recovery;
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task Transition<T1, T2, T3>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3,
+        CancellationToken token = default
+    )
+    {
+        using var transitionLock = await this.stateMachineLock.LockAsync(token);
+        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        {
+            throw new InvalidOperationException("The state machine has not been activated.");
+        }
+
+        try
+        {
+            BeginTransition();
+            Parameters.SetNextParameters(parameter1, parameter2, parameter3);
+            CurrentTransition = await PreviousState.GetTransition(transition, Parameters, token);
+            NextState = CurrentTransition.Next.State;
+            await ExitState(token);
+            await Transition(token);
+            await EnterState(transitionLock, token);
+        }
+        catch (Exception) when (CurrentState == null)
+        {
+            Rollback();
+            this.internalState = InternalState.Recovery;
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task Transition<T1, T2, T3, T4>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3,
+        T4 parameter4,
+        CancellationToken token = default
+    )
+    {
+        using var transitionLock = await this.stateMachineLock.LockAsync(token);
+        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        {
+            throw new InvalidOperationException("The state machine has not been activated.");
+        }
+
+        try
+        {
+            BeginTransition();
+            Parameters.SetNextParameters(parameter1, parameter2, parameter3, parameter4);
+            CurrentTransition = await PreviousState.GetTransition(transition, Parameters, token);
+            NextState = CurrentTransition.Next.State;
+            await ExitState(token);
+            await Transition(token);
+            await EnterState(transitionLock, token);
+        }
+        catch (Exception) when (CurrentState == null)
+        {
+            Rollback();
+            this.internalState = InternalState.Recovery;
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<bool> CanTransition(TTransition transition, CancellationToken token = default)
     {
         using var _ = await this.stateMachineLock.LockAsync(token);

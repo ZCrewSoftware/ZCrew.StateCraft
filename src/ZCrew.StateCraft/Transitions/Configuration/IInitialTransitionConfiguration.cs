@@ -55,14 +55,41 @@ public interface IInitialTransitionConfiguration<TState, TTransition>
     ///     configuration is explicitly made, such as calling <see cref="WithParameter{TNext}"/>.
     /// </summary>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessTransitionConfiguration<TState, TTransition> WithNoParameters();
+    IDirectTransitionConfiguration<TState, TTransition> WithNoParameters();
 
     /// <summary>
     ///     Configures the transition to have one parameter.
     /// </summary>
     /// <typeparam name="TNext">The type of the parameter for the next state.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterizedTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>();
+    IDirectTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>();
+
+    /// <summary>
+    ///     Configures the transition to have two parameters.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition, T1, T2> WithParameters<T1, T2>();
+
+    /// <summary>
+    ///     Configures the transition to have three parameters.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the next state.</typeparam>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3> WithParameters<T1, T2, T3>();
+
+    /// <summary>
+    ///     Configures the transition to have four parameters.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the next state.</typeparam>
+    /// <typeparam name="T4">The type of the fourth parameter for the next state.</typeparam>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>();
 
     /// <summary>
     ///     Configure the state to transition to.
@@ -136,14 +163,41 @@ public interface IInitialTransitionConfiguration<TState, TTransition, TPrevious>
     ///     configuration is explicitly made, such as calling <see cref="WithParameter{TNext}"/>.
     /// </summary>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessTransitionConfiguration<TState, TTransition> WithNoParameters();
+    IDirectTransitionConfiguration<TState, TTransition> WithNoParameters();
 
     /// <summary>
     ///     Configures the transition to have one parameter.
     /// </summary>
     /// <typeparam name="TNext">The type of the parameter for the next state.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterizedTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>();
+    IDirectTransitionConfiguration<TState, TTransition, TNext> WithParameter<TNext>();
+
+    /// <summary>
+    ///     Configures the transition to have two parameters.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition, T1, T2> WithParameters<T1, T2>();
+
+    /// <summary>
+    ///     Configures the transition to have three parameters.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the next state.</typeparam>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3> WithParameters<T1, T2, T3>();
+
+    /// <summary>
+    ///     Configures the transition to have four parameters.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the next state.</typeparam>
+    /// <typeparam name="T4">The type of the fourth parameter for the next state.</typeparam>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>();
 
     /// <summary>
     ///     Configures the transition to map the previous parameter of type <typeparamref name="TPrevious"/> to the next

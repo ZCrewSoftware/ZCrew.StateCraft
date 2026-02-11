@@ -19,7 +19,7 @@ internal class MappingFunctionValueTuple2<TIn, TOut1, TOut2> : IMappingFunction
     {
         var parameter = parameters.GetPreviousParameter<TIn>();
         var output = await this.function.InvokeAsync(parameter, token);
-        parameters.SetNextParameters<TOut1, TOut2>(output.Item1, output.Item2);
+        parameters.SetNextParameters(output.Item1, output.Item2);
     }
 }
 
@@ -38,7 +38,7 @@ internal class MappingFunctionValueTuple2<TIn1, TIn2, TOut1, TOut2> : IMappingFu
     {
         var (parameter1, parameter2) = parameters.GetPreviousParameters<TIn1, TIn2>();
         var output = await this.function.InvokeAsync(parameter1, parameter2, token);
-        parameters.SetNextParameters<TOut1, TOut2>(output.Item1, output.Item2);
+        parameters.SetNextParameters(output.Item1, output.Item2);
     }
 }
 
@@ -57,7 +57,7 @@ internal class MappingFunctionValueTuple2<TIn1, TIn2, TIn3, TOut1, TOut2> : IMap
     {
         var (parameter1, parameter2, parameter3) = parameters.GetPreviousParameters<TIn1, TIn2, TIn3>();
         var output = await this.function.InvokeAsync(parameter1, parameter2, parameter3, token);
-        parameters.SetNextParameters<TOut1, TOut2>(output.Item1, output.Item2);
+        parameters.SetNextParameters(output.Item1, output.Item2);
     }
 }
 
@@ -81,6 +81,6 @@ internal class MappingFunctionValueTuple2<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2> 
             TIn4
         >();
         var output = await this.function.InvokeAsync(parameter1, parameter2, parameter3, parameter4, token);
-        parameters.SetNextParameters<TOut1, TOut2>(output.Item1, output.Item2);
+        parameters.SetNextParameters(output.Item1, output.Item2);
     }
 }
