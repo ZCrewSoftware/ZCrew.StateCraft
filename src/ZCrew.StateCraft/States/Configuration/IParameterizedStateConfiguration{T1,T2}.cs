@@ -97,7 +97,7 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T1, T2>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> WithTransition(
         TTransition transition,
         Func<
-            IInitialTransitionConfiguration<TState, TTransition>,
+            IInitialTransitionConfiguration<TState, TTransition, T1, T2>,
             ITransitionConfiguration<TState, TTransition>
         > configureTransition
     );

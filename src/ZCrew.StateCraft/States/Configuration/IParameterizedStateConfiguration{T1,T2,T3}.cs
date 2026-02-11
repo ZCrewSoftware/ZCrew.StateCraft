@@ -100,7 +100,7 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T1, T2, T
     IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3> WithTransition(
         TTransition transition,
         Func<
-            IInitialTransitionConfiguration<TState, TTransition>,
+            IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3>,
             ITransitionConfiguration<TState, TTransition>
         > configureTransition
     );

@@ -73,12 +73,15 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> WithTransition(
         TTransition transition,
         Func<
-            IInitialTransitionConfiguration<TState, TTransition>,
+            IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3, T4>,
             ITransitionConfiguration<TState, TTransition>
         > configureTransition
     )
     {
-        var initialTransitionConfiguration = new InitialTransitionConfiguration<TState, TTransition>(State, transition);
+        var initialTransitionConfiguration = new InitialTransitionConfiguration<TState, TTransition, T1, T2, T3, T4>(
+            State,
+            transition
+        );
         var finalTransitionConfiguration = configureTransition(initialTransitionConfiguration);
         this.transitionConfigurations.Add(finalTransitionConfiguration);
         return this;
