@@ -216,6 +216,101 @@ public interface IStateMachine<TState, TTransition> : IDisposable
     Task<bool> TryTransition<T>(TTransition transition, T parameter, CancellationToken token = default);
 
     /// <summary>
+    ///     Attempts to transition the state machine to a next state with two parameters if a valid transition exists.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <param name="transition">The transition to apply.</param>
+    /// <param name="parameter1">The first parameter for the next state.</param>
+    /// <param name="parameter2">The second parameter for the next state.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    /// <returns>
+    ///     <see langword="true"/> if the transition was performed successfully.
+    ///     Otherwise, <see langword="false"/> if no matching transition exists or the transition's conditions are not
+    ///     satisfied.
+    /// </returns>
+    /// <remarks>
+    ///     Exceptions thrown by user-configured delegates (such as transition conditions or lifecycle handlers) are
+    ///     propagated to the caller. This method only returns <see langword="false"/> when no matching transition
+    ///     exists or when conditions evaluate to <see langword="false"/>. If an exception occurs during the state
+    ///     lifecycle (exit, state change, or entry handlers), the state machine rolls back to the previous state before
+    ///     rethrowing.
+    /// </remarks>
+    Task<bool> TryTransition<T1, T2>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        CancellationToken token = default
+    );
+
+    /// <summary>
+    ///     Attempts to transition the state machine to a next state with three parameters if a valid transition
+    ///     exists.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the next state.</typeparam>
+    /// <param name="transition">The transition to apply.</param>
+    /// <param name="parameter1">The first parameter for the next state.</param>
+    /// <param name="parameter2">The second parameter for the next state.</param>
+    /// <param name="parameter3">The third parameter for the next state.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    /// <returns>
+    ///     <see langword="true"/> if the transition was performed successfully.
+    ///     Otherwise, <see langword="false"/> if no matching transition exists or the transition's conditions are not
+    ///     satisfied.
+    /// </returns>
+    /// <remarks>
+    ///     Exceptions thrown by user-configured delegates (such as transition conditions or lifecycle handlers) are
+    ///     propagated to the caller. This method only returns <see langword="false"/> when no matching transition
+    ///     exists or when conditions evaluate to <see langword="false"/>. If an exception occurs during the state
+    ///     lifecycle (exit, state change, or entry handlers), the state machine rolls back to the previous state before
+    ///     rethrowing.
+    /// </remarks>
+    Task<bool> TryTransition<T1, T2, T3>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3,
+        CancellationToken token = default
+    );
+
+    /// <summary>
+    ///     Attempts to transition the state machine to a next state with four parameters if a valid transition
+    ///     exists.
+    /// </summary>
+    /// <typeparam name="T1">The type of the first parameter for the next state.</typeparam>
+    /// <typeparam name="T2">The type of the second parameter for the next state.</typeparam>
+    /// <typeparam name="T3">The type of the third parameter for the next state.</typeparam>
+    /// <typeparam name="T4">The type of the fourth parameter for the next state.</typeparam>
+    /// <param name="transition">The transition to apply.</param>
+    /// <param name="parameter1">The first parameter for the next state.</param>
+    /// <param name="parameter2">The second parameter for the next state.</param>
+    /// <param name="parameter3">The third parameter for the next state.</param>
+    /// <param name="parameter4">The fourth parameter for the next state.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    /// <returns>
+    ///     <see langword="true"/> if the transition was performed successfully.
+    ///     Otherwise, <see langword="false"/> if no matching transition exists or the transition's conditions are not
+    ///     satisfied.
+    /// </returns>
+    /// <remarks>
+    ///     Exceptions thrown by user-configured delegates (such as transition conditions or lifecycle handlers) are
+    ///     propagated to the caller. This method only returns <see langword="false"/> when no matching transition
+    ///     exists or when conditions evaluate to <see langword="false"/>. If an exception occurs during the state
+    ///     lifecycle (exit, state change, or entry handlers), the state machine rolls back to the previous state before
+    ///     rethrowing.
+    /// </remarks>
+    Task<bool> TryTransition<T1, T2, T3, T4>(
+        TTransition transition,
+        T1 parameter1,
+        T2 parameter2,
+        T3 parameter3,
+        T4 parameter4,
+        CancellationToken token = default
+    );
+
+    /// <summary>
     ///     Invokes the state machine's state change handlers.
     /// </summary>
     /// <param name="previousState">The state being transitioned from.</param>
