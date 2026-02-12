@@ -55,19 +55,6 @@ target any state that accepts the same parameter type(s):
     .OnEntry(job => Console.WriteLine($"Paused job: {job.Name}")))
 ```
 
-### Shortcut
-
-On single-parameter states, the shortcut `.WithTransition(transition, state)` uses `WithSameParameter()` to preserve
-the current parameter:
-
-```csharp
-// Shortcut (from a single-parameter state)
-.WithTransition(Transition.Retry, State.Processing)
-
-// Equivalent to
-.WithTransition(Transition.Retry, t => t.WithSameParameter().To(State.Processing))
-```
-
 ## No Runtime Parameter Required
 
 Like mapped transitions, reentrant transitions do not require a parameter at runtime:
@@ -165,13 +152,17 @@ var machine = StateMachine
             .WithSameParameter()
             .To(State.Processing))
         // Reentrant: move to different state with same parameter
-        .WithTransition(Transition.Pause, State.Paused))
+        .WithTransition(Transition.Pause, t => t
+            .WithSameParameter()
+            .To(State.Paused)))
 
     .WithState(State.Paused, state => state
         .WithParameter<JobData>()
         .OnEntry(job => Console.WriteLine($"Paused: {job.Name}"))
-        // Resume back to processing with same data (shortcut)
-        .WithTransition(Transition.Resume, State.Processing))
+        // Resume back to processing with same data
+        .WithTransition(Transition.Resume, t => t
+            .WithSameParameter()
+            .To(State.Processing)))
 
     .Build();
 
@@ -200,7 +191,9 @@ A non-conditional transition always matches, so any subsequent transitions with 
 // Bad: Second transition is shadowed and unreachable
 .WithState(State.Processing, state => state
     .WithParameter<JobData>()
-    .WithTransition(Transition.Retry, State.Processing)       // Always matches
+    .WithTransition(Transition.Retry, t => t                  // Always matches
+        .WithSameParameter()
+        .To(State.Processing))
     .WithTransition(Transition.Retry, t => t                  // Never reached
         .If(job => job.RetryCount < 3)
         .WithSameParameter()
@@ -213,7 +206,9 @@ A non-conditional transition always matches, so any subsequent transitions with 
         .If(job => job.RetryCount < 3)
         .WithSameParameter()
         .To(State.Processing))
-    .WithTransition(Transition.Retry, State.Failed))          // Fallback
+    .WithTransition(Transition.Retry, t => t                  // Fallback
+        .WithSameParameter()
+        .To(State.Failed)))
 ```
 
 Build-time validation (`Build(StateMachineBuildOptions.Validate)`) catches this as an error.

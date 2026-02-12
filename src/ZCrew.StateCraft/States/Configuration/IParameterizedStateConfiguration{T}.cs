@@ -204,15 +204,15 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T> : ISta
     );
 
     /// <summary>
-    ///     Configures a new transition for this state that keeps the same parameter type. This is a shortcut for
-    ///     <c>.WithTransition(transition, t =&gt; t.WithSameParameter().To(to))</c>.
+    ///     Configures a new parameterless transition for this state. This is a shortcut for
+    ///     <c>.WithTransition(transition, t =&gt; t.WithNoParameters().To(to))</c>.
     /// </summary>
     /// <param name="transition">The transition to configure.</param>
     /// <param name="to">The target state.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterizedStateConfiguration<TState, TTransition, T> WithTransition(TTransition transition, TState to)
     {
-        return WithTransition(transition, t => t.WithSameParameter().To(to));
+        return WithTransition(transition, t => t.WithNoParameters().To(to));
     }
 
     /// <summary>

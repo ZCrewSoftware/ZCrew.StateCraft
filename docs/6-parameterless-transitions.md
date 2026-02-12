@@ -53,6 +53,16 @@ When leaving a parameterized state, a parameterless transition drops the previou
 
 The target state (`State.Idle`) does not receive any parameter.
 
+The `.WithTransition(transition, state)` shortcut also works from parameterized states and implies `WithNoParameters()`:
+
+```csharp
+// Shortcut (from any parameterized state)
+.WithTransition(Transition.Cancel, State.Idle)
+
+// Equivalent to
+.WithTransition(Transition.Cancel, t => t.WithNoParameters().To(State.Idle))
+```
+
 This also applies to multi-parameter states:
 
 ```csharp
