@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
@@ -10,14 +9,10 @@ namespace ZCrew.StateCraft.States;
 /// <summary>
 ///     Standard implementation of a state with four parameters.
 /// </summary>
-[DebuggerDisplay("{DisplayString}")]
 internal class State<TState, TTransition, T1, T2, T3, T4> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString =>
-        $"{StateValue}<{typeof(T1).FriendlyName}, {typeof(T2).FriendlyName}, {typeof(T3).FriendlyName}, {typeof(T4).FriendlyName}>";
-
     private readonly IReadOnlyList<IAsyncAction<TState, T1, T2, T3, T4>> onActivateHandlers;
     private readonly IReadOnlyList<IAsyncAction<TState, T1, T2, T3, T4>> onDeactivateHandlers;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState, T1, T2, T3, T4>> onStateChangeHandlers;
@@ -179,6 +174,10 @@ internal class State<TState, TTransition, T1, T2, T3, T4> : IState<TState, TTran
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"State: {DisplayString}";
+        return $"{StateValue}<"
+            + $"{typeof(T1).FriendlyName}, "
+            + $"{typeof(T2).FriendlyName}, "
+            + $"{typeof(T3).FriendlyName}, "
+            + $"{typeof(T4).FriendlyName}>";
     }
 }

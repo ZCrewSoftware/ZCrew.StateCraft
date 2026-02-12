@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.States;
@@ -7,15 +6,11 @@ using ZCrew.StateCraft.States.Configuration;
 namespace ZCrew.StateCraft.Transitions;
 
 /// <inheritdoc />
-[DebuggerDisplay("{DisplayString}")]
 internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext>
     : IMappedTransitionConfiguration<TState, TTransition, TNext>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString =>
-        $"{this.transitionValue}({this.previousStateConfiguration.StateValue}) → ?<{typeof(TNext).FriendlyName}>";
-
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly IPartialNextStateConfiguration<TState, TTransition, TNext> nextStateConfiguration;
     private readonly TTransition transitionValue;
@@ -85,20 +80,16 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext>
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"Mapped Transition: {DisplayString}";
+        return $"{this.transitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
     }
 }
 
 /// <inheritdoc />
-[DebuggerDisplay("{DisplayString}")]
 internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2>
     : IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString =>
-        $"{this.transitionValue}({this.previousStateConfiguration.StateValue}) → ?<{typeof(TNext1).FriendlyName}, {typeof(TNext2).FriendlyName}>";
-
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly IPartialNextStateConfiguration<TState, TTransition, TNext1, TNext2> nextStateConfiguration;
     private readonly TTransition transitionValue;
@@ -168,20 +159,16 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"Mapped Transition: {DisplayString}";
+        return $"{this.transitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
     }
 }
 
 /// <inheritdoc />
-[DebuggerDisplay("{DisplayString}")]
 internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3>
     : IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString =>
-        $"{this.transitionValue}({this.previousStateConfiguration.StateValue}) → ?<{typeof(TNext1).FriendlyName}, {typeof(TNext2).FriendlyName}, {typeof(TNext3).FriendlyName}>";
-
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly IPartialNextStateConfiguration<TState, TTransition, TNext1, TNext2, TNext3> nextStateConfiguration;
     private readonly TTransition transitionValue;
@@ -253,20 +240,16 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"Mapped Transition: {DisplayString}";
+        return $"{this.transitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
     }
 }
 
 /// <inheritdoc />
-[DebuggerDisplay("{DisplayString}")]
 internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4>
     : IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString =>
-        $"{this.transitionValue}({this.previousStateConfiguration.StateValue}) → ?<{typeof(TNext1).FriendlyName}, {typeof(TNext2).FriendlyName}, {typeof(TNext3).FriendlyName}, {typeof(TNext4).FriendlyName}>";
-
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly IPartialNextStateConfiguration<
         TState,
@@ -346,6 +329,6 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"Mapped Transition: {DisplayString}";
+        return $"{this.transitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
     }
 }

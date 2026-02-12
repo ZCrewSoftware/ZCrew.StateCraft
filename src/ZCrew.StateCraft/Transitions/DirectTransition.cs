@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Contracts;
@@ -17,7 +16,6 @@ namespace ZCrew.StateCraft.Transitions;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-[DebuggerDisplay("{ToDisplayString()}")]
 internal class DirectTransition<TState, TTransition> : ITransition<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
@@ -85,27 +83,14 @@ internal class DirectTransition<TState, TTransition> : ITransition<TState, TTran
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"Transition: {ToDisplayString()}";
-    }
-
-    private string ToDisplayString()
-    {
-        // TODO MWZ: this needs refactoring since #31 really botched it
-        var previousStateParameters =
-            Previous.State.TypeParameters.Count == 0
-                ? string.Empty
-                : $"<{string.Join(", ", Previous.State.TypeParameters.Select(type => type.FriendlyName))}>";
         if (
             Previous.State.StateValue.Equals(Next.State.StateValue)
             && Previous.State.TypeParameters.SequenceEqual(Next.State.TypeParameters)
         )
         {
-            return $"{TransitionValue}({Previous.State.StateValue}{previousStateParameters}) ↩";
+            return $"{TransitionValue}({Previous}) ↩";
         }
-        var nextStateParameters =
-            Next.State.TypeParameters.Count == 0
-                ? string.Empty
-                : $"<{string.Join(", ", Next.State.TypeParameters.Select(type => type.FriendlyName))}>";
-        return $"{TransitionValue}({Previous.State.StateValue}{previousStateParameters}) → {Next.State.StateValue}{nextStateParameters}";
+
+        return $"{TransitionValue}({Previous}) → {Next}";
     }
 }

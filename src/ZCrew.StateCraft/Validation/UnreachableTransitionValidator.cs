@@ -29,7 +29,7 @@ internal static class UnreachableTransitionValidator
                 if (nonConditionalTransitions.Any(prev => prev.Shadows(currentTransition)))
                 {
                     context.ValidationErrors.Add(
-                        $"{transition} is unreachable because it is shadowed by a previous transition"
+                        $"Transition: {transition} is unreachable because it is shadowed by a previous transition"
                     );
                     continue;
                 }

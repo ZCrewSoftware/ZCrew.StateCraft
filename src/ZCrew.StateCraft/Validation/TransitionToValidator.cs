@@ -33,7 +33,7 @@ internal static class TransitionToValidator
                     continue;
                 }
 
-                context.ValidationErrors.Add($"{transition} has no matching next state");
+                context.ValidationErrors.Add($"Transition: {transition} has no matching next state");
             }
         }
     }

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.States.Configuration;
@@ -6,15 +5,11 @@ using ZCrew.StateCraft.States.Configuration;
 namespace ZCrew.StateCraft.Transitions;
 
 /// <inheritdoc cref="IDirectTransitionConfiguration{TState,TTransition,TNext}"/>
-[DebuggerDisplay("{DisplayString}")]
 internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext>
     : IDirectTransitionConfiguration<TState, TTransition, TNext>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString =>
-        $"{this.transitionValue}({this.previousStateConfiguration.StateValue}) → ?<{typeof(TNext).FriendlyName}>";
-
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly IPartialNextStateConfiguration<TState, TTransition, TNext> nextStateConfiguration;
     private readonly TTransition transitionValue;
@@ -79,6 +74,6 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext>
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"Transition: {DisplayString}";
+        return $"{this.transitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
     }
 }
