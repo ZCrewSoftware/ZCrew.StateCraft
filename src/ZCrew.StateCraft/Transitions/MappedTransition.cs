@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
@@ -61,31 +62,28 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
     public IReadOnlyList<Type> TransitionTypeParameters { get; } = [];
 
     /// <inheritdoc />
-    public Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
+    public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
-        return this.stateMachine.RunWithExceptionHandling(
-            async () =>
-            {
-                // Evaluate conditions that use the previous state's parameter first
-                var previousResult = await Previous.EvaluateConditions(parameters, token);
-                if (!previousResult)
-                {
-                    return false;
-                }
-
-                // Avoid mapping if there are no other conditions
-                if (!Next.IsConditional)
-                {
-                    return true;
-                }
-
-                await this.mappingFunction.Map(parameters, token);
-
-                // Evaluate conditions that use the next state's parameter
-                return await Next.EvaluateConditions(parameters, token);
-            },
+        // Evaluate conditions that use the previous state's parameter first
+        var previousStateCondition = await this.stateMachine.ExceptionBehavior.CallCondition(
+            t => Previous.EvaluateConditions(parameters, t),
             token
         );
+
+        // Avoid mapping if there are no other conditions
+        if (!previousStateCondition)
+        {
+            return false;
+        }
+
+        await this.stateMachine.ExceptionBehavior.CallMap(t => this.mappingFunction.Map(parameters, t), token);
+
+        // Evaluate conditions that use the next state's parameter
+        var nextStateCondition = await this.stateMachine.ExceptionBehavior.CallCondition(
+            t => Next.EvaluateConditions(parameters, t),
+            token
+        );
+        return nextStateCondition;
     }
 
     /// <inheritdoc />
@@ -93,8 +91,10 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
     {
         this.stateMachine.Tracker?.Transitioned(this);
 
-        // TODO MWZ: consider evaluating if mapping needs to be re-ran
-        await this.mappingFunction.Map(parameters, token);
+        if (!parameters.IsNextSet)
+        {
+            await this.mappingFunction.Map(parameters, token);
+        }
         await this.stateMachine.StateChange(Previous.State.StateValue, TransitionValue, Next.State.StateValue, token);
         await Next.State.StateChange(Previous.State.StateValue, TransitionValue, parameters, token);
     }

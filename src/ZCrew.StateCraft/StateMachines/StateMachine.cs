@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.ExceptionServices;
 using Nito.AsyncEx;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Parameters;
@@ -20,7 +19,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 {
     private readonly IStateMachineActivator<TState, TTransition> stateMachineActivator;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges;
-    private readonly IReadOnlyList<IAsyncFunc<Exception, ExceptionResult>> onExceptionHandlers;
     private readonly StateMachineOptions options;
     private readonly IReadOnlyList<ITrigger> triggers;
     private InternalState internalState;
@@ -34,22 +32,23 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     /// </summary>
     /// <param name="stateMachineActivator">The initial state producer.</param>
     /// <param name="onStateChanges">The handlers to invoke when the state changes.</param>
-    /// <param name="onExceptionHandlers">The handlers to invoke when an exception is thrown.</param>
     /// <param name="triggers">The triggers that can control this state machine.</param>
     /// <param name="options">The options to enable certain features on this state machine.</param>
+    /// <param name="exceptionBehavior">The exception behavior.</param>
     public StateMachine(
         IStateMachineActivator<TState, TTransition> stateMachineActivator,
         IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges,
-        IReadOnlyList<IAsyncFunc<Exception, ExceptionResult>> onExceptionHandlers,
         IReadOnlyList<ITrigger> triggers,
-        StateMachineOptions options
+        StateMachineOptions options,
+        IExceptionBehavior exceptionBehavior
     )
     {
         this.stateMachineActivator = stateMachineActivator;
         this.onStateChanges = onStateChanges;
-        this.onExceptionHandlers = onExceptionHandlers;
         this.triggers = triggers;
         this.options = options;
+
+        ExceptionBehavior = exceptionBehavior;
 
         SetupTracking();
     }
@@ -59,6 +58,9 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
     /// <inheritdoc />
     public ITracker<TState, TTransition>? Tracker { get; private set; }
+
+    /// <inheritdoc />
+    public IExceptionBehavior ExceptionBehavior { get; }
 
     /// <inheritdoc />
     public IState<TState, TTransition>? CurrentState { get; set; }
@@ -822,8 +824,8 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     {
         foreach (var onStateChange in this.onStateChanges)
         {
-            await RunWithExceptionHandling(
-                () => onStateChange.InvokeAsync(previousState, transition, nextState, token),
+            await ExceptionBehavior.CallOnStateChange(
+                t => onStateChange.InvokeAsync(previousState, transition, nextState, t),
                 token
             );
         }
@@ -833,76 +835,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     public void AddState(IState<TState, TTransition> state)
     {
         StateTable.Add(state);
-    }
-
-    /// <inheritdoc />
-    public Task RunWithExceptionHandling(Func<Task> action, CancellationToken token)
-    {
-        return RunWithExceptionHandling(action, throwOnCancellation: true, token);
-    }
-
-    /// <inheritdoc />
-    public async Task RunWithExceptionHandling(Func<Task> action, bool throwOnCancellation, CancellationToken token)
-    {
-        try
-        {
-            await action();
-        }
-        catch (OperationCanceledException) when (token.IsCancellationRequested && !throwOnCancellation)
-        {
-            // Skip calling handlers and suppress the exception
-        }
-        catch (OperationCanceledException) when (token.IsCancellationRequested)
-        {
-            // Skip calling handlers
-            throw;
-        }
-        catch (Exception ex)
-        {
-            await HandleException(ExceptionDispatchInfo.Capture(ex), token);
-            throw;
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task<T> RunWithExceptionHandling<T>(Func<Task<T>> action, CancellationToken token)
-    {
-        try
-        {
-            return await action();
-        }
-        catch (OperationCanceledException) when (token.IsCancellationRequested)
-        {
-            // Skip calling handlers
-            throw;
-        }
-        catch (Exception ex)
-        {
-            await HandleException(ExceptionDispatchInfo.Capture(ex), token);
-            throw;
-        }
-    }
-
-    [DoesNotReturn]
-    private async Task HandleException(ExceptionDispatchInfo exceptionInfo, CancellationToken token)
-    {
-        foreach (var handler in this.onExceptionHandlers)
-        {
-            var result = await handler.InvokeAsync(exceptionInfo.SourceException, token);
-            switch (result)
-            {
-                case ExceptionResult.RethrowResult:
-                    exceptionInfo.Throw();
-                    break;
-                case ExceptionResult.ThrowResult { Exception: var exception }:
-                    throw exception;
-                case ExceptionResult.ContinueResult:
-                    continue;
-            }
-        }
-
-        // No handler made a decision, rethrow with original stack trace
-        exceptionInfo.Throw();
     }
 
     /// <inheritdoc />

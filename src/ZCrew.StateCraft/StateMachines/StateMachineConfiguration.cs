@@ -1,4 +1,5 @@
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Exceptions;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.Triggers;
@@ -48,12 +49,13 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         }
 
         var triggers = new List<ITrigger>();
+        var exceptionBehavior = new DefaultExceptionBehavior(this.onExceptionHandlers);
         var stateMachine = new StateMachine<TState, TTransition>(
             this.initialStateProducer,
             this.onStateChanges,
-            this.onExceptionHandlers,
             triggers,
-            this.stateMachineOptions
+            this.stateMachineOptions,
+            exceptionBehavior
         );
 
         foreach (var triggerConfiguration in this.triggerConfigurations)
