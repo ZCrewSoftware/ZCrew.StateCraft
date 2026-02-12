@@ -12,7 +12,10 @@ public class WithSameParameterTests_T
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", "B"))
+            .WithState(
+                "A",
+                state => state.WithParameter<int>().WithTransition("To B", t => t.WithSameParameter().To("B"))
+            )
             .WithState("B", state => state.WithParameter<int>().OnEntry(onEntry))
             .Build();
 
@@ -33,7 +36,11 @@ public class WithSameParameterTests_T
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().OnExit(onExit).WithTransition("To B", "B"))
+            .WithState(
+                "A",
+                state =>
+                    state.WithParameter<int>().OnExit(onExit).WithTransition("To B", t => t.WithSameParameter().To("B"))
+            )
             .WithState("B", state => state.WithParameter<int>())
             .Build();
 
@@ -54,7 +61,10 @@ public class WithSameParameterTests_T
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", "B"))
+            .WithState(
+                "A",
+                state => state.WithParameter<int>().WithTransition("To B", t => t.WithSameParameter().To("B"))
+            )
             .WithState("B", state => state.WithParameter<int>().OnEntry(onEntry))
             .Build();
 
@@ -75,7 +85,10 @@ public class WithSameParameterTests_T
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", "B"))
+            .WithState(
+                "A",
+                state => state.WithParameter<int>().WithTransition("To B", t => t.WithSameParameter().To("B"))
+            )
             .WithState("B", state => state.WithParameter<int>().OnStateChange(onStateChange))
             .Build();
 
@@ -96,7 +109,10 @@ public class WithSameParameterTests_T
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
-            .WithState("A", state => state.WithParameter<int>().WithTransition("To B", "B"))
+            .WithState(
+                "A",
+                state => state.WithParameter<int>().WithTransition("To B", t => t.WithSameParameter().To("B"))
+            )
             .WithState("B", state => state.WithParameter<int>().WithAction(action => action.Invoke(invoke)))
             .Build();
 
@@ -122,7 +138,11 @@ public class WithSameParameterTests_T
             .Configure<string, string>()
             .WithInitialState("A", 42)
             .OnStateChange(onStateChangeMachine)
-            .WithState("A", state => state.WithParameter<int>().OnExit(onExit).WithTransition("To B", "B"))
+            .WithState(
+                "A",
+                state =>
+                    state.WithParameter<int>().OnExit(onExit).WithTransition("To B", t => t.WithSameParameter().To("B"))
+            )
             .WithState(
                 "B",
                 state =>
