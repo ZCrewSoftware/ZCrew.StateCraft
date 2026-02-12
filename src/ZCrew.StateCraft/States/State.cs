@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
@@ -18,13 +17,10 @@ namespace ZCrew.StateCraft.States;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-[DebuggerDisplay("{DisplayString}")]
 internal class State<TState, TTransition> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{StateValue}";
-
     private readonly IReadOnlyList<IAsyncAction<TState>> onActivateHandlers;
     private readonly IReadOnlyList<IAsyncAction<TState>> onDeactivateHandlers;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChangeHandlers;
@@ -177,6 +173,6 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"State: {DisplayString}";
+        return $"{StateValue}";
     }
 }

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
@@ -19,13 +18,10 @@ namespace ZCrew.StateCraft.States;
 ///     state machine behaves as expected.
 /// </typeparam>
 /// <typeparam name="T">The type of the parameter for this state.</typeparam>
-[DebuggerDisplay("{DisplayString}")]
 internal class State<TState, TTransition, T> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{StateValue}<{typeof(T).FriendlyName}>";
-
     private readonly IReadOnlyList<IAsyncAction<TState, T>> onActivateHandlers;
     private readonly IReadOnlyList<IAsyncAction<TState, T>> onDeactivateHandlers;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState, T>> onStateChangeHandlers;
@@ -188,6 +184,6 @@ internal class State<TState, TTransition, T> : IState<TState, TTransition>
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"State: {DisplayString}";
+        return $"{StateValue}<{typeof(T).FriendlyName}>";
     }
 }

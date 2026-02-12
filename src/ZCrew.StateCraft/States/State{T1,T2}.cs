@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
@@ -10,13 +9,10 @@ namespace ZCrew.StateCraft.States;
 /// <summary>
 ///     Standard implementation of a state with two parameters.
 /// </summary>
-[DebuggerDisplay("{DisplayString}")]
 internal class State<TState, TTransition, T1, T2> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{StateValue}<{typeof(T1).FriendlyName}, {typeof(T2).FriendlyName}>";
-
     private readonly IReadOnlyList<IAsyncAction<TState, T1, T2>> onActivateHandlers;
     private readonly IReadOnlyList<IAsyncAction<TState, T1, T2>> onDeactivateHandlers;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState, T1, T2>> onStateChangeHandlers;
@@ -171,6 +167,6 @@ internal class State<TState, TTransition, T1, T2> : IState<TState, TTransition>
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"State: {DisplayString}";
+        return $"{StateValue}<{typeof(T1).FriendlyName}, {typeof(T2).FriendlyName}>";
     }
 }

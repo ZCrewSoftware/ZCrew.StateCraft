@@ -31,6 +31,12 @@ internal class PartialNextStateConfiguration<TState, TTransition> : IPartialNext
     {
         return new NextStateConfiguration<TState, TTransition>(stateValue, this.conditions);
     }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return "?";
+    }
 }
 
 /// <summary>
@@ -62,6 +68,12 @@ internal class PartialNextStateConfiguration<TState, TTransition, T>
     public INextStateConfiguration<TState, TTransition> WithState(TState stateValue)
     {
         return new NextStateConfiguration<TState, TTransition, T>(stateValue, this.conditions);
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"?<{typeof(T).FriendlyName}>";
     }
 }
 
@@ -95,6 +107,12 @@ internal class PartialNextStateConfiguration<TState, TTransition, T1, T2>
     public INextStateConfiguration<TState, TTransition> WithState(TState stateValue)
     {
         return new NextStateConfiguration<TState, TTransition, T1, T2>(stateValue, this.conditions);
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"?<{typeof(T1).FriendlyName}, {typeof(T2).FriendlyName}>";
     }
 }
 
@@ -130,6 +148,12 @@ internal class PartialNextStateConfiguration<TState, TTransition, T1, T2, T3>
     {
         return new NextStateConfiguration<TState, TTransition, T1, T2, T3>(stateValue, this.conditions);
     }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"?<{typeof(T1).FriendlyName}, {typeof(T2).FriendlyName}, {typeof(T3).FriendlyName}>";
+    }
 }
 
 /// <summary>
@@ -164,5 +188,15 @@ internal class PartialNextStateConfiguration<TState, TTransition, T1, T2, T3, T4
     public INextStateConfiguration<TState, TTransition> WithState(TState stateValue)
     {
         return new NextStateConfiguration<TState, TTransition, T1, T2, T3, T4>(stateValue, this.conditions);
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"?<"
+            + $"{typeof(T1).FriendlyName}, "
+            + $"{typeof(T2).FriendlyName}, "
+            + $"{typeof(T3).FriendlyName}, "
+            + $"{typeof(T4).FriendlyName}>";
     }
 }

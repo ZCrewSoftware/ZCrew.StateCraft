@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.StateMachines.Contracts;
@@ -7,13 +6,10 @@ using ZCrew.StateCraft.Transitions;
 namespace ZCrew.StateCraft.States;
 
 /// <inheritdoc />
-[DebuggerDisplay("{DisplayString}")]
 internal class StateConfiguration<TState, TTransition, T> : IParameterizedStateConfiguration<TState, TTransition, T>
     where TState : notnull
     where TTransition : notnull
 {
-    private string DisplayString => $"{State}<{typeof(T).FriendlyName}>";
-
     private readonly List<IAsyncAction<TState, T>> onActivateHandlers = [];
     private readonly List<IAsyncAction<TState, T>> onDeactivateHandlers = [];
     private readonly List<IAsyncAction<TState, TTransition, TState, T>> onStateChangeHandlers = [];
@@ -216,6 +212,6 @@ internal class StateConfiguration<TState, TTransition, T> : IParameterizedStateC
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"State: {DisplayString}";
+        return $"{State}<{typeof(T).FriendlyName}>";
     }
 }

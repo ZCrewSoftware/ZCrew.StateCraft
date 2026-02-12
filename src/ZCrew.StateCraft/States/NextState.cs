@@ -52,6 +52,12 @@ internal class NextState<TState, TTransition> : INextState<TState, TTransition>
 
         return true;
     }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return State.ToString()!;
+    }
 }
 
 /// <summary>
@@ -103,6 +109,12 @@ internal class NextState<TState, TTransition, T> : INextState<TState, TTransitio
         }
 
         return true;
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return State.ToString()!;
     }
 }
 
@@ -156,6 +168,12 @@ internal class NextState<TState, TTransition, T1, T2> : INextState<TState, TTran
         }
 
         return true;
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return State.ToString()!;
     }
 }
 
@@ -212,6 +230,12 @@ internal class NextState<TState, TTransition, T1, T2, T3> : INextState<TState, T
 
         return true;
     }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return State.ToString()!;
+    }
 }
 
 /// <summary>
@@ -267,5 +291,11 @@ internal class NextState<TState, TTransition, T1, T2, T3, T4> : INextState<TStat
         }
 
         return true;
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return State.ToString()!;
     }
 }

@@ -6,7 +6,6 @@ using ZCrew.StateCraft.Transitions.Contracts;
 namespace ZCrew.StateCraft.Transitions;
 
 /// <inheritdoc />
-[DebuggerDisplay("{ToDisplayString()}")]
 internal class DirectTransitionConfiguration<TState, TTransition> : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
@@ -74,27 +73,14 @@ internal class DirectTransitionConfiguration<TState, TTransition> : ITransitionC
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"Transition: {ToDisplayString()}";
-    }
-
-    private string ToDisplayString()
-    {
-        // TODO MWZ: this needs refactoring since #31 really botched it
-        var previousStateParameters =
-            PreviousStateTypeParameters.Count == 0
-                ? string.Empty
-                : $"<{string.Join(", ", PreviousStateTypeParameters.Select(type => type.FriendlyName))}>";
         if (
             PreviousStateValue.Equals(NextStateValue)
             && PreviousStateTypeParameters.SequenceEqual(NextStateTypeParameters)
         )
         {
-            return $"{TransitionValue}({PreviousStateValue}{previousStateParameters}) ↩";
+            return $"{TransitionValue}({this.previousStateConfiguration}) ↩";
         }
-        var nextStateParameters =
-            NextStateTypeParameters.Count == 0
-                ? string.Empty
-                : $"<{string.Join(", ", NextStateTypeParameters.Select(type => type.FriendlyName))}>";
-        return $"{TransitionValue}({PreviousStateValue}{previousStateParameters}) → {NextStateValue}{nextStateParameters}";
+
+        return $"{TransitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
     }
 }

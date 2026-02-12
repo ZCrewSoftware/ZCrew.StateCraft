@@ -20,7 +20,7 @@ internal static class DuplicateStateValidator
 
             if (!seenStates.Add(identity))
             {
-                context.ValidationErrors.Add($"{state} is duplicated");
+                context.ValidationErrors.Add($"State: {state} is duplicated");
             }
         }
     }
