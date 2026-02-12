@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Exceptions;
 using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
@@ -12,7 +13,7 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
 {
     public StubStateMachine()
     {
-        StateTable = new StateTable<TState, TTransition>();
+        StateTable = [];
     }
 
     public StubStateMachine(IState<TState, TTransition> state)
@@ -25,19 +26,21 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
         StateTable = new StateTable<TState, TTransition>(states);
     }
 
-    public IState<TState, TTransition>? CurrentState { get; set; }
+    public IState<TState, TTransition>? CurrentState => null;
 
-    public IState<TState, TTransition>? PreviousState { get; set; }
+    public IState<TState, TTransition>? PreviousState => null;
 
     public IState<TState, TTransition>? NextState { get; set; }
 
     public IStateMachineParameters Parameters { get; } = new StateMachineParameters();
 
-    public ITransition<TState, TTransition>? CurrentTransition { get; set; }
+    public ITransition<TState, TTransition>? CurrentTransition => null;
 
-    public StateTable<TState, TTransition> StateTable { get; set; }
+    public StateTable<TState, TTransition> StateTable { get; }
 
-    public ITracker<TState, TTransition>? Tracker { get; set; }
+    public ITracker<TState, TTransition>? Tracker => null;
+
+    public IExceptionBehavior ExceptionBehavior { get; } = new DefaultExceptionBehavior([]);
 
     public void AddState(IState<TState, TTransition> state) { }
 

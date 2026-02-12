@@ -58,6 +58,11 @@ public interface IStateMachine<TState, TTransition> : IDisposable
     internal ITracker<TState, TTransition>? Tracker { get; }
 
     /// <summary>
+    ///     The exception behavior for this state machine.
+    /// </summary>
+    internal IExceptionBehavior ExceptionBehavior { get; }
+
+    /// <summary>
     ///     Activates the state machine by setting the initial state and invoking the activation handlers, entry
     ///     handlers, and state actions for that state. This method must be called exactly once before any transitions
     ///     are made.
@@ -402,43 +407,6 @@ public interface IStateMachine<TState, TTransition> : IDisposable
     /// <param name="nextState">The state being transitioned to.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     internal Task StateChange(TState previousState, TTransition transition, TState nextState, CancellationToken token);
-
-    /// <summary>
-    ///     Executes an action with exception handling. Any exceptions thrown by the action are passed through
-    ///     the registered exception handlers. If all handlers return <see cref="ExceptionResult.Continue"/>
-    ///     or a handler returns <see cref="ExceptionResult.Rethrow"/>, the exception is rethrown.
-    ///     If a handler returns <see cref="ExceptionResult.Throw"/>, the replacement exception is thrown.
-    /// </summary>
-    /// <param name="action">The action to execute.</param>
-    /// <param name="token">The token to monitor for cancellation requests.</param>
-    internal Task RunWithExceptionHandling(Func<Task> action, CancellationToken token);
-
-    /// <summary>
-    ///     Executes an action with exception handling. Any exceptions thrown by the action are passed through
-    ///     the registered exception handlers. If all handlers return <see cref="ExceptionResult.Continue"/>
-    ///     or a handler returns <see cref="ExceptionResult.Rethrow"/>, the exception is rethrown.
-    ///     If a handler returns <see cref="ExceptionResult.Throw"/>, the replacement exception is thrown.
-    /// </summary>
-    /// <param name="action">The action to execute.</param>
-    /// <param name="throwOnCancellation">
-    ///     If <see langword="true"/> then this will not throw <see cref="OperationCanceledException"/> when the
-    ///     <paramref name="token"/> is canceled.
-    /// </param>
-    /// <param name="token">The token to monitor for cancellation requests.</param>
-    internal Task RunWithExceptionHandling(Func<Task> action, bool throwOnCancellation, CancellationToken token);
-
-    /// <summary>
-    ///     Executes an action with exception handling and returns the result. Any exceptions thrown by the action
-    ///     are passed through the registered exception handlers. If all handlers return
-    ///     <see cref="ExceptionResult.Continue"/> or a handler returns <see cref="ExceptionResult.Rethrow"/>, the
-    ///     exception is rethrown. If a handler returns <see cref="ExceptionResult.Throw"/>, the replacement exception
-    ///     is thrown.
-    /// </summary>
-    /// <typeparam name="T">The return type of the action.</typeparam>
-    /// <param name="action">The action to execute.</param>
-    /// <param name="token">The token to monitor for cancellation requests.</param>
-    /// <returns>The result of the action.</returns>
-    internal Task<T> RunWithExceptionHandling<T>(Func<Task<T>> action, CancellationToken token);
 
     /// <summary>
     ///     Adds the <paramref name="state"/> to this machine.

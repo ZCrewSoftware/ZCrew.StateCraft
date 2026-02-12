@@ -65,8 +65,8 @@ internal class State<TState, TTransition, T1, T2, T3, T4> : IState<TState, TTran
         StateMachine.Tracker?.Activated(this, (p1, p2, p3, p4));
         foreach (var handler in this.onActivateHandlers)
         {
-            await StateMachine.RunWithExceptionHandling(
-                () => handler.InvokeAsync(StateValue, p1, p2, p3, p4, token),
+            await StateMachine.ExceptionBehavior.CallOnActivate(
+                t => handler.InvokeAsync(StateValue, p1, p2, p3, p4, t),
                 token
             );
         }
@@ -79,8 +79,8 @@ internal class State<TState, TTransition, T1, T2, T3, T4> : IState<TState, TTran
         StateMachine.Tracker?.Deactivated(this, (p1, p2, p3, p4));
         foreach (var handler in this.onDeactivateHandlers)
         {
-            await StateMachine.RunWithExceptionHandling(
-                () => handler.InvokeAsync(StateValue, p1, p2, p3, p4, token),
+            await StateMachine.ExceptionBehavior.CallOnDeactivate(
+                t => handler.InvokeAsync(StateValue, p1, p2, p3, p4, t),
                 token
             );
         }
@@ -97,8 +97,8 @@ internal class State<TState, TTransition, T1, T2, T3, T4> : IState<TState, TTran
         var (p1, p2, p3, p4) = parameters.GetNextParameters<T1, T2, T3, T4>();
         foreach (var handler in this.onStateChangeHandlers)
         {
-            await StateMachine.RunWithExceptionHandling(
-                () => handler.InvokeAsync(previousState, transition, StateValue, p1, p2, p3, p4, token),
+            await StateMachine.ExceptionBehavior.CallOnStateChange(
+                t => handler.InvokeAsync(previousState, transition, StateValue, p1, p2, p3, p4, t),
                 token
             );
         }
@@ -111,7 +111,7 @@ internal class State<TState, TTransition, T1, T2, T3, T4> : IState<TState, TTran
         StateMachine.Tracker?.Entered(this, (p1, p2, p3, p4));
         foreach (var handler in this.onEntryHandlers)
         {
-            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(p1, p2, p3, p4, token), token);
+            await StateMachine.ExceptionBehavior.CallOnEntry(t => handler.InvokeAsync(p1, p2, p3, p4, t), token);
         }
     }
 
@@ -122,7 +122,7 @@ internal class State<TState, TTransition, T1, T2, T3, T4> : IState<TState, TTran
         StateMachine.Tracker?.Exited(this, (p1, p2, p3, p4));
         foreach (var handler in this.onExitHandlers)
         {
-            await StateMachine.RunWithExceptionHandling(() => handler.InvokeAsync(p1, p2, p3, p4, token), token);
+            await StateMachine.ExceptionBehavior.CallOnExit(t => handler.InvokeAsync(p1, p2, p3, p4, t), token);
         }
     }
 
@@ -132,11 +132,7 @@ internal class State<TState, TTransition, T1, T2, T3, T4> : IState<TState, TTran
         var (p1, p2, p3, p4) = parameters.GetCurrentParameters<T1, T2, T3, T4>();
         foreach (var action in this.actions)
         {
-            await StateMachine.RunWithExceptionHandling(
-                () => action.Invoke(p1, p2, p3, p4, token),
-                throwOnCancellation: false,
-                token
-            );
+            await StateMachine.ExceptionBehavior.CallAction(t => action.Invoke(p1, p2, p3, p4, t), token);
         }
     }
 

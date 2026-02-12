@@ -65,19 +65,19 @@ internal class DirectTransition<TState, TTransition> : ITransition<TState, TTran
     /// <inheritdoc />
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
-        return await this.stateMachine.RunWithExceptionHandling(
-            async () =>
-            {
-                var previousStateCondition = await Previous.EvaluateConditions(parameters, token);
-                if (!previousStateCondition)
-                {
-                    return false;
-                }
-                var nextStateCondition = await Next.EvaluateConditions(parameters, token);
-                return nextStateCondition;
-            },
+        var previousStateCondition = await this.stateMachine.ExceptionBehavior.CallCondition(
+            t => Previous.EvaluateConditions(parameters, t),
             token
         );
+        if (!previousStateCondition)
+        {
+            return false;
+        }
+        var nextStateCondition = await this.stateMachine.ExceptionBehavior.CallCondition(
+            t => Next.EvaluateConditions(parameters, t),
+            token
+        );
+        return nextStateCondition;
     }
 
     /// <inheritdoc />
