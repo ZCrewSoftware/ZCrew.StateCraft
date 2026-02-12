@@ -1,3 +1,4 @@
+using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft;
@@ -294,6 +295,22 @@ public interface IStateMachineConfiguration<TState, TTransition>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
         Func<CancellationToken, ValueTask<(TState, T1, T2, T3, T4)>> stateProvider
+    );
+
+    /// <summary>
+    ///     Configures a custom <see cref="IExceptionBehavior"/> provider. This will be called each time
+    ///     <see cref="Build()"/> is called.
+    /// </summary>
+    /// <param name="exceptionBehaviorProvider">
+    ///     The provider that creates an implementation of the <see cref="IExceptionBehavior"/>.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    /// <remarks>
+    ///     A default exception behavior, <see cref="DefaultExceptionBehavior"/>, has been provided with
+    ///     <see langword="virtual"/> methods which can be overriden as necessary.
+    /// </remarks>
+    IStateMachineConfiguration<TState, TTransition> WithExceptionBehavior(
+        Func<IEnumerable<IAsyncFunc<Exception, ExceptionResult>>, IExceptionBehavior> exceptionBehaviorProvider
     );
 
     /// <summary>

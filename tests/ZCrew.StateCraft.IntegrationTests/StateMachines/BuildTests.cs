@@ -1,3 +1,5 @@
+using NSubstitute;
+
 namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 
 public class BuildTests
@@ -65,5 +67,35 @@ public class BuildTests
 
         // Assert
         Assert.NotNull(stateMachine);
+    }
+
+    [Fact]
+    public void Build_WhenNoExceptionBehaviorProvider_ShouldHaveDefaultBehavior()
+    {
+        // Arrange
+        var configuration = StateMachine.Configure<string, string>().WithInitialState("A");
+
+        // Act
+        var stateMachine = configuration.Build();
+
+        // Assert
+        Assert.IsType<DefaultExceptionBehavior>(stateMachine.ExceptionBehavior);
+    }
+
+    [Fact]
+    public void Build_WhenExceptionBehaviorProvider_ShouldUseProvidedBehavior()
+    {
+        // Arrange
+        var exceptionBehavior = Substitute.For<IExceptionBehavior>();
+        var configuration = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithExceptionBehavior(_ => exceptionBehavior);
+
+        // Act
+        var stateMachine = configuration.Build();
+
+        // Assert
+        Assert.Same(exceptionBehavior, stateMachine.ExceptionBehavior);
     }
 }

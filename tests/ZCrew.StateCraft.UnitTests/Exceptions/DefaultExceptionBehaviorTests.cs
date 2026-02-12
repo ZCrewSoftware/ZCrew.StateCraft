@@ -1,9 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using NSubstitute;
 using ZCrew.Extensions.Tasks;
-using ZCrew.StateCraft.Exceptions;
 
 namespace ZCrew.StateCraft.UnitTests.Exceptions;
 
+[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
 public class DefaultExceptionBehaviorTests
 {
     [Fact]

@@ -1,5 +1,4 @@
 using ZCrew.Extensions.Tasks;
-using ZCrew.StateCraft.Exceptions;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.Triggers;
@@ -19,6 +18,8 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     private readonly List<IStateConfiguration<TState, TTransition>> stateConfigurations = [];
     private readonly List<IFinalTriggerConfiguration<TState, TTransition>> triggerConfigurations = [];
     private StateMachineOptions stateMachineOptions = StateMachineOptions.None;
+    private Func<IEnumerable<IAsyncFunc<Exception, ExceptionResult>>, IExceptionBehavior> exceptionBehaviorProvider =
+        DefaultExceptionBehaviorProvider;
 
     /// <inheritdoc/>
     public IEnumerable<IStateConfiguration<TState, TTransition>> States => this.stateConfigurations;
@@ -49,7 +50,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         }
 
         var triggers = new List<ITrigger>();
-        var exceptionBehavior = new DefaultExceptionBehavior(this.onExceptionHandlers);
+        var exceptionBehavior = this.exceptionBehaviorProvider(this.onExceptionHandlers);
         var stateMachine = new StateMachine<TState, TTransition>(
             this.initialStateProducer,
             this.onStateChanges,
@@ -296,6 +297,17 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     }
 
     /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithExceptionBehavior(
+        Func<IEnumerable<IAsyncFunc<Exception, ExceptionResult>>, IExceptionBehavior> exceptionBehaviorProvider
+    )
+    {
+        ArgumentNullException.ThrowIfNull(exceptionBehaviorProvider);
+
+        this.exceptionBehaviorProvider = exceptionBehaviorProvider;
+        return this;
+    }
+
+    /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> OnStateChange(Action<TState, TTransition, TState> handler)
     {
         this.onStateChanges.Add(handler.AsAsyncAction());
@@ -369,5 +381,12 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         var finalTriggerConfiguration = configureTrigger(initialTriggerConfiguration);
         this.triggerConfigurations.Add(finalTriggerConfiguration);
         return this;
+    }
+
+    private static IExceptionBehavior DefaultExceptionBehaviorProvider(
+        IEnumerable<IAsyncFunc<Exception, ExceptionResult>> handlers
+    )
+    {
+        return new DefaultExceptionBehavior(handlers);
     }
 }

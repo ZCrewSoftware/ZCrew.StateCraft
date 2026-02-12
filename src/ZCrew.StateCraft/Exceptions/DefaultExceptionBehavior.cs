@@ -1,7 +1,7 @@
 using System.Runtime.ExceptionServices;
 using ZCrew.Extensions.Tasks;
 
-namespace ZCrew.StateCraft.Exceptions;
+namespace ZCrew.StateCraft;
 
 /// <inheritdoc />
 /// <remarks>
@@ -19,9 +19,9 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     ///     when an exception is thrown.
     /// </summary>
     /// <param name="onExceptionHandlers">The handlers to invoke when an exception is thrown.</param>
-    public DefaultExceptionBehavior(IReadOnlyList<IAsyncFunc<Exception, ExceptionResult>> onExceptionHandlers)
+    public DefaultExceptionBehavior(IEnumerable<IAsyncFunc<Exception, ExceptionResult>> onExceptionHandlers)
     {
-        this.OnExceptionHandlers = onExceptionHandlers;
+        this.OnExceptionHandlers = onExceptionHandlers.ToArray();
     }
 
     /// <inheritdoc />
