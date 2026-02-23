@@ -79,10 +79,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
     private async Task ExitState(CancellationToken token)
     {
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
-        {
-            return;
-        }
         Debug.Assert(PreviousState != null, $"Expected {nameof(PreviousState)} to be set.");
         Debug.Assert(CurrentState == null, $"Expected {nameof(CurrentState)} to be null.");
 
@@ -115,13 +111,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
     private async Task Transition(CancellationToken token)
     {
-        if (this.internalState is not InternalState.Exited)
-        {
-            return;
-        }
-
         Debug.Assert(PreviousState != null, $"Expected {nameof(PreviousState)} to be set.");
-        Debug.Assert(CurrentState == null, $"Expected {nameof(CurrentState)} to be null.");
         Debug.Assert(CurrentTransition != null, $"Expected {nameof(CurrentTransition)} to be set.");
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
@@ -142,11 +132,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     /// </remarks>
     private async Task EnterState(IDisposable methodLock, CancellationToken token)
     {
-        if (this.internalState is not InternalState.Idle and not InternalState.Transitioned)
-        {
-            return;
-        }
-        Debug.Assert(CurrentState == null, $"Expected {nameof(CurrentState)} to be set.");
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
         this.internalState = InternalState.Entering;
@@ -211,14 +196,38 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
     private void Rollback()
     {
-        Debug.Assert(CurrentState == null, $"Expected {nameof(CurrentState)} to be null.");
-
         Parameters.RollbackTransition();
         NextState = null;
         CurrentState = PreviousState;
         PreviousState = null;
 
         CurrentTransition = null;
+    }
+
+    /// <summary>
+    ///     Retries entry for a state that is in <see cref="InternalState.Entering"/>. Parameters are
+    ///     still in the next slot from the original transition, so <c>Enter</c> reads them naturally.
+    ///     On success, commits state pointers and parameters, then starts the action with immediate
+    ///     cancellation so that synchronous initialization code is guaranteed to run.
+    /// </summary>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    private async Task RetryEntry(CancellationToken token)
+    {
+        Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
+
+        await NextState.Enter(Parameters, token);
+        Parameters.CommitTransition();
+        PreviousState = null;
+        CurrentState = NextState;
+        NextState = null;
+        CurrentTransition = null;
+        this.internalState = InternalState.Active;
+
+        // Use a canceled token here so that any async work is canceled immediately; but synchronous work (or work that
+        // must run) can just ignore the cancellation token and execute before transitioning to the next state
+        var canceledToken = new CancellationToken(true);
+        var action = CurrentState.Action(Parameters, canceledToken);
+        await action.ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
     }
 
     private async Task ActivateTriggers(CancellationToken token)
@@ -285,6 +294,17 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             throw new InvalidOperationException("The state machine has not been activated.");
         }
 
+        if (this.internalState is InternalState.Entering)
+        {
+            await DeactivateTriggers(token);
+            Parameters.Clear();
+            PreviousState = null;
+            NextState = null;
+            CurrentTransition = null;
+            this.internalState = InternalState.Inactive;
+            return;
+        }
+
         try
         {
             BeginTransition();
@@ -309,9 +329,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     public async Task Transition(TTransition transition, CancellationToken token = default)
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             throw new InvalidOperationException("The state machine has not been activated.");
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -322,7 +349,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
         }
         catch when (CurrentState == null)
         {
@@ -330,15 +356,24 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
     }
 
     /// <inheritdoc />
     public async Task Transition<T>(TTransition transition, T parameter, CancellationToken token = default)
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             throw new InvalidOperationException("The state machine has not been activated.");
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -349,14 +384,15 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
         }
-        catch (Exception) when (CurrentState == null)
+        catch when (CurrentState == null)
         {
             Rollback();
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
     }
 
     /// <inheritdoc />
@@ -368,9 +404,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     )
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             throw new InvalidOperationException("The state machine has not been activated.");
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -381,14 +424,15 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
         }
-        catch (Exception) when (CurrentState == null)
+        catch when (CurrentState == null)
         {
             Rollback();
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
     }
 
     /// <inheritdoc />
@@ -401,9 +445,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     )
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             throw new InvalidOperationException("The state machine has not been activated.");
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -414,14 +465,15 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
         }
-        catch (Exception) when (CurrentState == null)
+        catch when (CurrentState == null)
         {
             Rollback();
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
     }
 
     /// <inheritdoc />
@@ -435,9 +487,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     )
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             throw new InvalidOperationException("The state machine has not been activated.");
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -448,23 +507,31 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
         }
-        catch (Exception) when (CurrentState == null)
+        catch when (CurrentState == null)
         {
             Rollback();
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
     }
 
     /// <inheritdoc />
     public async Task<bool> CanTransition(TTransition transition, CancellationToken token = default)
     {
         using var _ = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -484,9 +551,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     public async Task<bool> CanTransition<T>(TTransition transition, T parameter, CancellationToken token = default)
     {
         using var _ = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -511,9 +585,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     )
     {
         using var _ = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -539,9 +620,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     )
     {
         using var _ = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -568,9 +656,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     )
     {
         using var _ = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -590,9 +685,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     public async Task<bool> TryTransition(TTransition transition, CancellationToken token = default)
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -617,8 +719,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
-            return true;
         }
         catch when (CurrentState == null)
         {
@@ -626,15 +726,25 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
+        return true;
     }
 
     /// <inheritdoc />
     public async Task<bool> TryTransition<T>(TTransition transition, T parameter, CancellationToken token = default)
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -659,8 +769,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
-            return true;
         }
         catch when (CurrentState == null)
         {
@@ -668,6 +776,9 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
+        return true;
     }
 
     /// <inheritdoc />
@@ -679,9 +790,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     )
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -706,8 +824,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
-            return true;
         }
         catch when (CurrentState == null)
         {
@@ -715,6 +831,9 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
+        return true;
     }
 
     /// <inheritdoc />
@@ -727,9 +846,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     )
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -754,8 +880,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
-            return true;
         }
         catch when (CurrentState == null)
         {
@@ -763,6 +887,9 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
+        return true;
     }
 
     /// <inheritdoc />
@@ -776,9 +903,16 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     )
     {
         using var transitionLock = await this.stateMachineLock.LockAsync(token);
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
+        if (
+            this.internalState is not InternalState.Active and not InternalState.Recovery and not InternalState.Entering
+        )
         {
             return false;
+        }
+
+        if (this.internalState is InternalState.Entering)
+        {
+            await RetryEntry(token);
         }
 
         try
@@ -803,8 +937,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             NextState = CurrentTransition.Next.State;
             await ExitState(token);
             await Transition(token);
-            await EnterState(transitionLock, token);
-            return true;
         }
         catch when (CurrentState == null)
         {
@@ -812,6 +944,9 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
             this.internalState = InternalState.Recovery;
             throw;
         }
+
+        await EnterState(transitionLock, token);
+        return true;
     }
 
     /// <inheritdoc />
