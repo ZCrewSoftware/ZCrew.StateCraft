@@ -79,10 +79,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
     private async Task ExitState(CancellationToken token)
     {
-        if (this.internalState is not InternalState.Active and not InternalState.Recovery)
-        {
-            return;
-        }
         Debug.Assert(PreviousState != null, $"Expected {nameof(PreviousState)} to be set.");
         Debug.Assert(CurrentState == null, $"Expected {nameof(CurrentState)} to be null.");
 
@@ -115,13 +111,7 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
     private async Task Transition(CancellationToken token)
     {
-        if (this.internalState is not InternalState.Exited)
-        {
-            return;
-        }
-
         Debug.Assert(PreviousState != null, $"Expected {nameof(PreviousState)} to be set.");
-        Debug.Assert(CurrentState == null, $"Expected {nameof(CurrentState)} to be null.");
         Debug.Assert(CurrentTransition != null, $"Expected {nameof(CurrentTransition)} to be set.");
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
@@ -142,11 +132,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     /// </remarks>
     private async Task EnterState(IDisposable methodLock, CancellationToken token)
     {
-        if (this.internalState is not InternalState.Idle and not InternalState.Transitioned)
-        {
-            return;
-        }
-        Debug.Assert(CurrentState == null, $"Expected {nameof(CurrentState)} to be set.");
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
         this.internalState = InternalState.Entering;
@@ -211,8 +196,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
 
     private void Rollback()
     {
-        Debug.Assert(CurrentState == null, $"Expected {nameof(CurrentState)} to be null.");
-
         Parameters.RollbackTransition();
         NextState = null;
         CurrentState = PreviousState;
@@ -231,10 +214,6 @@ internal sealed class StateMachine<TState, TTransition> : IStateMachine<TState, 
     private async Task RetryEntry(CancellationToken token)
     {
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
-        Debug.Assert(
-            this.internalState is InternalState.Entering,
-            $"Expected {nameof(this.internalState)} to be {InternalState.Entering}."
-        );
 
         await NextState.Enter(Parameters, token);
         Parameters.CommitTransition();
