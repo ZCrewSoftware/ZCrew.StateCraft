@@ -381,7 +381,7 @@ public class TryTransitionExceptionTests_T1_T2_T3
     }
 
     [Fact]
-    public async Task TryTransition_T1_T2_T3_WhenOnEntryThrowsException_ShouldThrowAndRollback()
+    public async Task TryTransition_T1_T2_T3_WhenOnEntryThrowsException_ShouldThrowAndCommit()
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
@@ -401,13 +401,15 @@ public class TryTransitionExceptionTests_T1_T2_T3
 
         // Assert
         Assert.Same(exception, thrownException);
-        Assert.NotNull(stateMachine.CurrentState);
-        Assert.Equal("A", stateMachine.CurrentState.StateValue);
-        Assert.Null(stateMachine.PreviousState);
-        Assert.Null(stateMachine.NextState);
-        Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
-        Assert.False(stateMachine.Parameters.IsPreviousSet);
-        Assert.False(stateMachine.Parameters.IsNextSet);
+        Assert.Null(stateMachine.CurrentState);
+        Assert.NotNull(stateMachine.NextState);
+        Assert.Equal("B", stateMachine.NextState.StateValue);
+        Assert.NotNull(stateMachine.PreviousState);
+        Assert.Equal("A", stateMachine.PreviousState.StateValue);
+        Assert.False(stateMachine.Parameters.IsCurrentSet);
+        Assert.Equal((42, "hello", true), stateMachine.Parameters.GetNextParameters<int, string, bool>());
+        Assert.True(stateMachine.Parameters.IsPreviousSet);
+        Assert.True(stateMachine.Parameters.IsNextSet);
         Assert.Null(stateMachine.CurrentTransition);
     }
 
@@ -428,52 +430,11 @@ public class TryTransitionExceptionTests_T1_T2_T3
             .Configure<string, string>()
             .WithInitialState("A")
             .WithState("A", state => state.WithTransition<int, string, bool>("To B", "B"))
-            .WithState("B", state => state.WithParameters<int, string, bool>().OnEntry(onEntry))
-            .Build();
-
-        await stateMachine.Activate(TestContext.Current.CancellationToken);
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            stateMachine.TryTransition("To B", 42, "hello", true, TestContext.Current.CancellationToken)
-        );
-
-        // Act
-        var result = await stateMachine.TryTransition(
-            "To B",
-            99,
-            "world",
-            false,
-            TestContext.Current.CancellationToken
-        );
-
-        // Assert
-        Assert.True(result);
-        Assert.NotNull(stateMachine.CurrentState);
-        Assert.Equal("B", stateMachine.CurrentState.StateValue);
-    }
-
-    [Fact]
-    public async Task TryTransition_T1_T2_T3_WhenOnEntryThrowsExceptionOnce_ShouldTransitionDifferentlySuccessfully()
-    {
-        // Arrange
-        var callCount = 0;
-        var onEntry = Substitute.For<Action<int, string, bool>>();
-        onEntry
-            .When(x => x.Invoke(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<bool>()))
-            .Do(_ =>
-            {
-                if (Interlocked.Increment(ref callCount) == 1)
-                    throw new InvalidOperationException();
-            });
-        var stateMachine = StateMachine
-            .Configure<string, string>()
-            .WithInitialState("A")
             .WithState(
-                "A",
-                state =>
-                    state.WithTransition<int, string, bool>("To B", "B").WithTransition<int, string, bool>("To C", "C")
+                "B",
+                state => state.WithParameters<int, string, bool>().OnEntry(onEntry).WithTransition("To C", "C")
             )
-            .WithState("B", state => state.WithParameters<int, string, bool>().OnEntry(onEntry))
-            .WithState("C", state => state.WithParameters<int, string, bool>())
+            .WithState("C", state => state)
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
@@ -482,13 +443,7 @@ public class TryTransitionExceptionTests_T1_T2_T3
         );
 
         // Act
-        var result = await stateMachine.TryTransition(
-            "To C",
-            99,
-            "world",
-            false,
-            TestContext.Current.CancellationToken
-        );
+        var result = await stateMachine.TryTransition("To C", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
