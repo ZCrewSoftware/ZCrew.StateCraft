@@ -2,7 +2,6 @@ using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Tracking.Contracts;
-using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.UnitTests.Stubs;
 
@@ -32,8 +31,6 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
     public IState<TState, TTransition>? NextState { get; set; }
 
     public IStateMachineParameters Parameters { get; } = new StateMachineParameters();
-
-    public ITransition<TState, TTransition>? CurrentTransition => null;
 
     public StateTable<TState, TTransition> StateTable { get; }
 

@@ -1,6 +1,6 @@
 name: Task
 description: Non-functional work such as documentation or changing GitHub settings
-title: "StateCraft: "
+title: "Task: "
 labels: []
 projects: ["ZCrewSoftware/ZCrew.StateCraft"]
 type: task

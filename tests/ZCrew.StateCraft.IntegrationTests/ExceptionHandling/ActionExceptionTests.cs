@@ -53,7 +53,6 @@ public class ActionExceptionTests
         Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -167,7 +166,6 @@ public class ActionExceptionTests
         Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -261,7 +259,6 @@ public class ActionExceptionTests
         Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -386,7 +383,6 @@ public class ActionExceptionTests
         Assert.Equal("hello", stateMachine.Parameters.GetCurrentParameter<string>());
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -482,7 +478,6 @@ public class ActionExceptionTests
         Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -539,7 +534,6 @@ public class ActionExceptionTests
         Assert.Equal("hello", stateMachine.Parameters.GetCurrentParameter<string>());
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]

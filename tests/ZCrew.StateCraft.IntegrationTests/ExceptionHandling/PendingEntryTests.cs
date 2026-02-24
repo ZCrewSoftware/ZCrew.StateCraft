@@ -30,7 +30,6 @@ public class PendingEntryTests
         Assert.Equal("hello", stateMachine.Parameters.GetNextParameter<string>());
         Assert.NotNull(stateMachine.PreviousState);
         Assert.Equal("A", stateMachine.PreviousState.StateValue);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
