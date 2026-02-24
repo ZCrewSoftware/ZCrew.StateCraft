@@ -29,7 +29,6 @@ public partial class ActivateExceptionTests
         Assert.False(stateMachine.Parameters.IsCurrentSet);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -92,7 +91,6 @@ public partial class ActivateExceptionTests
         Assert.False(stateMachine.Parameters.IsCurrentSet);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -155,7 +153,6 @@ public partial class ActivateExceptionTests
         Assert.False(stateMachine.Parameters.IsCurrentSet);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]

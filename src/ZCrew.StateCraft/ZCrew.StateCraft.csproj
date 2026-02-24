@@ -15,4 +15,10 @@
   <ItemGroup>
     <PackageReference Include="ZCrew.Extensions.Tasks" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="StateMachines\StateMachine.*.cs">
+      <DependentUpon>StateMachine.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

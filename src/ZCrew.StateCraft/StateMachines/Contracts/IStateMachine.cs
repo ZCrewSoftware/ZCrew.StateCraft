@@ -1,6 +1,5 @@
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.Tracking.Contracts;
-using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft.StateMachines.Contracts;
 
@@ -41,11 +40,6 @@ public interface IStateMachine<TState, TTransition> : IDisposable
     ///     The parameters for the state machine when in a state or transitioning between states.
     /// </summary>
     internal IStateMachineParameters Parameters { get; }
-
-    /// <summary>
-    ///     The current transition that has been started. This will only be present when transitioning.
-    /// </summary>
-    internal ITransition<TState, TTransition>? CurrentTransition { get; }
 
     /// <summary>
     ///     The states in this state machine.

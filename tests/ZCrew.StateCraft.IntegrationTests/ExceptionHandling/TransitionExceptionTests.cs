@@ -33,7 +33,6 @@ public class TransitionExceptionTests
         Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -132,7 +131,6 @@ public class TransitionExceptionTests
         Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -232,7 +230,6 @@ public class TransitionExceptionTests
         Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -331,7 +328,6 @@ public class TransitionExceptionTests
         Assert.False(stateMachine.Parameters.IsCurrentSet);
         Assert.True(stateMachine.Parameters.IsPreviousSet);
         Assert.True(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]

@@ -31,7 +31,6 @@ public class DeactivateExceptionTests
         Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -93,7 +92,6 @@ public class DeactivateExceptionTests
         Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -155,7 +153,6 @@ public class DeactivateExceptionTests
         Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -217,7 +214,6 @@ public class DeactivateExceptionTests
         Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]

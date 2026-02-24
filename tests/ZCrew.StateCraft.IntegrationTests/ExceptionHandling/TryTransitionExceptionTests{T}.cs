@@ -36,7 +36,6 @@ public class TryTransitionExceptionTests_T
         Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -147,7 +146,6 @@ public class TryTransitionExceptionTests_T
         Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -255,7 +253,6 @@ public class TryTransitionExceptionTests_T
         Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -363,7 +360,6 @@ public class TryTransitionExceptionTests_T
         Assert.Equal("hello", stateMachine.Parameters.GetNextParameter<string>());
         Assert.True(stateMachine.Parameters.IsPreviousSet);
         Assert.True(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -435,7 +431,6 @@ public class TryTransitionExceptionTests_T
         Assert.Null(stateMachine.NextState);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
@@ -515,7 +510,6 @@ public class TryTransitionExceptionTests_T
         Assert.Null(stateMachine.NextState);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
-        Assert.Null(stateMachine.CurrentTransition);
     }
 
     [Fact]
