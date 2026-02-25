@@ -1,0 +1,81 @@
+@inject IOrderCommandService OrderCommandService
+
+<div class="order-card">
+    <div class="order-header">
+        <span class="order-id">Order @Order.Id.ToString()[..8]</span>
+        <span class="state-badge @GetStateClass()">@Order.State</span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Order.SuspensionReason))
+    {
+        <div class="reason">Suspension: @Order.SuspensionReason</div>
+    }
+    @if (!string.IsNullOrEmpty(Order.CancellationReason))
+    {
+        <div class="reason">Cancellation: @Order.CancellationReason</div>
+    }
+
+    <div class="button-row">
+        <button class="btn btn-open" disabled="@(!CanOpen)" @onclick="Open">Open</button>
+        <button class="btn btn-suspend" disabled="@(!CanSuspend)" @onclick="Suspend">Suspend</button>
+        <button class="btn btn-resume" disabled="@(!CanResume)" @onclick="Resume">Resume</button>
+        <button class="btn btn-cancel" disabled="@(!CanCancel)" @onclick="Cancel">Cancel</button>
+    </div>
+
+    @if (Order.Lines.Count > 0)
+    {
+        <div class="lines-section">
+            <div class="lines-header">Lines</div>
+            @foreach (var line in Order.Lines)
+            {
+                <LineRow Line="line" OrderId="Order.Id" OnStateChanged="OnStateChanged" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Order Order { get; set; } = null!;
+    [Parameter] public EventCallback OnStateChanged { get; set; }
+
+    private bool CanOpen => Order.State == OrderState.Queued;
+    private bool CanSuspend => Order.State == OrderState.Processing;
+    private bool CanResume => Order.State == OrderState.Suspended;
+    private bool CanCancel => Order.State is OrderState.Queued or OrderState.Suspended;
+
+    private async Task Open()
+    {
+        await OrderCommandService.OpenOrder(new OpenOrderCommand(Order.Id), CancellationToken.None);
+        await OnStateChanged.InvokeAsync();
+    }
+
+    private async Task Suspend()
+    {
+        await OrderCommandService.SuspendOrder(new SuspendOrderCommand(Order.Id, "User requested"), CancellationToken.None);
+        await OnStateChanged.InvokeAsync();
+    }
+
+    private async Task Resume()
+    {
+        await OrderCommandService.ResumeOrder(new ResumeOrderCommand(Order.Id), CancellationToken.None);
+        await OnStateChanged.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        await OrderCommandService.CancelOrder(new CancelOrderCommand(Order.Id, "User requested"), CancellationToken.None);
+        await OnStateChanged.InvokeAsync();
+    }
+
+    private string GetStateClass() => Order.State switch
+    {
+        OrderState.Queued => "state-gray",
+        OrderState.Processing => "state-blue",
+        OrderState.Suspending => "state-orange",
+        OrderState.Suspended => "state-yellow",
+        OrderState.Canceling => "state-orange",
+        OrderState.Canceled => "state-red",
+        OrderState.Completed => "state-green",
+        _ => ""
+    };
+}

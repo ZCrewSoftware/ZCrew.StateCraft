@@ -1,0 +1,75 @@
+@page "/"
+@rendermode InteractiveServer
+@implements IDisposable
+@inject IOrderCommandService OrderCommandService
+@inject IOrderDataService DataService
+
+<PageTitle>Order Processor</PageTitle>
+
+<div class="container">
+    <h1>Order Processor</h1>
+    <p class="subtitle">Manage orders and track their state transitions.</p>
+
+    <button class="create-btn" @onclick="CreateOrder">Create Order</button>
+
+    @if (orders.Count == 0)
+    {
+        <p class="empty-message">No orders yet. Click "Create Order" to get started.</p>
+    }
+
+    @foreach (var order in orders)
+    {
+        <OrderCard Order="order" OnStateChanged="RefreshOrders" />
+    }
+</div>
+
+@code {
+    private readonly List<Order> orders = [];
+    private Timer? refreshTimer;
+
+    protected override void OnInitialized()
+    {
+        refreshTimer = new Timer(async _ =>
+        {
+            await RefreshOrders();
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(500));
+    }
+
+    private async Task CreateOrder()
+    {
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            Lines =
+            [
+                new Line { Id = Guid.NewGuid() },
+                new Line { Id = Guid.NewGuid() },
+                new Line { Id = Guid.NewGuid() }
+            ]
+        };
+
+        var created = await OrderCommandService.CreateOrder(new CreateOrderCommand(order), default);
+        orders.Add(created);
+    }
+
+    private async Task RefreshOrders()
+    {
+        for (var i = 0; i < orders.Count; i++)
+        {
+            try
+            {
+                orders[i] = await DataService.GetOrder(orders[i].Id, default);
+            }
+            catch
+            {
+                // Order may not be persisted yet; skip refresh
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        refreshTimer?.Dispose();
+    }
+}

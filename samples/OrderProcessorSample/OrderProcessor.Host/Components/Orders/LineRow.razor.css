@@ -1,0 +1,138 @@
+.line-row {
+    padding: 0.5rem 0.75rem;
+    border-left: 3px solid #e5e7eb;
+    margin-left: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0 6px 6px 0;
+    background: #f9fafb;
+    transition: border-color 0.15s;
+}
+
+.line-row:hover {
+    border-left-color: #93c5fd;
+}
+
+.line-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.line-id {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6b7280;
+    font-variant-numeric: tabular-nums;
+}
+
+.reason {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    font-style: italic;
+    margin-bottom: 0.25rem;
+}
+
+.state-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.state-gray {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.state-blue {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.state-orange {
+    background-color: #ffedd5;
+    color: #c2410c;
+}
+
+.state-yellow {
+    background-color: #fef9c3;
+    color: #a16207;
+}
+
+.state-green {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.state-red {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.button-row {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.2rem 0.6rem;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.btn:hover:not(:disabled) {
+    background-color: #f9fafb;
+}
+
+.btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.btn-complete {
+    border-color: #22c55e;
+    color: #15803d;
+}
+
+.btn-complete:hover:not(:disabled) {
+    background-color: #f0fdf4;
+}
+
+.btn-suspend {
+    border-color: #f59e0b;
+    color: #b45309;
+}
+
+.btn-suspend:hover:not(:disabled) {
+    background-color: #fffbeb;
+}
+
+.btn-resume {
+    border-color: #3b82f6;
+    color: #1d4ed8;
+}
+
+.btn-resume:hover:not(:disabled) {
+    background-color: #eff6ff;
+}
+
+.btn-cancel {
+    border-color: #ef4444;
+    color: #b91c1c;
+}
+
+.btn-cancel:hover:not(:disabled) {
+    background-color: #fef2f2;
+}

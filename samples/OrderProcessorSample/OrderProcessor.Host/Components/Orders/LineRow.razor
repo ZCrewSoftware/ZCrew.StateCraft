@@ -1,0 +1,70 @@
+@inject ILineCommandService LineCommandService
+
+<div class="line-row">
+    <div class="line-header">
+        <span class="line-id">Line @Line.Id.ToString()[..8]</span>
+        <span class="state-badge @GetStateClass()">@Line.State</span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Line.SuspensionReason))
+    {
+        <div class="reason">Suspension: @Line.SuspensionReason</div>
+    }
+    @if (!string.IsNullOrEmpty(Line.CancellationReason))
+    {
+        <div class="reason">Cancellation: @Line.CancellationReason</div>
+    }
+
+    <div class="button-row">
+        <button class="btn btn-complete" disabled="@(!CanComplete)" @onclick="Complete">Complete</button>
+        <button class="btn btn-suspend" disabled="@(!CanSuspend)" @onclick="Suspend">Suspend</button>
+        <button class="btn btn-resume" disabled="@(!CanResume)" @onclick="Resume">Resume</button>
+        <button class="btn btn-cancel" disabled="@(!CanCancel)" @onclick="Cancel">Cancel</button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Line Line { get; set; } = null!;
+    [Parameter, EditorRequired] public Guid OrderId { get; set; }
+    [Parameter] public EventCallback OnStateChanged { get; set; }
+
+    private bool CanComplete => Line.State == LineState.Incomplete;
+    private bool CanSuspend => Line.State == LineState.Incomplete;
+    private bool CanResume => Line.State == LineState.Suspended;
+    private bool CanCancel => Line.State is LineState.Incomplete or LineState.Suspending or LineState.Suspended;
+
+    private async Task Complete()
+    {
+        await LineCommandService.CompleteLine(new CompleteLineCommand(OrderId, Line.Id), CancellationToken.None);
+        await OnStateChanged.InvokeAsync();
+    }
+
+    private async Task Suspend()
+    {
+        await LineCommandService.SuspendLine(new SuspendLineCommand(OrderId, Line.Id, "User requested"), CancellationToken.None);
+        await OnStateChanged.InvokeAsync();
+    }
+
+    private async Task Resume()
+    {
+        await LineCommandService.ResumeLine(new ResumeLineCommand(OrderId, Line.Id), CancellationToken.None);
+        await OnStateChanged.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        await LineCommandService.CancelLine(new CancelLineCommand(OrderId, Line.Id, "User requested"), CancellationToken.None);
+        await OnStateChanged.InvokeAsync();
+    }
+
+    private string GetStateClass() => Line.State switch
+    {
+        LineState.Incomplete => "state-gray",
+        LineState.Suspending => "state-orange",
+        LineState.Suspended => "state-yellow",
+        LineState.Canceling => "state-orange",
+        LineState.Canceled => "state-red",
+        LineState.Completed => "state-green",
+        _ => ""
+    };
+}

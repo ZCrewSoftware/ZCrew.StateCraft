@@ -1,0 +1,3 @@
+<Project>
+  <!-- This file exists to disable inheriting parent Directory.Build.props so the samples are complete as-is -->
+</Project>
