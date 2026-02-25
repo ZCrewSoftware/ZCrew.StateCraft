@@ -1,20 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
+    <PackageReference Include="ZCrew.StateCraft" Version="1.0.0-preview.3" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
-      <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\OrderProcessor.Domain\OrderProcessor.Domain.csproj" />
-      <ProjectReference Include="..\..\..\src\ZCrew.StateCraft\ZCrew.StateCraft.csproj" />
-    </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\OrderProcessor.Domain\OrderProcessor.Domain.csproj" />
+  </ItemGroup>
 </Project>

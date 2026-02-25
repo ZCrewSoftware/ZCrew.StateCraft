@@ -1,15 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\OrderProcessor.Application\OrderProcessor.Application.csproj" />
-      <ProjectReference Include="..\OrderProcessor.Infrastructure\OrderProcessor.Infrastructure.csproj" />
-    </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\OrderProcessor.Application\OrderProcessor.Application.csproj" />
+    <ProjectReference Include="..\OrderProcessor.Infrastructure\OrderProcessor.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>
