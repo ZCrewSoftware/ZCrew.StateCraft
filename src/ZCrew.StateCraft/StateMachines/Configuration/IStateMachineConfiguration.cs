@@ -353,7 +353,7 @@ public interface IStateMachineConfiguration<TState, TTransition>
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when an exception is thrown during
-    ///     state lifecycle operations (OnActivate, OnEntry, OnExit, OnDeactivate, OnStateChange handlers).
+    ///     state machine operations (lifecycle, conditions, mapping, actions, and triggers).
     /// </summary>
     /// <param name="handler">
     ///     The delegate to call when an exception occurs. Return an <see cref="ExceptionResult"/> to indicate
@@ -393,7 +393,7 @@ public interface IStateMachineConfiguration<TState, TTransition>
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when an exception is thrown during
-    ///     state lifecycle operations (OnActivate, OnEntry, OnExit, OnDeactivate, OnStateChange handlers).
+    ///     state machine operations (lifecycle, conditions, mapping, actions, and triggers).
     /// </summary>
     /// <param name="handler">The delegate to call when an exception occurs.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
@@ -403,7 +403,7 @@ public interface IStateMachineConfiguration<TState, TTransition>
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when an exception is thrown during
-    ///     state lifecycle operations (OnActivate, OnEntry, OnExit, OnDeactivate, OnStateChange handlers).
+    ///     state machine operations (lifecycle, conditions, mapping, actions, and triggers).
     /// </summary>
     /// <param name="handler">The delegate to call when an exception occurs.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>

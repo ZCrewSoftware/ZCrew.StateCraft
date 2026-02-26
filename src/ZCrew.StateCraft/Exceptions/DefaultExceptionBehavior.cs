@@ -6,9 +6,9 @@ namespace ZCrew.StateCraft;
 /// <inheritdoc />
 /// <remarks>
 ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-///     exception is thrown. The exception is when an <see cref="OperationCanceledException"/> is thrown. With
-///     <see cref="CallAction"/> or <see cref="CallTrigger"/> that exception is how those background tasks are stopped.
-///     For other methods that exception is just rethrown and the handlers are not called.
+///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when the token is canceled.
+///     With <see cref="CallAction"/> or <see cref="CallTrigger"/> that exception is suppressed since it is how those
+///     background tasks are stopped. For other methods that exception is rethrown and the handlers are not called.
 /// </remarks>
 public class DefaultExceptionBehavior : IExceptionBehavior
 {
@@ -27,7 +27,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// <inheritdoc />
     /// <remarks>
     ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-    ///     exception is thrown. The exception is for <see cref="OperationCanceledException"/> when
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception handlers will not be called.
     /// </remarks>
     public virtual Task CallOnEntry(Func<CancellationToken, Task> handler, CancellationToken token = default)
@@ -38,7 +38,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// <inheritdoc />
     /// <remarks>
     ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-    ///     exception is thrown. The exception is for <see cref="OperationCanceledException"/> when
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception handlers will not be called.
     /// </remarks>
     public virtual Task CallOnExit(Func<CancellationToken, Task> handler, CancellationToken token = default)
@@ -49,7 +49,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// <inheritdoc />
     /// <remarks>
     ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-    ///     exception is thrown. The exception is for <see cref="OperationCanceledException"/> when
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception handlers will not be called.
     /// </remarks>
     public virtual Task CallOnStateChange(Func<CancellationToken, Task> handler, CancellationToken token = default)
@@ -60,7 +60,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// <inheritdoc />
     /// <remarks>
     ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-    ///     exception is thrown. The exception is for <see cref="OperationCanceledException"/> when
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception handlers will not be called.
     /// </remarks>
     public virtual Task CallOnActivate(Func<CancellationToken, Task> handler, CancellationToken token = default)
@@ -71,7 +71,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// <inheritdoc />
     /// <remarks>
     ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-    ///     exception is thrown. The exception is for <see cref="OperationCanceledException"/> when
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception handlers will not be called.
     /// </remarks>
     public virtual Task CallOnDeactivate(Func<CancellationToken, Task> handler, CancellationToken token = default)
@@ -82,7 +82,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// <inheritdoc />
     /// <remarks>
     ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-    ///     exception is thrown. The exception is for <see cref="OperationCanceledException"/> when
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception handlers will not be called.
     /// </remarks>
     public virtual Task<bool> CallCondition(
@@ -96,7 +96,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// <inheritdoc />
     /// <remarks>
     ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-    ///     exception is thrown. The exception is for <see cref="OperationCanceledException"/> when
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception handlers will not be called.
     /// </remarks>
     public virtual Task CallMap(Func<CancellationToken, Task> handler, CancellationToken token = default)
@@ -107,7 +107,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// <inheritdoc />
     /// <remarks>
     ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-    ///     exception is thrown. The exception is for <see cref="OperationCanceledException"/> when
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception is suppressed.
     /// </remarks>
     public virtual Task CallAction(Func<CancellationToken, Task> handler, CancellationToken token = default)
@@ -118,7 +118,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// <inheritdoc />
     /// <remarks>
     ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
-    ///     exception is thrown. The exception is for <see cref="OperationCanceledException"/> when
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception is suppressed.
     /// </remarks>
     public virtual Task CallTrigger(Func<CancellationToken, Task> handler, CancellationToken token = default)

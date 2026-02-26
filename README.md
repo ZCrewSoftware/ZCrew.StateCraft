@@ -10,7 +10,7 @@ A fluent, async-first state machine library for .NET. StateCraft provides a clea
 - **Conditional Transitions** - Guard conditions that determine if a transition should proceed
 - **Mapped Transitions** - Transform parameters during transitions between states
 - **Lifecycle Handlers** - OnEntry, OnExit, and OnStateChange hooks for state management
-- **Triggers** - Autonomous transition initiators (one-shot and repeating) that activate with states
+- **Triggers** - Autonomous transition initiators (one-shot and repeating) that activate with the state machine
 - **Actions** - Long-running actions that state performs, which can transition the state machine
 - **Thread-Safe** - Internal locking ensures safe concurrent access
 - **Validation** - Detects configuration errors like duplicate states and invalid transitions
@@ -24,7 +24,7 @@ This package is available on NuGet as `ZCrew.StateCraft` for these frameworks:
 - .NET 10.0
 
 ```xml
-<PackageReference Include="ZCrew.StateCraft" />
+<PackageReference Include="ZCrew.StateCraft" Version="1.0.0" />
 ```
 
 ## Quick Start
@@ -100,7 +100,7 @@ Triggers automatically fire transitions based on async signals:
 .WithTrigger(trigger => trigger
     .Repeat()
     .Await(token => cargoFullSignal.WaitAsync(token))
-    .ThenInvoke(sm => sm.Transition(ScvTrigger.CargoFull)))
+    .ThenInvoke(async (sm, token) => await sm.Transition(ScvTrigger.CargoFull, token)))
 ```
 
 ### Full Example
@@ -145,7 +145,7 @@ var stateMachine = StateMachine
     .WithTrigger(trigger => trigger
         .Repeat()
         .Await(token => cargoFullSignal.WaitAsync(token))
-        .ThenInvoke(sm => sm.Transition(ScvTrigger.CargoFull)))
+        .ThenInvoke(async (sm, token) => await sm.Transition(ScvTrigger.CargoFull, token)))
 
     .Build();
 
