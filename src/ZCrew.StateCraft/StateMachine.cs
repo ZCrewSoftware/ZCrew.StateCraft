@@ -57,7 +57,7 @@ public static class StateMachine
     ///                 .To(MarineState.Stimpacked)))
     ///     <br/>
     ///         // MovingToPosition state - parameterized with destination
-    ///         .WithState&lt;Position&gt;(MarineState.MovingToPosition, state =&gt; state
+    ///         .WithState(MarineState.MovingToPosition, state =&gt; state
     ///             .WithParameter&lt;Position&gt;()
     ///             .OnEntry(pos =&gt; Console.WriteLine($"Moving to ({pos.X}, {pos.Y})"))
     ///             .WithAction(action => action.Invoke(pos =&gt; MoveToPosition(pos)))
@@ -65,7 +65,7 @@ public static class StateMachine
     ///             .WithTransition(MarineTransition.Arrive, t =&gt; t.To(MarineState.Idle)))
     ///     <br/>
     ///         // Attacking state - parameterized with target
-    ///         .WithState&lt;EnemyUnit&gt;(MarineState.Attacking, state =&gt; state
+    ///         .WithState(MarineState.Attacking, state =&gt; state
     ///             .WithParameter&lt;EnemyUnit&gt;()
     ///             .OnEntry(target =&gt; Console.WriteLine($"Engaging {target.Name}!"))
     ///             .WithAction(action => action.Invoke(async (target, token) =&gt; await AttackTargetAsync(target, token)))

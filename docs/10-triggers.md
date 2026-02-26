@@ -47,9 +47,9 @@ receive the state machine instance.
 .ThenInvoke(token => DoWorkAsync(token))                // Async ValueTask
 
 // ThenInvoke signatures (with state machine access)
-.ThenInvoke(sm => sm.Transition(Transition.Start))                             // Synchronous
+.ThenInvoke(sm => OnTriggered(sm))                                             // Synchronous
 .ThenInvoke(async (sm, token) => await sm.Transition(Transition.Start, token)) // Async Task
-.ThenInvoke((sm, token) => sm.Transition(Transition.Start, token))             // Async ValueTask
+.ThenInvoke((sm, token) => OnTriggeredAsync(sm, token))                        // Async ValueTask
 ```
 
 ### Multiple Triggers
