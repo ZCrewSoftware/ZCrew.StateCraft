@@ -14,6 +14,7 @@
     <File Path="docs/11-exception-handling.md" />
   </Folder>
   <Folder Name="/samples/" />
+  <Folder Name="/samples/MarineSample/" />
   <Folder Name="/samples/OrderProcessorSample/">
     <File Path="samples/OrderProcessorSample/OrderProcessorSample.slnx" />
     <File Path="samples/OrderProcessorSample/README.md" />
