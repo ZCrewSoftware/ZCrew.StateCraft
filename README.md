@@ -4,16 +4,18 @@ A fluent, async-first state machine library for .NET. StateCraft provides a clea
 
 ## Features
 
-- **Fluent Configuration API** - Intuitive builder pattern for defining state machines
+- **[Fluent Configuration API](docs/2-getting-started.md)** - Intuitive builder pattern for defining state machines
 - **Async/Await Support** - First-class support for async lifecycle handlers and actions
-- **Parameterized States** - States can carry typed data that flows through entry, action, and exit handlers
-- **Conditional Transitions** - Guard conditions that determine if a transition should proceed
-- **Mapped Transitions** - Transform parameters during transitions between states
-- **Lifecycle Handlers** - OnEntry, OnExit, and OnStateChange hooks for state management
-- **Triggers** - Autonomous transition initiators (one-shot and repeating) that activate with the state machine
-- **Actions** - Long-running actions that state performs, which can transition the state machine
+- **[Parameterized States](docs/7-parameterized-transitions.md)** - States can carry typed data (up to 4 parameters) that flows through entry, action, and exit handlers
+- **[Conditional Transitions](docs/7-parameterized-transitions.md)** - Guard conditions that determine if a transition should proceed
+- **[Mapped Transitions](docs/8-mapped-transitions.md)** - Transform parameters during transitions between states
+- **[Reentrant Transitions](docs/9-reentrant-transitions.md)** - Preserve parameters when transitioning between states of the same type
+- **[Lifecycle Handlers](docs/4-state-lifecycle.md)** - OnEntry, OnExit, and OnStateChange hooks for state management
+- **[Triggers](docs/10-triggers.md)** - Autonomous transition initiators (one-shot and repeating) that activate with the state machine
+- **[Actions](docs/5-actions.md)** - Long-running actions that states perform, which can transition the state machine
+- **[Exception Handling](docs/11-exception-handling.md)** - Configurable exception handlers and [custom exception behavior](docs/12-exception-behavior.md)
 - **Thread-Safe** - Internal locking ensures safe concurrent access
-- **Validation** - Detects configuration errors like duplicate states and invalid transitions
+- **[Validation](docs/3-general-concepts.md)** - Detects configuration errors like duplicate states and invalid transitions
 
 ## Installation
 
@@ -83,13 +85,17 @@ await stateMachine.Transition(ScvTrigger.Harvest, nearestPatch);
 
 ### Async Actions
 
-States can run async work while active:
+States can run async work while active, including transitioning the state machine:
 
 ```csharp
 .WithState(ScvState.Harvesting, state => state
     .WithParameter<MineralPatch>()
     .WithAction(action => action
-        .Invoke(async (patch, token) => await patch.HarvestAsync(token))))
+        .Invoke(async (patch, token) =>
+        {
+            await patch.HarvestAsync(token);
+            await stateMachine.Transition(ScvTrigger.CargoFull, token);
+        })))
 ```
 
 ### Triggers
@@ -97,10 +103,12 @@ States can run async work while active:
 Triggers automatically fire transitions based on async signals:
 
 ```csharp
+var depositSignal = new SemaphoreSlim(0, 1);
+
 .WithTrigger(trigger => trigger
     .Repeat()
-    .Await(token => cargoFullSignal.WaitAsync(token))
-    .ThenInvoke(async (sm, token) => await sm.Transition(ScvTrigger.CargoFull, token)))
+    .Await(token => depositSignal.WaitAsync(token))
+    .ThenInvoke(async (sm, token) => await sm.Transition(ScvTrigger.DepositComplete, token)))
 ```
 
 ### Full Example
@@ -111,10 +119,12 @@ Combining all features into a complete SCV harvesting state machine:
 enum ScvState { Idle, Harvesting, Returning }
 enum ScvTrigger { Harvest, CargoFull, DepositComplete }
 
-// Some other service has to set this but the idea is there
-var cargoFullSignal = new AsyncManualResetEvent();
+var depositSignal = new SemaphoreSlim(0, 1);
 
-var stateMachine = StateMachine
+// Declared first so the action closure can reference the state machine
+IStateMachine<ScvState, ScvTrigger> stateMachine = null!;
+
+stateMachine = StateMachine
     .Configure<ScvState, ScvTrigger>()
     .WithInitialState(ScvState.Idle)
 
@@ -131,21 +141,24 @@ var stateMachine = StateMachine
         .WithParameter<MineralPatch>()
         .OnEntry(patch => Console.WriteLine($"Harvesting from {patch.Id}..."))
         .WithAction(action => action
-            .Invoke(async (patch, token) => await patch.HarvestAsync(token)))
+            .Invoke(async (patch, token) =>
+            {
+                await patch.HarvestAsync(token);
+                await stateMachine.Transition(ScvTrigger.CargoFull, token);
+            }))
         .OnExit(patch => Console.WriteLine($"Cargo full from {patch.Id}."))
         .WithTransition(ScvTrigger.CargoFull, ScvState.Returning))
 
     // Returning - heading back to command center
     .WithState(ScvState.Returning, state => state
         .OnEntry(() => Console.WriteLine("Returning cargo."))
-        .OnExit(() => cargoFullSignal.Reset())
         .WithTransition(ScvTrigger.DepositComplete, ScvState.Idle))
 
-    // Trigger to automatically transition the machine
+    // Trigger - automatically transitions when deposit is signaled
     .WithTrigger(trigger => trigger
         .Repeat()
-        .Await(token => cargoFullSignal.WaitAsync(token))
-        .ThenInvoke(async (sm, token) => await sm.Transition(ScvTrigger.CargoFull, token)))
+        .Await(token => depositSignal.WaitAsync(token))
+        .ThenInvoke(async (sm, token) => await sm.Transition(ScvTrigger.DepositComplete, token)))
 
     .Build();
 
@@ -153,9 +166,13 @@ var stateMachine = StateMachine
 await stateMachine.Activate();
 await stateMachine.Transition(ScvTrigger.Harvest, nearestPatch);
 
-// Later, when cargo is full...
-cargoFullSignal.Set(); // Automatically transitions to Returning
+// Later, when cargo has been deposited...
+depositSignal.Release(); // Automatically transitions to Idle
 ```
+
+## Documentation
+
+For detailed documentation on each feature, see the [docs](docs/) folder.
 
 ## License
 
