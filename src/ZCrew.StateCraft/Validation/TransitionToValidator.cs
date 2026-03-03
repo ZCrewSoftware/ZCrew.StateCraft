@@ -18,7 +18,12 @@ internal static class TransitionToValidator
         foreach (var state in context.Configuration.States)
         {
             stateReferences.Add(
-                new StateReference<TState, TTransition> { State = state.State, TypeParameters = state.TypeParameters }
+                new StateReference<TState, TTransition>
+                {
+                    State = state.State,
+                    TypeParameters = state.TypeParameters,
+                    DisplayString = state.ToString()!,
+                }
             );
         }
 
@@ -33,7 +38,42 @@ internal static class TransitionToValidator
                     continue;
                 }
 
-                context.ValidationErrors.Add($"Transition: {transition} has no matching next state");
+                // Check if there's a state with the right value but wrong parameter arity —
+                // common when using the WithTransition(transition, state) shortcut which
+                // always creates a parameterless transition regardless of target state arity.
+                var matchByValueOnly = stateReferences
+                    .Where(s => EqualityComparer<TState>.Default.Equals(s.State, transition.NextStateValue))
+                    .ToList();
+
+                if (
+                    transition.NextStateTypeParameters.Count == 0
+                    && matchByValueOnly.Any(s => s.TypeParameters.Count > 0)
+                )
+                {
+                    var alternatives = matchByValueOnly.Select(s => s.DisplayString).ToList();
+
+                    if (alternatives.Count == 1)
+                    {
+                        context.ValidationErrors.Add(
+                            $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
+                                + $"but it is registered as {alternatives[0]}. "
+                                + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
+                        );
+                    }
+                    else
+                    {
+                        var stateList = string.Join(", ", alternatives);
+                        context.ValidationErrors.Add(
+                            $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
+                                + $"but it is registered with parameters: {stateList}. "
+                                + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
+                        );
+                    }
+                }
+                else
+                {
+                    context.ValidationErrors.Add($"Transition: {transition} has no matching next state");
+                }
             }
         }
     }
@@ -44,6 +84,7 @@ internal static class TransitionToValidator
     {
         public required TState State { get; init; }
         public required IReadOnlyList<Type> TypeParameters { get; init; }
+        public required string DisplayString { get; init; }
 
         public bool Matches(ITransitionConfiguration<TState, TTransition> transition)
         {

@@ -183,13 +183,13 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         this.internalState = InternalState.Exiting;
         if (this.options.HasFlag(StateMachineOptions.RunActionsAsynchronously))
         {
-            // Clean up the CTS if it wasn't already disposed of
-            var actionCts = this.actionCancellationTokenSource;
+            // Atomically take ownership of the CTS so Dispose() on another thread
+            // cannot double-cancel or use-after-dispose the same instance.
+            var actionCts = Interlocked.Exchange(ref this.actionCancellationTokenSource, null);
             if (actionCts != null)
             {
                 await actionCts.CancelAsync();
                 actionCts.Dispose();
-                this.actionCancellationTokenSource = null;
             }
 
             var task = this.actionTask;
@@ -246,21 +246,26 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
             // always released.
             var action = CurrentState.Action(Parameters, actionCts.Token);
-            this.internalState = InternalState.Active;
-            methodLock.Dispose();
 
-            // Either completed already or threw an exception
+            // Store CTS and task before releasing the lock so concurrent transitions can find
+            // and cancel them. Without this, there is a window where a concurrent transition
+            // acquires the lock and ExitState finds actionCancellationTokenSource still null,
+            // leaving the action task orphaned with no cancellation path.
+            this.actionCancellationTokenSource = actionCts;
+            this.actionTask = action;
+
+            this.internalState = InternalState.Active;
+
+            // Either completed already or threw an exception — clean up eagerly
             if (action.IsCompleted)
             {
+                this.actionCancellationTokenSource = null;
+                this.actionTask = null;
                 actionCts.Dispose();
                 await action;
             }
-            else
-            {
-                // Only store the action CTS if the action isn't already completed
-                this.actionCancellationTokenSource = actionCts;
-                this.actionTask = action;
-            }
+
+            methodLock.Dispose();
         }
         else
         {

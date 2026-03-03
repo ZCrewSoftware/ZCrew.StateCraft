@@ -36,7 +36,7 @@ public class StateTableTests
     }
 
     [Fact]
-    public void LookupState_WhenStateDoesNotExist_ShouldThrowInvalidOperationException()
+    public void LookupState_WhenStateDoesNotExist_ShouldThrowWithStateDisplay()
     {
         // Arrange
         var state = new StubState<string, string>("A");
@@ -46,7 +46,8 @@ public class StateTableTests
         var lookupState = () => stateTable.LookupState("B");
 
         // Assert
-        Assert.Throws<InvalidOperationException>(lookupState);
+        var exception = Assert.Throws<InvalidOperationException>(lookupState);
+        Assert.Contains("State=B", exception.Message);
     }
 
     [Fact]
@@ -108,7 +109,7 @@ public class StateTableTests
     }
 
     [Fact]
-    public void LookupState_T_WhenWrongParameterType_ShouldThrowInvalidOperationException()
+    public void LookupState_T_WhenWrongParameterType_ShouldThrowWithSearchedAndRegisteredTypes()
     {
         // Arrange
         var state = new StubState<string, string>("A", typeof(int));
@@ -118,7 +119,27 @@ public class StateTableTests
         var lookupState = () => stateTable.LookupState<string>("A");
 
         // Assert
-        Assert.Throws<InvalidOperationException>(lookupState);
+        var exception = Assert.Throws<InvalidOperationException>(lookupState);
+        Assert.Contains("A<string>", exception.Message);
+        Assert.Contains("Registered: A<int>", exception.Message);
+    }
+
+    [Fact]
+    public void LookupState_T_WhenMultipleRegisteredTypes_ShouldListAllRegisteredStates()
+    {
+        // Arrange
+        var stateA1 = new StubState<string, string>("A");
+        var stateA2 = new StubState<string, string>("A", typeof(string));
+        var stateA3 = new StubState<string, string>("A", typeof(long));
+        var stateTable = new StateTable<string, string>([stateA1, stateA2, stateA3]);
+
+        // Act
+        var lookupState = () => stateTable.LookupState<int>("A");
+
+        // Assert
+        var exception = Assert.Throws<InvalidOperationException>(lookupState);
+        Assert.Contains("State=A<int>", exception.Message);
+        Assert.Contains("Registered: A, A<string>, A<long>", exception.Message);
     }
 
     [Fact]

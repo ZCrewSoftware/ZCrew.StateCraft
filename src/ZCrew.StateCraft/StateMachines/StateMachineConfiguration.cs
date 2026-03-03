@@ -53,7 +53,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         var exceptionBehavior = this.exceptionBehaviorProvider(this.onExceptionHandlers);
         var stateMachine = new StateMachine<TState, TTransition>(
             this.initialStateProducer,
-            this.onStateChanges,
+            this.onStateChanges.ToList(),
             triggers,
             this.stateMachineOptions,
             exceptionBehavior
