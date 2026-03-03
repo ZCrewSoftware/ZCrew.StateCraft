@@ -45,15 +45,28 @@ internal static class TransitionToValidator
                     && matchByValueOnly.Any(s => s.TypeParameters.Count > 0)
                 )
                 {
-                    var registered = matchByValueOnly
-                        .Select(s => $"({string.Join(", ", s.TypeParameters.Select(t => t.Name))})")
-                        .First();
+                    var parameterizedStates = matchByValueOnly
+                        .Where(s => s.TypeParameters.Count > 0)
+                        .Select(s => s.ToDisplayString())
+                        .ToList();
 
-                    context.ValidationErrors.Add(
-                        $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
-                            + $"but it is registered with parameters {registered}. "
-                            + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
-                    );
+                    if (parameterizedStates.Count == 1)
+                    {
+                        context.ValidationErrors.Add(
+                            $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
+                                + $"but it is registered as {parameterizedStates[0]}. "
+                                + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
+                        );
+                    }
+                    else
+                    {
+                        var stateList = string.Join(", ", parameterizedStates);
+                        context.ValidationErrors.Add(
+                            $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
+                                + $"but it is registered with parameters: {stateList}. "
+                                + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
+                        );
+                    }
                 }
                 else
                 {
@@ -69,6 +82,17 @@ internal static class TransitionToValidator
     {
         public required TState State { get; init; }
         public required IReadOnlyList<Type> TypeParameters { get; init; }
+
+        public string ToDisplayString()
+        {
+            if (TypeParameters.Count == 0)
+            {
+                return $"{State}";
+            }
+
+            var typeNames = string.Join(", ", TypeParameters.Select(t => t.FriendlyName));
+            return $"{State}<{typeNames}>";
+        }
 
         public bool Matches(ITransitionConfiguration<TState, TTransition> transition)
         {
