@@ -209,4 +209,9 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
     }
 
     public void Dispose() { }
+
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
 }
