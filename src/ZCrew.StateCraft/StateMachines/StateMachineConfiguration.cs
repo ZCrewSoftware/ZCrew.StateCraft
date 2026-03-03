@@ -27,7 +27,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     /// <inheritdoc/>
     public IStateMachine<TState, TTransition> Build()
     {
-        return Build(StateMachineBuildOptions.None);
+        return Build(StateMachineBuildOptions.Validate);
     }
 
     /// <inheritdoc/>
@@ -39,12 +39,13 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         }
 
         // Ensure that only defined options are set. New entries to StateMachineBuildOptions will have to be added here
-        if ((options & ~StateMachineBuildOptions.Validate) != 0)
+        var allDefined = StateMachineBuildOptions.Validate | StateMachineBuildOptions.SkipValidation;
+        if ((options & ~allDefined) != 0)
         {
             throw new ArgumentOutOfRangeException(nameof(options), "Invalid build options were specified.");
         }
 
-        if (options.HasFlag(StateMachineBuildOptions.Validate))
+        if (!options.HasFlag(StateMachineBuildOptions.SkipValidation) && options.HasFlag(StateMachineBuildOptions.Validate))
         {
             StateMachineValidation.Validate(this);
         }
