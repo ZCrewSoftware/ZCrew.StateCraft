@@ -1,7 +1,36 @@
+using NSubstitute;
+
 namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 
 public class BuildInstanceIndependenceTests
 {
+    [Fact(Skip = "BL-F01: Handler added after Build() leaks into previously built instance via shared reference")]
+    public async Task Build_WhenHandlerAddedAfterBuild_ShouldNotAffectPreviouslyBuiltInstance()
+    {
+        // Arrange
+        var handler = Substitute.For<Action<string, string, string>>();
+
+        var configuration = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithTransition("To B", t => t.To("B")))
+            .WithState("B", state => state);
+
+        var machine1 = configuration.Build();
+
+        // Add handler AFTER machine1 was built — should not affect machine1
+        configuration.OnStateChange(handler);
+
+        // Act
+        await machine1.Activate(TestContext.Current.CancellationToken);
+        await machine1.Transition("To B", TestContext.Current.CancellationToken);
+
+        // Assert — handler should NOT have been called for machine1
+        handler
+            .DidNotReceive()
+            .Invoke(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+    }
+
     [Fact(Skip = "BL-F01: onStateChanges list is shared by reference between Build() instances")]
     public async Task Build_WhenCalledTwice_ShouldProduceIndependentOnStateChangeHandlers()
     {
