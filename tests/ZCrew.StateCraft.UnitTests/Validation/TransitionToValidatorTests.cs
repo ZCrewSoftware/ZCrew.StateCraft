@@ -136,7 +136,7 @@ public class TransitionToValidatorTests
     }
 
     [Fact]
-    public void Validate_WhenParameterlessTransitionToParameterizedState_ShouldFail()
+    public void Validate_WhenParameterlessTransitionToParameterizedState_ShouldSuggestExplicitForm()
     {
         // Arrange
         var configuration = StateMachine
@@ -150,7 +150,9 @@ public class TransitionToValidatorTests
 
         // Assert
         var error = Assert.Single(context.ValidationErrors);
-        Assert.Contains("To B(A) → B", error);
+        Assert.Contains("as parameterless", error);
+        Assert.Contains("(Int32)", error);
+        Assert.Contains("WithTransition(transition, t =>", error);
     }
 
     [Fact]

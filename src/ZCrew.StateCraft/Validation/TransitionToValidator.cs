@@ -33,7 +33,32 @@ internal static class TransitionToValidator
                     continue;
                 }
 
-                context.ValidationErrors.Add($"Transition: {transition} has no matching next state");
+                // Check if there's a state with the right value but wrong parameter arity —
+                // common when using the WithTransition(transition, state) shortcut which
+                // always creates a parameterless transition regardless of target state arity.
+                var matchByValueOnly = stateReferences
+                    .Where(s => EqualityComparer<TState>.Default.Equals(s.State, transition.NextStateValue))
+                    .ToList();
+
+                if (
+                    transition.NextStateTypeParameters.Count == 0
+                    && matchByValueOnly.Any(s => s.TypeParameters.Count > 0)
+                )
+                {
+                    var registered = matchByValueOnly
+                        .Select(s => $"({string.Join(", ", s.TypeParameters.Select(t => t.Name))})")
+                        .First();
+
+                    context.ValidationErrors.Add(
+                        $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
+                            + $"but it is registered with parameters {registered}. "
+                            + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
+                    );
+                }
+                else
+                {
+                    context.ValidationErrors.Add($"Transition: {transition} has no matching next state");
+                }
             }
         }
     }
