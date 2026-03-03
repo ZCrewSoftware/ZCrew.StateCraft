@@ -165,15 +165,9 @@ var machine = StateMachine
     .Build();
 ```
 
-### Build with Validation
+### Validation
 
-Pass `StateMachineBuildOptions.Validate` to perform build-time validation:
-
-```csharp
-var machine = configuration.Build(StateMachineBuildOptions.Validate);
-```
-
-Validation catches configuration errors before runtime:
+`Build()` runs validation by default, catching configuration errors at build time rather than runtime:
 
 | Validation                 | Error Example                                                                  |
 |----------------------------|--------------------------------------------------------------------------------|
@@ -182,6 +176,13 @@ Validation catches configuration errors before runtime:
 | Unreachable transitions    | `"To B(A) → B is unreachable because it is shadowed by a previous transition"` |
 
 Validation throws `InvalidOperationException` with all errors if any are found.
+
+To skip validation (e.g., in test harnesses with intentionally incomplete configurations), pass
+`StateMachineBuildOptions.SkipValidation`:
+
+```csharp
+var machine = configuration.Build(StateMachineBuildOptions.SkipValidation);
+```
 
 ### Configuration Reuse
 
@@ -203,35 +204,22 @@ var machine3 = configuration.Build();
 
 ## Best Practices
 
-### Validate in Unit Tests
+### Validate Your Configuration
 
-Use `Build(StateMachineBuildOptions.Validate)` in unit tests to catch configuration errors during development, not in
-production:
+`Build()` validates by default. A dedicated test confirms your configuration is valid:
 
 ```csharp
-// In your unit tests
 [Fact]
-public void Configuration_WhenBuildingWithValidation_ShouldBeValid()
+public void Configuration_ShouldBeValid()
 {
     // Arrange
     var configuration = CreateStateMachineConfiguration();
 
-    // Act
-    var machine = configuration.Build(StateMachineBuildOptions.Validate);
-
-    // Assert
+    // Act & Assert — Build() throws if configuration is invalid
+    var machine = configuration.Build();
     Assert.NotNull(machine);
 }
-
-// In production code
-public IStateMachine<State, Transition> CreateStateMachine()
-{
-    return CreateStateMachineConfiguration().Build();  // No validation overhead
-}
 ```
-
-This catches mistakes like typos in state names or missing state configurations during testing while avoiding the
-validation overhead in production.
 
 ### Honor Cancellation Tokens
 

@@ -7,13 +7,9 @@ namespace ZCrew.StateCraft;
 public enum StateMachineBuildOptions
 {
     /// <summary>
-    ///     Default option. Performs validation on the state machine configuration before building an instance of it.
-    ///     This will ensure most runtime exceptions are caught ahead-of-time, such as:
-    ///     <list type="number">
-    ///         <item>Duplicated states (including parameters)</item>
-    ///         <item>Transitions to non-configured states (including parameters)</item>
-    ///         <item>Unreachable transitions that can not be performed due to a previous transition</item>
-    ///     </list>
+    ///     No options. Does not perform validation.
+    ///     Use <c>Build()</c> with no arguments or <c>Build(StateMachineBuildOptions.Validate)</c>
+    ///     for build-time validation.
     /// </summary>
     None = 0,
 
