@@ -93,7 +93,10 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
 
         if (!parameters.IsNextSet)
         {
-            await this.mappingFunction.Map(parameters, token);
+            await this.stateMachine.ExceptionBehavior.CallMap(
+                t => this.mappingFunction.Map(parameters, t),
+                token
+            );
         }
         await this.stateMachine.StateChange(Previous.State.StateValue, TransitionValue, Next.State.StateValue, token);
         await Next.State.StateChange(Previous.State.StateValue, TransitionValue, parameters, token);
