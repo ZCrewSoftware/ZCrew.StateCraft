@@ -65,16 +65,16 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
             return state;
         }
 
-        var searchedTypes = types.Length == 0
-            ? "parameterless"
-            : $"({string.Join(", ", types.Select(t => t.Name))})";
+        var searchedDisplay = types.Length == 0
+            ? $"{stateValue}"
+            : $"{stateValue}<{string.Join(", ", types.Select(t => t.FriendlyName))}>";
 
         var registered = this.states
             .Where(s => EqualityComparer<TState>.Default.Equals(s.StateValue, stateValue))
             .Select(s =>
                 s.TypeParameters.Count == 0
-                    ? "parameterless"
-                    : $"({string.Join(", ", s.TypeParameters.Select(t => t.Name))})"
+                    ? $"{s.StateValue}"
+                    : $"{s.StateValue}<{string.Join(", ", s.TypeParameters.Select(t => t.FriendlyName))}>"
             )
             .ToList();
 
@@ -83,7 +83,7 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
             : "";
 
         throw new InvalidOperationException(
-            $"No {searchedTypes} state could be found for: State={stateValue}.{registeredInfo}"
+            $"No matching state could be found for: State={searchedDisplay}.{registeredInfo}"
         );
     }
 
