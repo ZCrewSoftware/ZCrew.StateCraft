@@ -267,7 +267,6 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             this.actionTask = action;
 
             this.internalState = InternalState.Active;
-            methodLock.Dispose();
 
             // Either completed already or threw an exception — clean up eagerly
             if (action.IsCompleted)
@@ -277,6 +276,8 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
                 actionCts.Dispose();
                 await action;
             }
+
+            methodLock.Dispose();
         }
         else
         {

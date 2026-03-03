@@ -1,6 +1,6 @@
 namespace ZCrew.StateCraft.IntegrationTests.Actions;
 
-public class AsyncActionCtsRaceTests
+public class ActionCancellationTests
 {
     [Fact(Timeout = 5000)]
     public async Task Transition_WhenConcurrentWithAsyncActionStart_ShouldCancelAction()
@@ -26,11 +26,14 @@ public class AsyncActionCtsRaceTests
             .Build();
 
         // Start a concurrent task that will transition as soon as the action starts
-        var transitionTask = Task.Run(async () =>
-        {
-            await actionStarted.WaitAsync(TestContext.Current.CancellationToken);
-            await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
-        });
+        var transitionTask = Task.Run(
+            async () =>
+            {
+                await actionStarted.WaitAsync(TestContext.Current.CancellationToken);
+                await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+            },
+            TestContext.Current.CancellationToken
+        );
 
         // Act — activate starts the action and releases the lock
         await stateMachine.Activate(TestContext.Current.CancellationToken);
@@ -51,7 +54,7 @@ public class AsyncActionCtsRaceTests
             }
             catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
-                actionCancelled.TrySetResult();
+                actionCancelled.SetResult();
             }
         }
     }
@@ -81,11 +84,14 @@ public class AsyncActionCtsRaceTests
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Start a concurrent task that will transition back as soon as B's action starts
-        var transitionTask = Task.Run(async () =>
-        {
-            await actionStarted.WaitAsync(TestContext.Current.CancellationToken);
-            await stateMachine.Transition("To A", TestContext.Current.CancellationToken);
-        });
+        var transitionTask = Task.Run(
+            async () =>
+            {
+                await actionStarted.WaitAsync(TestContext.Current.CancellationToken);
+                await stateMachine.Transition("To A", TestContext.Current.CancellationToken);
+            },
+            TestContext.Current.CancellationToken
+        );
 
         // Act — transition to B starts the action and releases the lock
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
@@ -106,7 +112,7 @@ public class AsyncActionCtsRaceTests
             }
             catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
-                actionCancelled.TrySetResult();
+                actionCancelled.SetResult();
             }
         }
     }
