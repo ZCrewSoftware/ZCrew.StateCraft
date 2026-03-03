@@ -155,7 +155,17 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         var result = await this.transitionTable.LookupTransition(transition, parameters, token);
         if (result == null)
         {
-            throw new InvalidOperationException($"No transition could be found for: Transition={transition}");
+            var available = this.transitionTable
+                .Select(t => t.ToString())
+                .ToList();
+
+            var availableInfo = available.Count > 0
+                ? $" Available from '{StateValue}': {string.Join(", ", available)}."
+                : $" No transitions registered for '{StateValue}'.";
+
+            throw new InvalidOperationException(
+                $"No transition could be found for '{transition}' from state '{StateValue}'.{availableInfo}"
+            );
         }
         return result;
     }
