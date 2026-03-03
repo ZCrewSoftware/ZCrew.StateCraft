@@ -18,7 +18,12 @@ internal static class TransitionToValidator
         foreach (var state in context.Configuration.States)
         {
             stateReferences.Add(
-                new StateReference<TState, TTransition> { State = state.State, TypeParameters = state.TypeParameters }
+                new StateReference<TState, TTransition>
+                {
+                    State = state.State,
+                    TypeParameters = state.TypeParameters,
+                    DisplayString = ToDisplayString(state.State, state.TypeParameters),
+                }
             );
         }
 
@@ -45,22 +50,19 @@ internal static class TransitionToValidator
                     && matchByValueOnly.Any(s => s.TypeParameters.Count > 0)
                 )
                 {
-                    var parameterizedStates = matchByValueOnly
-                        .Where(s => s.TypeParameters.Count > 0)
-                        .Select(s => s.ToDisplayString())
-                        .ToList();
+                    var alternatives = matchByValueOnly.Select(s => s.DisplayString).ToList();
 
-                    if (parameterizedStates.Count == 1)
+                    if (alternatives.Count == 1)
                     {
                         context.ValidationErrors.Add(
                             $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
-                                + $"but it is registered as {parameterizedStates[0]}. "
+                                + $"but it is registered as {alternatives[0]}. "
                                 + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
                         );
                     }
                     else
                     {
-                        var stateList = string.Join(", ", parameterizedStates);
+                        var stateList = string.Join(", ", alternatives);
                         context.ValidationErrors.Add(
                             $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
                                 + $"but it is registered with parameters: {stateList}. "
@@ -76,23 +78,24 @@ internal static class TransitionToValidator
         }
     }
 
+    private static string ToDisplayString<TState>(TState state, IReadOnlyList<Type> typeParameters)
+    {
+        if (typeParameters.Count == 0)
+        {
+            return $"{state}";
+        }
+
+        var typeNames = string.Join(", ", typeParameters.Select(t => t.FriendlyName));
+        return $"{state}<{typeNames}>";
+    }
+
     private readonly record struct StateReference<TState, TTransition>
         where TState : notnull
         where TTransition : notnull
     {
         public required TState State { get; init; }
         public required IReadOnlyList<Type> TypeParameters { get; init; }
-
-        public string ToDisplayString()
-        {
-            if (TypeParameters.Count == 0)
-            {
-                return $"{State}";
-            }
-
-            var typeNames = string.Join(", ", TypeParameters.Select(t => t.FriendlyName));
-            return $"{State}<{typeNames}>";
-        }
+        public required string DisplayString { get; init; }
 
         public bool Matches(ITransitionConfiguration<TState, TTransition> transition)
         {
