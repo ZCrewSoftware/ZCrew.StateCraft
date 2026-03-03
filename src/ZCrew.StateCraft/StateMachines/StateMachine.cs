@@ -178,10 +178,9 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     /// <inheritdoc />
     public void Dispose()
     {
-        var actionCts = this.actionCancellationTokenSource;
+        var actionCts = Interlocked.Exchange(ref this.actionCancellationTokenSource, null);
 
         this.actionTask = null;
-        this.actionCancellationTokenSource = null;
 
         actionCts?.Cancel();
         actionCts?.Dispose();
@@ -195,13 +194,13 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         this.internalState = InternalState.Exiting;
         if (this.options.HasFlag(StateMachineOptions.RunActionsAsynchronously))
         {
-            // Clean up the CTS if it wasn't already disposed of
-            var actionCts = this.actionCancellationTokenSource;
+            // Atomically take ownership of the CTS so Dispose() on another thread
+            // cannot double-cancel or use-after-dispose the same instance.
+            var actionCts = Interlocked.Exchange(ref this.actionCancellationTokenSource, null);
             if (actionCts != null)
             {
                 await actionCts.CancelAsync();
                 actionCts.Dispose();
-                this.actionCancellationTokenSource = null;
             }
 
             var task = this.actionTask;
