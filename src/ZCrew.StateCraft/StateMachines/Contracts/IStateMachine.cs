@@ -14,7 +14,7 @@ namespace ZCrew.StateCraft.StateMachines.Contracts;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-public interface IStateMachine<TState, TTransition> : IDisposable
+public interface IStateMachine<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {

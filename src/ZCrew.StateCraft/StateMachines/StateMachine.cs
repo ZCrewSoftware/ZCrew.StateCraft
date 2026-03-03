@@ -175,17 +175,6 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         StateTable.Add(state);
     }
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        var actionCts = Interlocked.Exchange(ref this.actionCancellationTokenSource, null);
-
-        this.actionTask = null;
-
-        actionCts?.Cancel();
-        actionCts?.Dispose();
-    }
-
     private async Task ExitState(CancellationToken token)
     {
         Debug.Assert(PreviousState != null, $"Expected {nameof(PreviousState)} to be set.");
