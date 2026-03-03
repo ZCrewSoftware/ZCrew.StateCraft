@@ -22,7 +22,7 @@ internal static class TransitionToValidator
                 {
                     State = state.State,
                     TypeParameters = state.TypeParameters,
-                    DisplayString = ToDisplayString(state.State, state.TypeParameters),
+                    DisplayString = state.ToString()!,
                 }
             );
         }
@@ -76,17 +76,6 @@ internal static class TransitionToValidator
                 }
             }
         }
-    }
-
-    private static string ToDisplayString<TState>(TState state, IReadOnlyList<Type> typeParameters)
-    {
-        if (typeParameters.Count == 0)
-        {
-            return $"{state}";
-        }
-
-        var typeNames = string.Join(", ", typeParameters.Select(t => t.FriendlyName));
-        return $"{state}<{typeNames}>";
     }
 
     private readonly record struct StateReference<TState, TTransition>
