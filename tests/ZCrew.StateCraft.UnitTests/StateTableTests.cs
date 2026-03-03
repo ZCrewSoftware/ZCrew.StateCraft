@@ -36,7 +36,7 @@ public class StateTableTests
     }
 
     [Fact]
-    public void LookupState_WhenStateDoesNotExist_ShouldThrowInvalidOperationException()
+    public void LookupState_WhenStateDoesNotExist_ShouldThrowWithParameterlessLabel()
     {
         // Arrange
         var state = new StubState<string, string>("A");
@@ -46,7 +46,9 @@ public class StateTableTests
         var lookupState = () => stateTable.LookupState("B");
 
         // Assert
-        Assert.Throws<InvalidOperationException>(lookupState);
+        var exception = Assert.Throws<InvalidOperationException>(lookupState);
+        Assert.Contains("parameterless", exception.Message);
+        Assert.Contains("State=B", exception.Message);
     }
 
     [Fact]
@@ -108,7 +110,7 @@ public class StateTableTests
     }
 
     [Fact]
-    public void LookupState_T_WhenWrongParameterType_ShouldThrowInvalidOperationException()
+    public void LookupState_T_WhenWrongParameterType_ShouldThrowWithSearchedAndRegisteredTypes()
     {
         // Arrange
         var state = new StubState<string, string>("A", typeof(int));
@@ -118,7 +120,9 @@ public class StateTableTests
         var lookupState = () => stateTable.LookupState<string>("A");
 
         // Assert
-        Assert.Throws<InvalidOperationException>(lookupState);
+        var exception = Assert.Throws<InvalidOperationException>(lookupState);
+        Assert.Contains("(String)", exception.Message);
+        Assert.Contains("Registered: (Int32)", exception.Message);
     }
 
     [Fact]
