@@ -71,11 +71,7 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
 
         var registered = this.states
             .Where(s => EqualityComparer<TState>.Default.Equals(s.StateValue, stateValue))
-            .Select(s =>
-                s.TypeParameters.Count == 0
-                    ? $"{s.StateValue}"
-                    : $"{s.StateValue}<{string.Join(", ", s.TypeParameters.Select(t => t.FriendlyName))}>"
-            )
+            .Select(s => s.ToString())
             .ToList();
 
         var registeredInfo = registered.Count > 0
