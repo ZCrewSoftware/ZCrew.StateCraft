@@ -12,8 +12,24 @@ internal static class InternalStateExtensions
         /// <summary>
         ///     Gets a value indicating whether the state machine can accept a new transition.
         /// </summary>
-        public bool CanAcceptTransition =>
-            state is InternalState.Active or InternalState.Recovery or InternalState.Entering;
+        /// <remarks>
+        ///     Uses an exhaustive switch expression so that adding a new <see cref="InternalState"/>
+        ///     member produces a compiler warning (CS8524), forcing a deliberate decision.
+        /// </remarks>
+        public bool CanAcceptTransition => state switch
+        {
+            InternalState.Active => true,
+            InternalState.Recovery => true,
+            InternalState.Entering => true,
+            InternalState.Inactive => false,
+            InternalState.Idle => false,
+            InternalState.Exiting => false,
+            InternalState.Exited => false,
+            InternalState.Transitioning => false,
+            InternalState.Transitioned => false,
+            InternalState.Entered => false,
+            _ => false,
+        };
 
         /// <summary>
         ///     Gets a value indicating whether the state machine is entering a state.
