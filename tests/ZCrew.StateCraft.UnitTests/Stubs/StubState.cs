@@ -83,6 +83,13 @@ internal class StubState<TState, TTransition> : IState<TState, TTransition>
     {
         return Task.CompletedTask;
     }
+
+    public override string ToString()
+    {
+        return TypeParameters.Count == 0
+            ? $"{StateValue}"
+            : $"{StateValue}<{string.Join(", ", TypeParameters.Select(t => t.FriendlyName))}>";
+    }
 }
 
 /// <remarks>

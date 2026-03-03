@@ -65,7 +65,22 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
             return state;
         }
 
-        throw new InvalidOperationException($"No parameterless state could be found for: State={stateValue}");
+        var searchedDisplay = types.Length == 0
+            ? $"{stateValue}"
+            : $"{stateValue}<{string.Join(", ", types.Select(t => t.FriendlyName))}>";
+
+        var registered = this.states
+            .Where(s => EqualityComparer<TState>.Default.Equals(s.StateValue, stateValue))
+            .Select(s => s.ToString())
+            .ToList();
+
+        var registeredInfo = registered.Count > 0
+            ? $" Registered: {string.Join(", ", registered)}."
+            : "";
+
+        throw new InvalidOperationException(
+            $"No matching state could be found for: State={searchedDisplay}.{registeredInfo}"
+        );
     }
 
     /// <summary>
