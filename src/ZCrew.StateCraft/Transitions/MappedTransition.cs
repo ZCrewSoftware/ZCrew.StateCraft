@@ -83,6 +83,15 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
             t => Next.EvaluateConditions(parameters, t),
             token
         );
+
+        // If the post-condition failed, clear the stale mapped values from the parameter
+        // slot so subsequent transitions in the lookup loop are not affected by the
+        // type filter seeing leftover types from this mapping.
+        if (!nextStateCondition)
+        {
+            parameters.SetEmptyNextParameters();
+        }
+
         return nextStateCondition;
     }
 
