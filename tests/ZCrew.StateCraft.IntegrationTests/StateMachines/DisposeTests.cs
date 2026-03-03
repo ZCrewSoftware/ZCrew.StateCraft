@@ -1,12 +1,11 @@
 namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 
-public class DisposeRaceTests
+public class DisposeTests
 {
     [Fact(Timeout = 5000)]
     public async Task Dispose_WhenCalledDuringAsyncAction_ShouldNotThrow()
     {
-        // Arrange — action signals when it starts, then waits for cancellation.
-        // Dispose() is called concurrently, racing with the action's CTS field (BL-F04).
+        // Arrange
         var actionStarted = new SemaphoreSlim(0, 1);
 
         var stateMachine = StateMachine
@@ -19,7 +18,7 @@ public class DisposeRaceTests
         await stateMachine.Activate(TestContext.Current.CancellationToken);
         await actionStarted.WaitAsync(TestContext.Current.CancellationToken);
 
-        // Act — dispose while the async action is running; must not throw
+        // Act
         var exception = Record.Exception(() => stateMachine.Dispose());
 
         // Assert
@@ -45,8 +44,7 @@ public class DisposeRaceTests
     [Fact(Timeout = 5000)]
     public async Task Dispose_WhenCalledConcurrentlyWithTransition_ShouldNotThrow()
     {
-        // Arrange — race Dispose() against a transition that calls ExitState,
-        // both competing to cancel the same actionCancellationTokenSource (BL-F04).
+        // Arrange
         var actionStarted = new SemaphoreSlim(0, 1);
 
         var stateMachine = StateMachine
@@ -66,22 +64,33 @@ public class DisposeRaceTests
         await stateMachine.Activate(TestContext.Current.CancellationToken);
         await actionStarted.WaitAsync(TestContext.Current.CancellationToken);
 
-        // Act — fire Dispose() and Transition concurrently; neither should throw
-        // due to double-cancel or use-after-dispose on the CTS.
-        var disposeTask = Task.Run(() => stateMachine.Dispose());
-        var transitionTask = Task.Run(async () =>
-        {
-            try
+        // Act
+        var disposeTask = Task.Run(
+            () => stateMachine.Dispose(),
+            TestContext.Current.CancellationToken
+        );
+        var transitionTask = Task.Run(
+            async () =>
             {
-                await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
-            }
-            catch (Exception ex) when (ex is InvalidOperationException or ObjectDisposedException)
-            {
-                // Expected if Dispose() wins the race
-            }
-        });
+                try
+                {
+                    await stateMachine.Transition(
+                        "To B",
+                        TestContext.Current.CancellationToken
+                    );
+                }
+                catch (Exception ex)
+                    when (ex is InvalidOperationException or ObjectDisposedException)
+                {
+                    // Expected if Dispose() wins the race
+                }
+            },
+            TestContext.Current.CancellationToken
+        );
 
-        var exception = await Record.ExceptionAsync(() => Task.WhenAll(disposeTask, transitionTask));
+        var exception = await Record.ExceptionAsync(
+            () => Task.WhenAll(disposeTask, transitionTask)
+        );
 
         // Assert
         Assert.Null(exception);
@@ -106,8 +115,9 @@ public class DisposeRaceTests
     [Fact(Timeout = 5000)]
     public async Task Dispose_WhenCalledMultipleTimesConcurrently_ShouldNotThrow()
     {
-        // Arrange — multiple concurrent Dispose() calls must not double-dispose the CTS.
+        // Arrange
         var actionStarted = new SemaphoreSlim(0, 1);
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -119,8 +129,20 @@ public class DisposeRaceTests
         await stateMachine.Activate(TestContext.Current.CancellationToken);
         await actionStarted.WaitAsync(TestContext.Current.CancellationToken);
 
-        // Act — race multiple Dispose() calls
-        var tasks = Enumerable.Range(0, 10).Select(_ => Task.Run(() => stateMachine.Dispose()));
+        // Act
+        var tasks = Enumerable
+            .Range(0, 10)
+            .Select(_ =>
+                Task.Run(
+                    async () =>
+                    {
+                        await gate.Task;
+                        stateMachine.Dispose();
+                    },
+                    TestContext.Current.CancellationToken
+                )
+            );
+        gate.SetResult();
         var exception = await Record.ExceptionAsync(() => Task.WhenAll(tasks));
 
         // Assert
