@@ -175,36 +175,6 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         StateTable.Add(state);
     }
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        var actionCts = this.actionCancellationTokenSource;
-
-        this.actionTask = null;
-        this.actionCancellationTokenSource = null;
-
-        actionCts?.Cancel();
-        actionCts?.Dispose();
-    }
-
-    /// <inheritdoc />
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            if (this.internalState.IsActivated)
-            {
-                await Deactivate(CancellationToken.None);
-            }
-        }
-        catch
-        {
-            // Disposal should not throw — swallow any exceptions from deactivation.
-        }
-
-        Dispose();
-    }
-
     private async Task ExitState(CancellationToken token)
     {
         Debug.Assert(PreviousState != null, $"Expected {nameof(PreviousState)} to be set.");
