@@ -18,6 +18,8 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     where TState : notnull
     where TTransition : notnull
 {
+    private static AsyncLocal<bool> isAsynchronousAction = new();
+
     private readonly IStateMachineActivator<TState, TTransition> stateMachineActivator;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges;
     private readonly StateMachineOptions options;
@@ -186,19 +188,35 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             // Atomically take ownership of the CTS so Dispose() on another thread
             // cannot double-cancel or use-after-dispose the same instance.
             var actionCts = Interlocked.Exchange(ref this.actionCancellationTokenSource, null);
-            if (actionCts != null)
-            {
-                await actionCts.CancelAsync();
-                actionCts.Dispose();
-            }
+            var task = Interlocked.Exchange(ref this.actionTask, null);
 
-            var task = this.actionTask;
-            if (task != null)
+            // Since the asynchronous action is interacting with the state machine we can compensate for a user-issue by
+            // avoiding cancellation until that action has been completed
+            if (task != null && actionCts != null && isAsynchronousAction.Value)
             {
-                // Avoid catching exceptions here again if the action threw an exception. This will often fail due
-                // to an OperationCanceledException, as the action's cancellation token was disposed of
-                await task.ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
-                this.actionTask = null;
+                _ = task.ContinueWith(
+                    _ =>
+                    {
+                        actionCts.Cancel();
+                        actionCts.Dispose();
+                    },
+                    CancellationToken.None
+                );
+            }
+            else
+            {
+                if (actionCts != null)
+                {
+                    await actionCts.CancelAsync();
+                    actionCts.Dispose();
+                }
+
+                if (task != null && !isAsynchronousAction.Value)
+                {
+                    // Avoid catching exceptions here again if the action threw an exception. This will often fail due
+                    // to an OperationCanceledException, as the action's cancellation token was disposed of
+                    await task.ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+                }
             }
         }
 
@@ -245,6 +263,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             // Start the execution of the action and allow the state machine to be transitioned or deactivated.
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
             // always released.
+            isAsynchronousAction.Value = true;
             var action = CurrentState.Action(Parameters, actionCts.Token);
 
             // Store CTS and task before releasing the lock so concurrent transitions can find
@@ -272,6 +291,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             // Start the execution of the action and allow the state machine to be transitioned or deactivated.
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
             // always released.
+            isAsynchronousAction.Value = false;
             var action = CurrentState.Action(Parameters, token);
             this.internalState = InternalState.Active;
             methodLock.Dispose();

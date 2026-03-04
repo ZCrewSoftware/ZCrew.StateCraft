@@ -1,11 +1,15 @@
+using NSubstitute;
+using ZCrew.StateCraft.StateMachines.Contracts;
+
 namespace ZCrew.StateCraft.IntegrationTests.Actions;
 
 public class WithAsynchronousActionsTests
 {
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Activate_WithAsyncAction_ShouldNotAwaitAction()
     {
         // Arrange
+        var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithAsynchronousActions()
@@ -13,65 +17,63 @@ public class WithAsynchronousActionsTests
             .WithState(
                 "A",
                 state =>
-                    state.WithAction(a =>
-                        a.Invoke(_ => Task.Delay(Timeout.Infinite, TestContext.Current.CancellationToken))
-                    )
+                    state
+                        .OnEntry(onEntry)
+                        .WithAction(a =>
+                            a.Invoke(_ => Task.Delay(Timeout.Infinite, TestContext.Current.CancellationToken))
+                        )
             )
             .Build();
 
         // Act
-        var activate = stateMachine.Activate(TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(activate, timeout);
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(activate, completedTask);
-        Assert.True(activate.IsCompletedSuccessfully);
+        onEntry.Received(1).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Activate_WithSyncAction_ShouldNotAwaitAction()
     {
         // Arrange
+        var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithAsynchronousActions()
             .WithInitialState("A")
-            .WithState("A", state => state.WithAction(a => a.Invoke(() => Thread.Sleep(TimeSpan.FromSeconds(5)))))
+            .WithState(
+                "A",
+                state => state.OnEntry(onEntry).WithAction(a => a.Invoke(() => Thread.Sleep(TimeSpan.FromSeconds(5))))
+            )
             .Build();
 
         // Act
-        var activate = stateMachine.Activate(TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(activate, timeout);
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(activate, completedTask);
-        Assert.True(activate.IsCompletedSuccessfully);
+        onEntry.Received(1).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Activate_WithCompletedAction_ShouldNotAwaitAction()
     {
         // Arrange
+        var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithAsynchronousActions()
             .WithInitialState("A")
-            .WithState("A", state => state.WithAction(a => a.Invoke(_ => Task.CompletedTask)))
+            .WithState("A", state => state.OnEntry(onEntry).WithAction(a => a.Invoke(_ => Task.CompletedTask)))
             .Build();
 
         // Act
-        var activate = stateMachine.Activate(TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(activate, timeout);
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(activate, completedTask);
-        Assert.True(activate.IsCompletedSuccessfully);
+        onEntry.Received(1).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Activate_WithAsyncAction_ShouldBeCanceledDuringNextTransition()
     {
         // Arrange
@@ -87,13 +89,9 @@ public class WithAsynchronousActionsTests
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Act
-        var transition = stateMachine.Transition("To B", TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(transition, timeout);
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(transition, completedTask);
-        Assert.True(transition.IsCompletedSuccessfully);
         Assert.True(tokenWasCanceled);
 
         return;
@@ -111,30 +109,28 @@ public class WithAsynchronousActionsTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Activate_WithActionThrowingException_ShouldTransitionSuccessfully()
     {
         // Arrange
+        var onEntry = Substitute.For<Action>();
         var activateCompleted = new TaskCompletionSource();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithAsynchronousActions()
             .WithInitialState("A")
             .WithState("A", state => state.WithAction(a => a.Invoke(Action)).WithTransition("To B", t => t.To("B")))
-            .WithState("B", state => state)
+            .WithState("B", state => state.OnEntry(onEntry))
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
         activateCompleted.SetResult();
 
         // Act
-        var transition = stateMachine.Transition("To B", TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(transition, timeout);
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(transition, completedTask);
-        Assert.True(transition.IsCompletedSuccessfully);
+        onEntry.Received(1).Invoke();
 
         return;
 
@@ -145,7 +141,7 @@ public class WithAsynchronousActionsTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Activate_WithAsyncAction_ShouldBeCanceledDuringDeactivation()
     {
         // Arrange
@@ -160,13 +156,9 @@ public class WithAsynchronousActionsTests
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Act
-        var deactivate = stateMachine.Deactivate(TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(deactivate, timeout);
+        await stateMachine.Deactivate(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(deactivate, completedTask);
-        Assert.True(deactivate.IsCompletedSuccessfully);
         Assert.True(tokenWasCanceled);
 
         return;
@@ -184,10 +176,11 @@ public class WithAsynchronousActionsTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Transition_WithAsyncAction_ShouldNotAwaitAction()
     {
         // Arrange
+        var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithAsynchronousActions()
@@ -196,27 +189,27 @@ public class WithAsynchronousActionsTests
             .WithState(
                 "B",
                 state =>
-                    state.WithAction(a =>
-                        a.Invoke(_ => Task.Delay(Timeout.Infinite, TestContext.Current.CancellationToken))
-                    )
+                    state
+                        .OnEntry(onEntry)
+                        .WithAction(a =>
+                            a.Invoke(_ => Task.Delay(Timeout.Infinite, TestContext.Current.CancellationToken))
+                        )
             )
             .Build();
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Act
-        var transition = stateMachine.Transition("To B", TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(transition, timeout);
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(transition, completedTask);
-        Assert.True(transition.IsCompletedSuccessfully);
+        onEntry.Received(1).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Transition_WithSyncAction_ShouldNotAwaitAction()
     {
         // Arrange
+        var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithAsynchronousActions()
@@ -225,37 +218,37 @@ public class WithAsynchronousActionsTests
             .WithState(
                 "B",
                 state =>
-                    state.WithAction(a =>
-                        a.Invoke(() =>
-                        {
-                            Thread.Sleep(TimeSpan.FromSeconds(5));
-                            Console.WriteLine("Done sleeping");
-                        })
-                    )
+                    state
+                        .OnEntry(onEntry)
+                        .WithAction(a =>
+                            a.Invoke(() =>
+                            {
+                                Thread.Sleep(TimeSpan.FromSeconds(5));
+                                Console.WriteLine("Done sleeping");
+                            })
+                        )
             )
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Act
-        var transition = stateMachine.Transition("To B", TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(transition, timeout);
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(transition, completedTask);
-        Assert.True(transition.IsCompletedSuccessfully);
+        onEntry.Received(1).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Transition_WithCompletedAction_ShouldNotAwaitAction()
     {
         // Arrange
+        var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithAsynchronousActions()
             .WithInitialState("A")
-            .WithState("A", state => state.WithTransition("To B", t => t.To("B")))
+            .WithState("A", state => state.OnEntry(onEntry).WithTransition("To B", t => t.To("B")))
             .WithState(
                 "B",
                 state => state.WithAction(a => a.Invoke(_ => Task.CompletedTask)).WithTransition("To A", t => t.To("A"))
@@ -266,16 +259,13 @@ public class WithAsynchronousActionsTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Act
-        var transition = stateMachine.Transition("To A", TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(transition, timeout);
+        await stateMachine.Transition("To A", TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(transition, completedTask);
-        Assert.True(transition.IsCompletedSuccessfully);
+        onEntry.Received(2).Invoke();
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Transition_WithAsyncAction_ShouldBeCanceledDuringNextTransition()
     {
         // Arrange
@@ -292,13 +282,9 @@ public class WithAsynchronousActionsTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Act
-        var transition = stateMachine.Transition("To A", TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(transition, timeout);
+        await stateMachine.Transition("To A", TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(transition, completedTask);
-        Assert.True(transition.IsCompletedSuccessfully);
         Assert.True(tokenWasCanceled);
 
         return;
@@ -316,16 +302,17 @@ public class WithAsynchronousActionsTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Transition_WithActionThrowingException_ShouldTransitionSuccessfully()
     {
         // Arrange
+        var onEntry = Substitute.For<Action>();
         var transitionCompleted = new TaskCompletionSource();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithAsynchronousActions()
             .WithInitialState("A")
-            .WithState("A", state => state.WithTransition("To B", t => t.To("B")))
+            .WithState("A", state => state.OnEntry(onEntry).WithTransition("To B", t => t.To("B")))
             .WithState("B", state => state.WithAction(a => a.Invoke(Action)).WithTransition("To A", t => t.To("A")))
             .Build();
 
@@ -335,12 +322,10 @@ public class WithAsynchronousActionsTests
         // Act
         var transition = stateMachine.Transition("To A", TestContext.Current.CancellationToken);
         transitionCompleted.SetResult();
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(transition, timeout);
+        await transition;
 
         // Assert
-        Assert.Same(transition, completedTask);
-        Assert.True(transition.IsCompletedSuccessfully);
+        onEntry.Received(2).Invoke();
 
         return;
 
@@ -351,7 +336,7 @@ public class WithAsynchronousActionsTests
         }
     }
 
-    [Fact]
+    [Fact(Timeout = 5000)]
     public async Task Transition_WithAsyncAction_ShouldBeCanceledDuringDeactivation()
     {
         // Arrange
@@ -368,13 +353,9 @@ public class WithAsynchronousActionsTests
         await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
 
         // Act
-        var deactivate = stateMachine.Deactivate(TestContext.Current.CancellationToken);
-        var timeout = Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
-        var completedTask = await Task.WhenAny(deactivate, timeout);
+        await stateMachine.Deactivate(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Same(deactivate, completedTask);
-        Assert.True(deactivate.IsCompletedSuccessfully);
         Assert.True(tokenWasCanceled);
 
         return;
@@ -390,5 +371,223 @@ public class WithAsynchronousActionsTests
                 tokenWasCanceled = true;
             }
         }
+    }
+
+    [Fact(Timeout = 5000)]
+    public async Task Transition_WithAsyncAction_ShouldAllowTransition()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Action>();
+        var transitionCompleted = new TaskCompletionSource();
+        var tokenCanceled = new TaskCompletionSource();
+        IStateMachine<string, string> stateMachine = null!;
+        stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithAsynchronousActions()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithAction(action =>
+                            action.Invoke(
+                                async Task (token) =>
+                                {
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    await stateMachine.Transition("To B", token);
+                                    transitionCompleted.SetResult();
+
+                                    token.Register(() => tokenCanceled.SetResult());
+                                }
+                            )
+                        )
+                        .WithTransition("To B", "B")
+            )
+            .WithState("B", state => state.OnEntry(onEntry))
+            .Build();
+
+        // Act
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        await transitionCompleted.Task;
+
+        // Assert
+        onEntry.Received(1).Invoke();
+        await tokenCanceled.Task;
+    }
+
+    [Fact(Timeout = 5000)]
+    public async Task TryTransition_WithAsyncAction_ShouldAllowTransition()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Action>();
+        var transitionCompleted = new TaskCompletionSource();
+        var tokenCanceled = new TaskCompletionSource();
+        IStateMachine<string, string> stateMachine = null!;
+        stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithAsynchronousActions()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithAction(action =>
+                            action.Invoke(
+                                async Task (token) =>
+                                {
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    await stateMachine.TryTransition("To B", token);
+                                    transitionCompleted.SetResult();
+
+                                    token.Register(() => tokenCanceled.SetResult());
+                                }
+                            )
+                        )
+                        .WithTransition("To B", "B")
+            )
+            .WithState("B", state => state.OnEntry(onEntry))
+            .Build();
+
+        // Act
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        await transitionCompleted.Task;
+
+        // Assert
+        onEntry.Received(1).Invoke();
+        await tokenCanceled.Task;
+    }
+
+    [Fact(Timeout = 5000)]
+    public async Task CanTransition_WithAsyncAction_ShouldNotDeadlock()
+    {
+        // Arrange
+        var canTransitionResult = new TaskCompletionSource<bool>();
+        IStateMachine<string, string> stateMachine = null!;
+        stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithAsynchronousActions()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithAction(action =>
+                            action.Invoke(
+                                async Task (token) =>
+                                {
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    var result = await stateMachine.CanTransition("To B", token);
+                                    canTransitionResult.SetResult(result);
+                                }
+                            )
+                        )
+                        .WithTransition("To B", "B")
+            )
+            .WithState("B", state => state)
+            .Build();
+
+        // Act
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        var canTransition = await canTransitionResult.Task;
+
+        // Assert
+        Assert.True(canTransition);
+    }
+
+    [Fact(Timeout = 5000)]
+    public async Task Transition_WithAsyncActionAfterTransition_ShouldAllowTransition()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Action>();
+        var transitionCompleted = new TaskCompletionSource();
+        var tokenCanceled = new TaskCompletionSource();
+        IStateMachine<string, string> stateMachine = null!;
+        stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithAsynchronousActions()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithTransition("To B", "B"))
+            .WithState(
+                "B",
+                state =>
+                    state
+                        .WithAction(action =>
+                            action.Invoke(
+                                async Task (token) =>
+                                {
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    await stateMachine.Transition("To C", token);
+                                    transitionCompleted.SetResult();
+
+                                    token.Register(() => tokenCanceled.SetResult());
+                                }
+                            )
+                        )
+                        .WithTransition("To C", "C")
+            )
+            .WithState("C", state => state.OnEntry(onEntry))
+            .Build();
+
+        // Act
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+        await transitionCompleted.Task;
+
+        // Assert
+        onEntry.Received(1).Invoke();
+        await tokenCanceled.Task;
+    }
+
+    [Fact(Timeout = 5000)]
+    public async Task Transition_WithChainedAsyncActions_ShouldAllowTransitions()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Action>();
+        var chainCompleted = new TaskCompletionSource();
+        IStateMachine<string, string> stateMachine = null!;
+        stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithAsynchronousActions()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithAction(action =>
+                            action.Invoke(
+                                async Task (token) =>
+                                {
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    await stateMachine.Transition("To B", token);
+                                }
+                            )
+                        )
+                        .WithTransition("To B", "B")
+            )
+            .WithState(
+                "B",
+                state =>
+                    state
+                        .WithAction(action =>
+                            action.Invoke(
+                                async Task (token) =>
+                                {
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    await stateMachine.Transition("To C", token);
+                                    chainCompleted.SetResult();
+                                }
+                            )
+                        )
+                        .WithTransition("To C", "C")
+            )
+            .WithState("C", state => state.OnEntry(onEntry))
+            .Build();
+
+        // Act
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        await chainCompleted.Task;
+
+        // Assert
+        onEntry.Received(1).Invoke();
     }
 }
