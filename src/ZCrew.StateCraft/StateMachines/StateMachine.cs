@@ -18,7 +18,8 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     where TState : notnull
     where TTransition : notnull
 {
-    private static AsyncLocal<bool> isAsynchronousAction = new();
+    // ReSharper disable once StaticMemberInGenericType - this is an async local and isn't meant to be shared anyway
+    private static readonly AsyncLocal<bool> isAsynchronousAction = new();
 
     private readonly IStateMachineActivator<TState, TTransition> stateMachineActivator;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges;
