@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Nito.AsyncEx;
@@ -25,7 +24,6 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
     private readonly IReadOnlyList<ITrigger> triggers;
     private InternalState internalState;
 
-    private readonly long id;
     private readonly AsyncLock stateMachineLock = new();
     private Task? actionTask;
     private CancellationTokenSource? actionCancellationTokenSource;
@@ -47,7 +45,6 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
         IExceptionBehavior exceptionBehavior
     )
     {
-        this.id = Interlocked.Increment(ref StateMachineId);
         this.stateMachineActivator = stateMachineActivator;
         this.onStateChanges = onStateChanges;
         this.triggers = triggers;
@@ -204,14 +201,12 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
             var task = this.actionTask;
             this.actionTask = null;
 
-            var stateMachineIds = AsynchronousStateMachineIds.Value ?? ImmutableHashSet<long>.Empty;
-
             // Since the asynchronous action is interacting with the state machine we can compensate for a user-issue by
             // avoiding cancellation until that action has been completed
-            if (stateMachineIds.Contains(this.id))
+            if (IsAsynchronousActionCallingStateMachine())
             {
                 this.deferDisposingActionCancellationTokenSource = true;
-                AsynchronousStateMachineIds.Value = stateMachineIds.Remove(this.id);
+                RemoveFromAsynchronousCallChain();
             }
             else
             {
@@ -273,8 +268,7 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
             var actionCts = new CancellationTokenSource();
 
             // Add this ID to the call chain to avoid deadlocks on ExitState
-            var stateMachineIds = AsynchronousStateMachineIds.Value ?? ImmutableHashSet<long>.Empty;
-            AsynchronousStateMachineIds.Value = stateMachineIds.Add(this.id);
+            AddToAsynchronousCallChain();
 
             // Start the execution of the action and allow the state machine to be transitioned or deactivated.
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is

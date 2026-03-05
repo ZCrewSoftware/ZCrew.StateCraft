@@ -1097,4 +1097,90 @@ public class WithAsynchronousActionsTests
         sm2OnEntry.Received(1).Invoke();
         await sm1TokenCanceled.Task;
     }
+
+    [Fact(Timeout = 5000)]
+    public async Task Activate_WithCrossMachineAsyncActionCallbackAfterSelfTransition_ShouldNotDeadlock()
+    {
+        // Arrange
+        var sm1ActionCanceled = new TaskCompletionSource();
+        var sm1OnBEntry = Substitute.For<Action>();
+        var chainCompleted = new TaskCompletionSource();
+
+        IStateMachine<string, string> sm2 = null!;
+
+        // sm1's action transitions sm2 (A → B), then waits
+        var sm1 = StateMachine
+            .Configure<string, string>()
+            .WithAsynchronousActions()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithAction(action =>
+                            action.Invoke(
+                                async Task (token) =>
+                                {
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    await sm2.Transition("To B", token);
+
+                                    try
+                                    {
+                                        await Task.Delay(Timeout.Infinite, token);
+                                    }
+                                    catch (OperationCanceledException) when (token.IsCancellationRequested)
+                                    {
+                                        sm1ActionCanceled.TrySetResult();
+                                    }
+                                }
+                            )
+                        )
+                        .WithTransition("To B", "B")
+            )
+            .WithState("B", state => state.OnEntry(sm1OnBEntry))
+            .Build();
+
+        // sm2's action self-transitions (B → C), then calls back to sm1
+        sm2 = StateMachine
+            .Configure<string, string>()
+            .WithAsynchronousActions()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithTransition("To B", "B"))
+            .WithState(
+                "B",
+                state =>
+                    state
+                        .WithAction(action =>
+                            action.Invoke(
+                                async Task (token) =>
+                                {
+                                    // Self-transition within sm2
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    await sm2.Transition("To C", token);
+
+                                    // The action's token is canceled after the self-transition
+                                    // (deferred CTS disposal), so use the test token.
+                                    // AsyncLocal inherited sm1's ID from the call chain,
+                                    // which must not cause a false-positive self-call
+                                    // detection in sm1
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    await sm1.TryTransition("To B", TestContext.Current.CancellationToken);
+                                    chainCompleted.SetResult();
+                                }
+                            )
+                        )
+                        .WithTransition("To C", "C")
+            )
+            .WithState("C", state => state)
+            .Build();
+
+        // Act
+        await sm2.Activate(TestContext.Current.CancellationToken);
+        await sm1.Activate(TestContext.Current.CancellationToken);
+        await chainCompleted.Task;
+
+        // Assert
+        sm1OnBEntry.Received(1).Invoke();
+        await sm1ActionCanceled.Task;
+    }
 }
