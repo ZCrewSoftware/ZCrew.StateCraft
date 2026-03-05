@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Nito.AsyncEx;
@@ -18,8 +19,8 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     where TState : notnull
     where TTransition : notnull
 {
-    // ReSharper disable once StaticMemberInGenericType - this is an async local and isn't meant to be shared anyway
-    private static readonly AsyncLocal<bool> isAsynchronousAction = new();
+    private static int stateMachineId = 0;
+    private static readonly AsyncLocal<ImmutableHashSet<int>?> asynchronousStateMachineId = new();
 
     private readonly IStateMachineActivator<TState, TTransition> stateMachineActivator;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges;
@@ -27,9 +28,11 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     private readonly IReadOnlyList<ITrigger> triggers;
     private InternalState internalState;
 
+    private readonly int id;
     private readonly AsyncLock stateMachineLock = new();
     private Task? actionTask;
     private CancellationTokenSource? actionCancellationTokenSource;
+    private bool deferDisposingActionCancellationTokenSource;
 
     /// <summary>
     ///     Creates a new <see cref="StateMachine{TState,TTransition}"/>.
@@ -47,6 +50,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         IExceptionBehavior exceptionBehavior
     )
     {
+        this.id = Interlocked.Increment(ref stateMachineId);
         this.stateMachineActivator = stateMachineActivator;
         this.onStateChanges = onStateChanges;
         this.triggers = triggers;
@@ -140,8 +144,22 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             BeginTransition();
             await ExitState(token);
             await DeactivateTriggers(token);
-
             await PreviousState.Deactivate(Parameters, token);
+
+            // An action has deactivated the state machine and the token needs to be cleaned up before deactivating
+            // The 'token' here may be the action's cancellation token
+            if (this.deferDisposingActionCancellationTokenSource)
+            {
+                var actionCts = this.actionCancellationTokenSource;
+                this.actionCancellationTokenSource = null;
+                this.deferDisposingActionCancellationTokenSource = false;
+
+                if (actionCts != null)
+                {
+                    await actionCts.CancelAsync();
+                    actionCts.Dispose();
+                }
+            }
 
             Parameters.Clear();
             PreviousState = null;
@@ -186,33 +204,29 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         this.internalState = InternalState.Exiting;
         if (this.options.HasFlag(StateMachineOptions.RunActionsAsynchronously))
         {
-            // Atomically take ownership of the CTS so Dispose() on another thread
-            // cannot double-cancel or use-after-dispose the same instance.
-            var actionCts = Interlocked.Exchange(ref this.actionCancellationTokenSource, null);
-            var task = Interlocked.Exchange(ref this.actionTask, null);
+            var task = this.actionTask;
+            this.actionTask = null;
+
+            var stateMachineIds = asynchronousStateMachineId.Value ?? ImmutableHashSet<int>.Empty;
 
             // Since the asynchronous action is interacting with the state machine we can compensate for a user-issue by
             // avoiding cancellation until that action has been completed
-            if (task != null && actionCts != null && isAsynchronousAction.Value)
+            if (stateMachineIds.Contains(this.id))
             {
-                _ = task.ContinueWith(
-                    _ =>
-                    {
-                        actionCts.Cancel();
-                        actionCts.Dispose();
-                    },
-                    CancellationToken.None
-                );
+                this.deferDisposingActionCancellationTokenSource = true;
+                asynchronousStateMachineId.Value = stateMachineIds.Remove(this.id);
             }
             else
             {
+                var actionCts = this.actionCancellationTokenSource;
+                this.actionCancellationTokenSource = null;
                 if (actionCts != null)
                 {
                     await actionCts.CancelAsync();
                     actionCts.Dispose();
                 }
 
-                if (task != null && !isAsynchronousAction.Value)
+                if (task != null)
                 {
                     // Avoid catching exceptions here again if the action threw an exception. This will often fail due
                     // to an OperationCanceledException, as the action's cancellation token was disposed of
@@ -261,11 +275,27 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         {
             var actionCts = new CancellationTokenSource();
 
+            // Add this ID to the call chain to avoid deadlocks on ExitState
+            var stateMachineIds = asynchronousStateMachineId.Value ?? ImmutableHashSet<int>.Empty;
+            asynchronousStateMachineId.Value = stateMachineIds.Add(this.id);
+
             // Start the execution of the action and allow the state machine to be transitioned or deactivated.
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
             // always released.
-            isAsynchronousAction.Value = true;
             var action = CurrentState.Action(Parameters, actionCts.Token);
+
+            // The action transitioned so the cancellation token disposal was deferred until the transition completed.
+            // Dispose of the current token before creating a new one
+            if (this.deferDisposingActionCancellationTokenSource)
+            {
+                if (this.actionCancellationTokenSource != null)
+                {
+                    await this.actionCancellationTokenSource.CancelAsync();
+                    this.actionCancellationTokenSource.Dispose();
+                }
+
+                this.deferDisposingActionCancellationTokenSource = false;
+            }
 
             // Store CTS and task before releasing the lock so concurrent transitions can find
             // and cancel them. Without this, there is a window where a concurrent transition
@@ -292,7 +322,6 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             // Start the execution of the action and allow the state machine to be transitioned or deactivated.
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
             // always released.
-            isAsynchronousAction.Value = false;
             var action = CurrentState.Action(Parameters, token);
             this.internalState = InternalState.Active;
             methodLock.Dispose();
