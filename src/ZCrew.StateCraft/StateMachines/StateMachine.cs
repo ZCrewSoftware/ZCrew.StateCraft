@@ -308,6 +308,7 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
             {
                 this.actionCancellationTokenSource = null;
                 this.actionTask = null;
+                await actionCts.CancelAsync();
                 actionCts.Dispose();
                 await action;
             }
