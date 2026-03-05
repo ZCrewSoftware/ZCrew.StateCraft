@@ -213,12 +213,20 @@ Deactivation follows the same pattern as transitions:
 
 ## Triggering Transitions
 
-Unlike lifecycle handlers, actions **can** trigger transitions:
+Unlike lifecycle handlers, actions **can** trigger transitions.
+When `WithAsynchronousActions()` is configured, actions can call `Transition`, `TryTransition`, `CanTransition`, and
+`Deactivate` on their own state machine without deadlocking.
+
+> **Important:** When an action calls `Transition`, `TryTransition`, or `Deactivate` on its own state machine, the
+> action's cancellation token **will be canceled** once that call completes. Any code after the call will still run, but
+> the token will report `IsCancellationRequested == true`. Do not pass the action's token to subsequent state machine
+> calls or service calls - use a separate token or `CancellationToken.None` instead.
 
 ```csharp
 var machine = StateMachine
     .Configure<State, Transition>()
     .WithInitialState(State.Polling)
+    .WithAsynchronousActions()
     .WithState(State.Polling, state => state
         .WithAction(action => action
             .Invoke(async token =>
@@ -228,8 +236,11 @@ var machine = StateMachine
                     var result = await PollAsync(token);
                     if (result.IsComplete)
                     {
-                        // Action triggering a transition
+                        // Action triggering a transition - token is canceled after this returns
                         await machine.Transition(Transition.Complete, token);
+
+                        // Using CancellationToken.None as token is canceled
+                        await service.MarkCompleted(CancellationToken.None);
                         return;
                     }
                     await Task.Delay(TimeSpan.FromSeconds(1), token);
