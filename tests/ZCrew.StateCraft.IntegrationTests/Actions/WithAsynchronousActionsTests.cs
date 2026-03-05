@@ -1183,4 +1183,49 @@ public class WithAsynchronousActionsTests
         sm1OnBEntry.Received(1).Invoke();
         await sm1ActionCanceled.Task;
     }
+
+    [Fact(Timeout = 5000)]
+    public async Task Activate_WithAsyncActionThrowingAfterSelfTransition_ShouldCallOnExceptionHandler()
+    {
+        // Arrange
+        var exception = new InvalidOperationException("Post-transition error");
+        var exceptionHandled = new TaskCompletionSource<Exception>();
+        var onBEntry = Substitute.For<Action>();
+        IStateMachine<string, string> stateMachine = null!;
+        stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithAsynchronousActions()
+            .WithInitialState("A")
+            .OnException(ex =>
+            {
+                exceptionHandled.TrySetResult(ex);
+                return ExceptionResult.Rethrow();
+            })
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithAction(action =>
+                            action.Invoke(
+                                async Task (token) =>
+                                {
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    await stateMachine.Transition("To B", token);
+                                    throw exception;
+                                }
+                            )
+                        )
+                        .WithTransition("To B", "B")
+            )
+            .WithState("B", state => state.OnEntry(onBEntry))
+            .Build();
+
+        // Act
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        var handledException = await exceptionHandled.Task;
+
+        // Assert
+        onBEntry.Received(1).Invoke();
+        Assert.Same(exception, handledException);
+    }
 }
