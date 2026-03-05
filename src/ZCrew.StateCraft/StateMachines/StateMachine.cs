@@ -14,14 +14,11 @@ using ZCrew.StateCraft.Triggers.Contracts;
 
 namespace ZCrew.StateCraft.StateMachines;
 
-/// <inheritdoc />
-internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<TState, TTransition>
+/// <inheritdoc cref="IStateMachine{TState,TTransition}"/>
+internal sealed partial class StateMachine<TState, TTransition> : StateMachineBase, IStateMachine<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private static int stateMachineId = 0;
-    private static readonly AsyncLocal<ImmutableHashSet<int>?> asynchronousStateMachineId = new();
-
     private readonly IStateMachineActivator<TState, TTransition> stateMachineActivator;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges;
     private readonly StateMachineOptions options;
@@ -50,7 +47,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         IExceptionBehavior exceptionBehavior
     )
     {
-        this.id = Interlocked.Increment(ref stateMachineId);
+        this.id = Interlocked.Increment(ref StateMachineId);
         this.stateMachineActivator = stateMachineActivator;
         this.onStateChanges = onStateChanges;
         this.triggers = triggers;
@@ -207,14 +204,14 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             var task = this.actionTask;
             this.actionTask = null;
 
-            var stateMachineIds = asynchronousStateMachineId.Value ?? ImmutableHashSet<int>.Empty;
+            var stateMachineIds = AsynchronousStateMachineIds.Value ?? ImmutableHashSet<int>.Empty;
 
             // Since the asynchronous action is interacting with the state machine we can compensate for a user-issue by
             // avoiding cancellation until that action has been completed
             if (stateMachineIds.Contains(this.id))
             {
                 this.deferDisposingActionCancellationTokenSource = true;
-                asynchronousStateMachineId.Value = stateMachineIds.Remove(this.id);
+                AsynchronousStateMachineIds.Value = stateMachineIds.Remove(this.id);
             }
             else
             {
@@ -276,8 +273,8 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             var actionCts = new CancellationTokenSource();
 
             // Add this ID to the call chain to avoid deadlocks on ExitState
-            var stateMachineIds = asynchronousStateMachineId.Value ?? ImmutableHashSet<int>.Empty;
-            asynchronousStateMachineId.Value = stateMachineIds.Add(this.id);
+            var stateMachineIds = AsynchronousStateMachineIds.Value ?? ImmutableHashSet<int>.Empty;
+            AsynchronousStateMachineIds.Value = stateMachineIds.Add(this.id);
 
             // Start the execution of the action and allow the state machine to be transitioned or deactivated.
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
