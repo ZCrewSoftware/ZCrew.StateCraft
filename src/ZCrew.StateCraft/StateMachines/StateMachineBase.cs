@@ -7,6 +7,6 @@ namespace ZCrew.StateCraft.StateMachines;
 /// </summary>
 internal class StateMachineBase
 {
-    protected static int StateMachineId = 0;
-    protected static readonly AsyncLocal<ImmutableHashSet<int>?> AsynchronousStateMachineIds = new();
+    protected static long StateMachineId = 0;
+    protected static readonly AsyncLocal<ImmutableHashSet<long>?> AsynchronousStateMachineIds = new();
 }
