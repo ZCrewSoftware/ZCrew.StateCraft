@@ -203,10 +203,9 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
 
             // Since the asynchronous action is interacting with the state machine we can compensate for a user-issue by
             // avoiding cancellation until that action has been completed
-            if (IsAsynchronousActionCallingStateMachine())
+            if (RemoveFromAsynchronousCallChain())
             {
                 this.deferDisposingActionCancellationTokenSource = true;
-                RemoveFromAsynchronousCallChain();
             }
             else
             {

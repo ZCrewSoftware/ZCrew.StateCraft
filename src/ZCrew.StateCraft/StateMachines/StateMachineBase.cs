@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft.StateMachines;
 
@@ -8,7 +8,7 @@ namespace ZCrew.StateCraft.StateMachines;
 internal abstract class StateMachineBase
 {
     private static long stateMachineId;
-    private static readonly AsyncLocal<IEnumerable<long>?> asynchronousStateMachineIds = new();
+    private static readonly AsyncLocal<long[]?> asynchronousStateMachineIds = new();
 
     private readonly long id;
 
@@ -17,22 +17,36 @@ internal abstract class StateMachineBase
         this.id = Interlocked.Increment(ref stateMachineId);
     }
 
+    /// <summary>
+    ///     Adds this state machine to the call-chain for monitoring self-referential asynchronous action calls. Once
+    ///     added the state machine will then be able to check if the action is trying to transition the state machine
+    ///     using either <see cref="IStateMachine{TState,TTransition}.Transition"/>,
+    ///     <see cref="IStateMachine{TState,TTransition}.TryTransition"/>,
+    ///     or <see cref="IStateMachine{TState,TTransition}.Deactivate"/>.
+    /// </summary>
     protected void AddToAsynchronousCallChain()
     {
         var stateMachineIds = asynchronousStateMachineIds.Value ?? [];
-        asynchronousStateMachineIds.Value = stateMachineIds.Append(this.id);
+        asynchronousStateMachineIds.Value = stateMachineIds.Append(this.id).ToArray();
     }
 
-    protected void RemoveFromAsynchronousCallChain()
+    /// <summary>
+    ///     Checks if an action from a state machine is calling either
+    ///     <see cref="IStateMachine{TState,TTransition}.Transition"/>,
+    ///     <see cref="IStateMachine{TState,TTransition}.TryTransition"/>,
+    ///     or <see cref="IStateMachine{TState,TTransition}.Deactivate"/> on it's own state machine. If it is, the
+    ///     state machine is removed from the call-chain and the state machine can avoid deadlocking.
+    /// </summary>
+    /// <returns><see langword="true"/> if the current state machine is at the top of the call-chain.</returns>
+    protected bool RemoveFromAsynchronousCallChain()
     {
-        var stateMachineIds = asynchronousStateMachineIds.Value?.ToArray() ?? [];
-        Debug.Assert(stateMachineIds.Length > 0);
+        var stateMachineIds = asynchronousStateMachineIds.Value?.ToArray();
+        if (stateMachineIds == null || stateMachineIds.Length == 0 || stateMachineIds[^1] != this.id)
+        {
+            return false;
+        }
+
         asynchronousStateMachineIds.Value = stateMachineIds[..^1];
-    }
-
-    protected bool IsAsynchronousActionCallingStateMachine()
-    {
-        var stateMachineIds = asynchronousStateMachineIds.Value?.ToArray() ?? [];
-        return stateMachineIds.Length > 0 && stateMachineIds[^1] == this.id;
+        return true;
     }
 }
