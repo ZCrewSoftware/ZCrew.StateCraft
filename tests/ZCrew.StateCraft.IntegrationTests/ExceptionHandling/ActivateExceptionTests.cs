@@ -146,6 +146,37 @@ public partial class ActivateExceptionTests
         Assert.False(stateMachine.Parameters.IsNextSet);
     }
 
+    [Fact(Timeout = 5000)]
+    public async Task Activate_WhenActionThrows_ShouldDeactivateTriggers()
+    {
+        // Arrange
+        var exception = new InvalidOperationException("Action error");
+        var triggerSignal = new SemaphoreSlim(0);
+        var triggerFired = new TaskCompletionSource();
+
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithAction(a => a.Invoke(() => throw exception)))
+            .WithTrigger(t =>
+                t.Once().Await(triggerSignal.WaitAsync).ThenInvoke(() => triggerFired.TrySetResult())
+            )
+            .Build();
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => stateMachine.Activate(TestContext.Current.CancellationToken)
+        );
+
+        // Release signal — if trigger is still active, it would fire
+        triggerSignal.Release();
+
+        // Assert — trigger should NOT fire because activation failure should deactivate triggers
+        var timeout = Task.Delay(TimeSpan.FromMilliseconds(500), TestContext.Current.CancellationToken);
+        var completedTask = await Task.WhenAny(triggerFired.Task, timeout);
+        Assert.NotSame(triggerFired.Task, completedTask);
+    }
+
     [Fact]
     public async Task Activate_WhenOnEntryThrowsExceptionOnce_ShouldRetrySuccessfully()
     {
