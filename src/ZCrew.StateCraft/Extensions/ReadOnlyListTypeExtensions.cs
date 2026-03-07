@@ -1,4 +1,4 @@
-namespace ZCrew.StateCraft;
+namespace ZCrew.StateCraft.Extensions;
 
 /// <summary>
 ///     Provides extension methods for comparing lists of <see cref="Type"/>
@@ -21,9 +21,9 @@ internal static class ReadOnlyListTypeExtensions
         ///     corresponding element in this list; otherwise,
         ///     <see langword="false"/>.
         /// </returns>
-        internal bool IsAssignableFrom(IReadOnlyList<Type> otherTypes)
+        internal bool IsAssignableFrom(ReadOnlySpan<Type> otherTypes)
         {
-            if (types.Count != otherTypes.Count)
+            if (types.Count != otherTypes.Length)
             {
                 return false;
             }

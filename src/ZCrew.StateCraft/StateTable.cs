@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using ZCrew.StateCraft.Extensions;
 
 namespace ZCrew.StateCraft;
 
@@ -65,18 +66,17 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
             return state;
         }
 
-        var searchedDisplay = types.Length == 0
-            ? $"{stateValue}"
-            : $"{stateValue}<{string.Join(", ", types.Select(t => t.FriendlyName))}>";
+        var searchedDisplay =
+            types.Length == 0
+                ? $"{stateValue}"
+                : $"{stateValue}<{string.Join(", ", types.Select(t => t.FriendlyName))}>";
 
-        var registered = this.states
-            .Where(s => EqualityComparer<TState>.Default.Equals(s.StateValue, stateValue))
+        var registered = this
+            .states.Where(s => EqualityComparer<TState>.Default.Equals(s.StateValue, stateValue))
             .Select(s => s.ToString())
             .ToList();
 
-        var registeredInfo = registered.Count > 0
-            ? $" Registered: {string.Join(", ", registered)}."
-            : "";
+        var registeredInfo = registered.Count > 0 ? $" Registered: {string.Join(", ", registered)}." : "";
 
         throw new InvalidOperationException(
             $"No matching state could be found for: State={searchedDisplay}.{registeredInfo}"
