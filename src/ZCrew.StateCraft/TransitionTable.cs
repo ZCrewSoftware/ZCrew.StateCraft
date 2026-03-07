@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
-using ZCrew.StateCraft.Parameters;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
 

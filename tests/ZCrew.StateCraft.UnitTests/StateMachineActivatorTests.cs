@@ -1,5 +1,6 @@
 using NSubstitute;
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.UnitTests.Stubs;
 
 namespace ZCrew.StateCraft.UnitTests;
@@ -19,7 +20,7 @@ public class StateMachineActivatorTests
 
         // Assert
         Assert.Equal(expectedState, stateMachine.NextState);
-        Assert.Empty(stateMachine.Parameters.NextParameterTypes);
+        Assert.True(stateMachine.Parameters.IsNextSet);
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
 
@@ -30,8 +31,8 @@ public class StateMachineParametersTests
 
         // Assert
         var types = parameters.NextParameterTypes;
-        Assert.Single(types);
-        Assert.Equal(typeof(string), types[0]);
+        var type = Assert.Single(types.ToArray());
+        Assert.Equal(typeof(string), type);
     }
 
     [Fact]
@@ -104,7 +105,7 @@ public class StateMachineParametersTests
 
         // Assert
         var types = parameters.NextParameterTypes;
-        Assert.Equal(2, types.Count);
+        Assert.Equal(2, types.Length);
         Assert.Equal(typeof(string), types[0]);
         Assert.Equal(typeof(int), types[1]);
     }
@@ -165,7 +166,7 @@ public class StateMachineParametersTests
 
         // Assert
         var types = parameters.NextParameterTypes;
-        Assert.Equal(3, types.Count);
+        Assert.Equal(3, types.Length);
         Assert.Equal(typeof(string), types[0]);
         Assert.Equal(typeof(int), types[1]);
         Assert.Equal(typeof(bool), types[2]);
@@ -229,7 +230,7 @@ public class StateMachineParametersTests
 
         // Assert
         var types = parameters.NextParameterTypes;
-        Assert.Equal(4, types.Count);
+        Assert.Equal(4, types.Length);
         Assert.Equal(typeof(string), types[0]);
         Assert.Equal(typeof(int), types[1]);
         Assert.Equal(typeof(bool), types[2]);
@@ -291,7 +292,7 @@ public class StateMachineParametersTests
 
         // Assert
         var types = parameters.NextParameterTypes;
-        Assert.Empty(types);
+        Assert.True(types.IsEmpty);
     }
 
     [Fact]
@@ -319,8 +320,7 @@ public class StateMachineParametersTests
         parameters.CommitTransition();
 
         // Assert
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
-        Assert.Empty(parameters.CurrentParameterTypes);
+        Assert.True(parameters.IsCurrentSet);
     }
 
     [Fact]
@@ -1061,7 +1061,7 @@ public class StateMachineParametersTests
 
         // Assert
         var types = parameters.CurrentParameterTypes;
-        Assert.Equal(3, types.Count);
+        Assert.Equal(3, types.Length);
         Assert.Equal(typeof(string), types[0]);
         Assert.Equal(typeof(int), types[1]);
         Assert.Equal(typeof(bool), types[2]);
@@ -1392,7 +1392,7 @@ public class StateMachineParametersTests
         var parameters = new StateMachineParameters();
 
         // Act
-        var act = () => parameters.PreviousParameterTypes;
+        var act = () => parameters.PreviousParameterTypes.ToArray();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
@@ -1408,7 +1408,7 @@ public class StateMachineParametersTests
         parameters.BeginTransition();
 
         // Act
-        var result = parameters.PreviousParameterTypes;
+        var result = parameters.PreviousParameterTypes.ToArray();
 
         // Assert
         Assert.NotNull(result);
@@ -1421,7 +1421,7 @@ public class StateMachineParametersTests
         var parameters = new StateMachineParameters();
 
         // Act
-        var act = () => parameters.CurrentParameterTypes;
+        var act = () => parameters.CurrentParameterTypes.ToArray();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
@@ -1436,7 +1436,7 @@ public class StateMachineParametersTests
         parameters.CommitTransition();
 
         // Act
-        var result = parameters.CurrentParameterTypes;
+        var result = parameters.CurrentParameterTypes.ToArray();
 
         // Assert
         Assert.NotNull(result);
@@ -1449,7 +1449,7 @@ public class StateMachineParametersTests
         var parameters = new StateMachineParameters();
 
         // Act
-        var act = () => parameters.NextParameterTypes;
+        var act = () => parameters.NextParameterTypes.ToArray();
 
         // Assert
         Assert.Throws<InvalidOperationException>(act);
@@ -1463,7 +1463,7 @@ public class StateMachineParametersTests
         parameters.SetNextParameter("value");
 
         // Act
-        var result = parameters.NextParameterTypes;
+        var result = parameters.NextParameterTypes.ToArray();
 
         // Assert
         Assert.NotNull(result);
