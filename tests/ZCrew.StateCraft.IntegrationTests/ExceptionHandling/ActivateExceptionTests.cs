@@ -121,6 +121,52 @@ public partial class ActivateExceptionTests
     }
 
     [Fact]
+    public async Task Activate_WhenOnEntryThrowsException_ShouldCallOnDeactivate()
+    {
+        // Arrange
+        var onDeactivate = Substitute.For<Action<string>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state => state.OnDeactivate(onDeactivate).OnEntry(() => throw new InvalidOperationException())
+            )
+            .Build();
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            stateMachine.Activate(TestContext.Current.CancellationToken)
+        );
+
+        // Assert
+        onDeactivate.Received(1).Invoke("A");
+    }
+
+    [Fact]
+    public async Task Activate_WhenOnActivateThrowsException_ShouldNotCallOnDeactivate()
+    {
+        // Arrange
+        var onDeactivate = Substitute.For<Action<string>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState(
+                "A",
+                state => state.OnActivate(_ => throw new InvalidOperationException()).OnDeactivate(onDeactivate)
+            )
+            .Build();
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            stateMachine.Activate(TestContext.Current.CancellationToken)
+        );
+
+        // Assert
+        onDeactivate.DidNotReceive().Invoke(Arg.Any<string>());
+    }
+
+    [Fact]
     public async Task Activate_WhenOnEntryThrowsException_ShouldThrowAndHaveExpectedProperties()
     {
         // Arrange

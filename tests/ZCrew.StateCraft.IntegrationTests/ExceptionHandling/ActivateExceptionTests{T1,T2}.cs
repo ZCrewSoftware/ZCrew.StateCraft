@@ -121,6 +121,60 @@ public partial class ActivateExceptionTests
     }
 
     [Fact]
+    public async Task Activate_T1_T2_WhenOnEntryThrowsException_ShouldCallOnDeactivate()
+    {
+        // Arrange
+        var onDeactivate = Substitute.For<Action<string, int, string>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .OnDeactivate(onDeactivate)
+                        .OnEntry((_, _) => throw new InvalidOperationException())
+            )
+            .Build();
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            stateMachine.Activate(TestContext.Current.CancellationToken)
+        );
+
+        // Assert
+        onDeactivate.Received(1).Invoke("A", 42, "hello");
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_WhenOnActivateThrowsException_ShouldNotCallOnDeactivate()
+    {
+        // Arrange
+        var onDeactivate = Substitute.For<Action<string, int, string>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello")
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string>()
+                        .OnActivate((_, _, _) => throw new InvalidOperationException())
+                        .OnDeactivate(onDeactivate)
+            )
+            .Build();
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            stateMachine.Activate(TestContext.Current.CancellationToken)
+        );
+
+        // Assert
+        onDeactivate.DidNotReceive().Invoke(Arg.Any<string>(), Arg.Any<int>(), Arg.Any<string>());
+    }
+
+    [Fact]
     public async Task Activate_T1_T2_WhenOnEntryThrowsException_ShouldThrowAndHaveExpectedProperties()
     {
         // Arrange

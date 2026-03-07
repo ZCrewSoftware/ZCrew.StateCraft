@@ -27,6 +27,9 @@ When `Activate()` is called:
 2. `OnEntry` - Initialize the initial state
 3. Start initial state actions
 
+If `OnEntry` fails after `OnActivate` has completed, `OnDeactivate` is called on the initial state to ensure
+proper cleanup. If `OnActivate` itself fails, `OnDeactivate` is not called.
+
 ### Transition Flow
 
 During a transition from State A to State B:
@@ -184,7 +187,8 @@ This will **not** include the parameter when changing to a parameterized state.
 
 ## Deactivation
 
-The `OnDeactivate` handler runs only during `Deactivate()`, not during regular transitions.
+The `OnDeactivate` handler runs during `Deactivate()` and during a failed `Activate()` when `OnActivate`
+succeeded but a later step failed. It does not run during regular transitions.
 
 ### Configuration
 

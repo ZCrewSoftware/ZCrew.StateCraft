@@ -127,6 +127,62 @@ public partial class ActivateExceptionTests
     }
 
     [Fact]
+    public async Task Activate_T1_T2_T3_T4_WhenOnEntryThrowsException_ShouldCallOnDeactivate()
+    {
+        // Arrange
+        var onDeactivate = Substitute.For<Action<string, int, string, double, bool>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello", 3.14, true)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, double, bool>()
+                        .OnDeactivate(onDeactivate)
+                        .OnEntry((_, _, _, _) => throw new InvalidOperationException())
+            )
+            .Build();
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            stateMachine.Activate(TestContext.Current.CancellationToken)
+        );
+
+        // Assert
+        onDeactivate.Received(1).Invoke("A", 42, "hello", 3.14, true);
+    }
+
+    [Fact]
+    public async Task Activate_T1_T2_T3_T4_WhenOnActivateThrowsException_ShouldNotCallOnDeactivate()
+    {
+        // Arrange
+        var onDeactivate = Substitute.For<Action<string, int, string, double, bool>>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42, "hello", 3.14, true)
+            .WithState(
+                "A",
+                state =>
+                    state
+                        .WithParameters<int, string, double, bool>()
+                        .OnActivate((_, _, _, _, _) => throw new InvalidOperationException())
+                        .OnDeactivate(onDeactivate)
+            )
+            .Build();
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            stateMachine.Activate(TestContext.Current.CancellationToken)
+        );
+
+        // Assert
+        onDeactivate
+            .DidNotReceive()
+            .Invoke(Arg.Any<string>(), Arg.Any<int>(), Arg.Any<string>(), Arg.Any<double>(), Arg.Any<bool>());
+    }
+
+    [Fact]
     public async Task Activate_T1_T2_T3_T4_WhenOnEntryThrowsException_ShouldThrowAndHaveExpectedProperties()
     {
         // Arrange
