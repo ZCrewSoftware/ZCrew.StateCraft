@@ -90,25 +90,43 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
             await NextState.Activate(Parameters, token);
-            this.internalState = InternalState.Idle;
-            await ActivateTriggers(token);
-            await EnterState(activationLock, token);
         }
-        catch when (CurrentState == null)
+        catch
         {
-            // If there was an exception during activation the state machine is forced to reset fully
+            // If OnActivate itself throws, reset fully without calling Deactivate
             Parameters.Clear();
             NextState = null;
             CurrentState = null;
             PreviousState = null;
 
             this.internalState = InternalState.Inactive;
-            await DeactivateTriggers(CancellationToken.None);
             throw;
         }
-        catch
+
+        try
+        {
+            this.internalState = InternalState.Idle;
+            await ActivateTriggers(token);
+            await EnterState(activationLock, token);
+        }
+        catch when (CurrentState == null)
         {
             await DeactivateTriggers(CancellationToken.None);
+
+            // TODO: this has prompted a conversation: https://github.com/ZCrewSoftware/ZCrew.StateCraft/discussions/141
+            // OnActivate succeeded but a later step failed - unwind OnActivate.
+            // Deactivate reads from the Previous parameters, so shift them over.
+            Parameters.CommitTransition();
+            Parameters.BeginTransition();
+            await NextState!.Deactivate(Parameters, CancellationToken.None);
+
+            // If enable triggers or activating the state throws, reset fully
+            Parameters.Clear();
+            NextState = null;
+            CurrentState = null;
+            PreviousState = null;
+
+            this.internalState = InternalState.Inactive;
             throw;
         }
     }
@@ -125,6 +143,10 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         if (this.internalState.IsEntering)
         {
             await DeactivateTriggers(token);
+            if (PreviousState != null)
+            {
+                await PreviousState.Deactivate(Parameters, token);
+            }
             Parameters.Clear();
             PreviousState = null;
             NextState = null;
