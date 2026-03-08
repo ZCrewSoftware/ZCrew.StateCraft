@@ -23,7 +23,7 @@ internal class StateMachineParameters : IStateMachineParameters
     public StateMachineParametersFlags Status { get; private set; }
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> PreviousParameterTypes
+    public ReadOnlySpan<Type> PreviousParameterTypes
     {
         get
         {
@@ -32,12 +32,12 @@ internal class StateMachineParameters : IStateMachineParameters
                 throw new InvalidOperationException("Previous parameters have not been set");
             }
 
-            return this.previousParameterTypes.Take(this.previousParameterCount).OfType<Type>().ToArray();
+            return this.previousParameterTypes.AsSpan()[..this.previousParameterCount]!;
         }
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> CurrentParameterTypes
+    public ReadOnlySpan<Type> CurrentParameterTypes
     {
         get
         {
@@ -46,12 +46,12 @@ internal class StateMachineParameters : IStateMachineParameters
                 throw new InvalidOperationException("Current parameters have not been set");
             }
 
-            return this.currentParameterTypes.Take(this.currentParameterCount).OfType<Type>().ToArray();
+            return this.currentParameterTypes.AsSpan()[..this.currentParameterCount]!;
         }
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> NextParameterTypes
+    public ReadOnlySpan<Type> NextParameterTypes
     {
         get
         {
@@ -60,7 +60,7 @@ internal class StateMachineParameters : IStateMachineParameters
                 throw new InvalidOperationException("Next parameters have not been set");
             }
 
-            return this.nextParameterTypes.Take(this.nextParameterCount).OfType<Type>().ToArray();
+            return this.nextParameterTypes.AsSpan()[..this.nextParameterCount]!;
         }
     }
 

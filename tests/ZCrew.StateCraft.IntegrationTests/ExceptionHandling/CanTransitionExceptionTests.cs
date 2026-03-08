@@ -30,7 +30,7 @@ public class CanTransitionExceptionTests
         Assert.Equal("A", stateMachine.CurrentState.StateValue);
         Assert.Null(stateMachine.PreviousState);
         Assert.Null(stateMachine.NextState);
-        Assert.Empty(stateMachine.Parameters.CurrentParameterTypes);
+        Assert.True(stateMachine.Parameters.IsCurrentSet);
         Assert.False(stateMachine.Parameters.IsPreviousSet);
         Assert.False(stateMachine.Parameters.IsNextSet);
     }

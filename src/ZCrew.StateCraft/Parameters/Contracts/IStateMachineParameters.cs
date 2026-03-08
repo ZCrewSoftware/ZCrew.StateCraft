@@ -31,7 +31,7 @@ internal interface IStateMachineParameters
     ///     If the <see cref="Status"/> does not indicate the
     ///     <see cref="StateMachineParametersFlags.PreviousParametersSet"/> status.
     /// </exception>
-    IReadOnlyList<Type> PreviousParameterTypes { get; }
+    ReadOnlySpan<Type> PreviousParameterTypes { get; }
 
     /// <summary>
     ///     The current type parameters, if set.
@@ -40,7 +40,7 @@ internal interface IStateMachineParameters
     ///     If the <see cref="Status"/> does not indicate the
     ///     <see cref="StateMachineParametersFlags.CurrentParametersSet"/> status.
     /// </exception>
-    IReadOnlyList<Type> CurrentParameterTypes { get; }
+    ReadOnlySpan<Type> CurrentParameterTypes { get; }
 
     /// <summary>
     ///     The next type parameters, if set.
@@ -49,7 +49,7 @@ internal interface IStateMachineParameters
     ///     If the <see cref="Status"/> does not indicate the
     ///     <see cref="StateMachineParametersFlags.NextParametersSet"/> status.
     /// </exception>
-    IReadOnlyList<Type> NextParameterTypes { get; }
+    ReadOnlySpan<Type> NextParameterTypes { get; }
 
     /// <summary>
     ///     Stages empty parameters for a parameterless transition.
