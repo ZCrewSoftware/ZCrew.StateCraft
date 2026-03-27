@@ -453,7 +453,7 @@ public interface IStateMachineConfiguration<TState, TTransition>
     IStateMachineConfiguration<TState, TTransition> WithTrigger(
         Func<
             IInitialTriggerConfiguration<TState, TTransition>,
-            IFinalTriggerConfiguration<TState, TTransition>
+            ITriggerConfiguration<TState, TTransition>
         > configureTrigger
     );
 

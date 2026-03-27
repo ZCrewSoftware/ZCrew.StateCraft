@@ -14,7 +14,7 @@ namespace ZCrew.StateCraft;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-public interface IInitialTriggerConfiguration<TState, TTransition> : ITriggerConfiguration<TState, TTransition>
+public interface IInitialTriggerConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {

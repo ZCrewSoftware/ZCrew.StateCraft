@@ -2,13 +2,12 @@ using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions;
+using ZCrew.StateCraft.Triggers;
 
 namespace ZCrew.StateCraft.States;
 
 /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}"/>
-internal class StateConfiguration<TState, TTransition>
-    : IInitialStateConfiguration<TState, TTransition>,
-        IParameterlessStateConfiguration<TState, TTransition>
+internal class StateConfiguration<TState, TTransition> : IInitialStateConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -18,6 +17,7 @@ internal class StateConfiguration<TState, TTransition>
     private readonly List<IAsyncAction> onEntryHandlers = [];
     private readonly List<IAsyncAction> onExitHandlers = [];
     private readonly List<IActionConfiguration> actionConfigurations = [];
+    private readonly List<ITriggerConfiguration<TState, TTransition>> triggerConfigurations = [];
     private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
     /// <summary>
@@ -43,6 +43,7 @@ internal class StateConfiguration<TState, TTransition>
     public IState<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var actions = this.actionConfigurations.Select(action => action.Build()).ToList();
+        var triggers = this.triggerConfigurations.Select(trigger => trigger.Build(stateMachine)).ToList();
         var state = new State<TState, TTransition>(
             State,
             this.onActivateHandlers,
@@ -51,6 +52,7 @@ internal class StateConfiguration<TState, TTransition>
             this.onEntryHandlers,
             this.onExitHandlers,
             actions,
+            triggers,
             stateMachine
         );
 
@@ -67,6 +69,20 @@ internal class StateConfiguration<TState, TTransition>
         var initialActionConfiguration = new InitialActionConfiguration();
         var finalActionConfiguration = configureAction(initialActionConfiguration);
         this.actionConfigurations.Add(finalActionConfiguration);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IParameterlessStateConfiguration<TState, TTransition> WithTrigger(
+        Func<
+            IInitialTriggerConfiguration<TState, TTransition>,
+            ITriggerConfiguration<TState, TTransition>
+        > configureTrigger
+    )
+    {
+        var initialTriggerConfiguration = new InitialTriggerConfiguration<TState, TTransition>();
+        var triggerConfiguration = configureTrigger(initialTriggerConfiguration);
+        this.triggerConfigurations.Add(triggerConfiguration);
         return this;
     }
 

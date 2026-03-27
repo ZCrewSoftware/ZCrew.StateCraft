@@ -1,3 +1,6 @@
+using ZCrew.StateCraft.StateMachines.Contracts;
+using ZCrew.StateCraft.Triggers.Contracts;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -13,4 +16,12 @@ namespace ZCrew.StateCraft;
 /// </typeparam>
 public interface ITriggerConfiguration<TState, TTransition>
     where TState : notnull
-    where TTransition : notnull;
+    where TTransition : notnull
+{
+    /// <summary>
+    ///     Builds the trigger instance for the specified state machine.
+    /// </summary>
+    /// <param name="stateMachine">The state machine that the trigger will be associated with.</param>
+    /// <returns>The constructed trigger instance.</returns>
+    internal ITrigger Build(IStateMachine<TState, TTransition> stateMachine);
+}

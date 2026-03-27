@@ -3,6 +3,7 @@ using ZCrew.StateCraft.Actions.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
+using ZCrew.StateCraft.Triggers.Contracts;
 
 namespace ZCrew.StateCraft.States;
 
@@ -27,6 +28,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
     private readonly IReadOnlyList<IAsyncAction> onEntryHandlers;
     private readonly IReadOnlyList<IAsyncAction> onExitHandlers;
     private readonly IReadOnlyList<IAction> actions;
+    private readonly IReadOnlyList<ITrigger> triggers;
     private readonly TransitionTable<TState, TTransition> transitionTable = [];
 
     /// <summary>
@@ -39,6 +41,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
     /// <param name="onEntryHandlers">Handlers invoked when entering this state.</param>
     /// <param name="onExitHandlers">Handlers invoked when exiting this state.</param>
     /// <param name="actions">The actions associated with this state.</param>
+    /// <param name="triggers">The triggers associated with this state.</param>
     /// <param name="stateMachine">The state machine that owns this state.</param>
     public State(
         TState state,
@@ -48,6 +51,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         IReadOnlyList<IAsyncAction> onEntryHandlers,
         IReadOnlyList<IAsyncAction> onExitHandlers,
         IReadOnlyList<IAction> actions,
+        IReadOnlyList<ITrigger> triggers,
         IStateMachine<TState, TTransition> stateMachine
     )
     {
@@ -58,6 +62,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         this.onEntryHandlers = onEntryHandlers;
         this.onExitHandlers = onExitHandlers;
         this.actions = actions;
+        this.triggers = triggers;
         StateMachine = stateMachine;
     }
 
@@ -116,17 +121,27 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         StateMachine.Tracker?.Entered(this);
         foreach (var handler in this.onEntryHandlers)
         {
-            await StateMachine.ExceptionBehavior.CallOnEntry(t => handler.InvokeAsync(t), token);
+            await StateMachine.ExceptionBehavior.CallOnEntry(handler.InvokeAsync, token);
+        }
+
+        foreach (var trigger in this.triggers)
+        {
+            await StateMachine.ExceptionBehavior.CallTrigger(trigger.Activate, token);
         }
     }
 
     /// <inheritdoc />
     public async Task Exit(IStateMachineParameters parameters, CancellationToken token)
     {
+        foreach (var trigger in this.triggers)
+        {
+            await StateMachine.ExceptionBehavior.CallTrigger(trigger.Deactivate, token);
+        }
+
         StateMachine.Tracker?.Exited(this);
         foreach (var handler in this.onExitHandlers)
         {
-            await StateMachine.ExceptionBehavior.CallOnExit(t => handler.InvokeAsync(t), token);
+            await StateMachine.ExceptionBehavior.CallOnExit(handler.InvokeAsync, token);
         }
     }
 
@@ -155,13 +170,12 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         var result = await this.transitionTable.LookupTransition(transition, parameters, token);
         if (result == null)
         {
-            var available = this.transitionTable
-                .Select(t => t.ToString())
-                .ToList();
+            var available = this.transitionTable.Select(t => t.ToString()).ToList();
 
-            var availableInfo = available.Count > 0
-                ? $" Available from '{StateValue}': {string.Join(", ", available)}."
-                : $" No transitions registered for '{StateValue}'.";
+            var availableInfo =
+                available.Count > 0
+                    ? $" Available from '{StateValue}': {string.Join(", ", available)}."
+                    : $" No transitions registered for '{StateValue}'.";
 
             throw new InvalidOperationException(
                 $"No transition could be found for '{transition}' from state '{StateValue}'.{availableInfo}"

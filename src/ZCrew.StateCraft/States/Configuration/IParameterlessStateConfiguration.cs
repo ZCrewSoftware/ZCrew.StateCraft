@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.Triggers.Contracts;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -178,6 +180,40 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> WithAction(
         Func<IInitialActionConfiguration, IActionConfiguration> configureAction
+    );
+
+    /// <summary>
+    ///     Configures a trigger for this state. Triggers are activated when the state is entered after the entry
+    ///     handlers have been called and deactivated when the state is exited before the exit handlers are called. They
+    ///     wait for a signal and then execute functionality.
+    /// </summary>
+    /// <param name="configureTrigger">The configuration setup.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    /// <remarks>
+    ///     Triggers are mostly used when a component of a system needs to transition the state machine; but, it is not
+    ///     possible or desirable to directly call upon the state machine. For example, a service may internally use a
+    ///     state machine and configure a trigger to call a specific 'Cancel' transition when a cancellation token is
+    ///     canceled. In this way, the caller of the service can cancel the token to transition the state machine into a
+    ///     'Canceled' state.
+    /// </remarks>
+    /// <example>
+    ///     With a <see cref="TaskCompletionSource"/> named <c>notificationReceived</c> a signal could be configured:
+    ///     <code>
+    ///     StateMachine.Configure&lt;string, string&gt;()
+    ///         .WithState("Pending", state =&gt;
+    ///             .WithTrigger(trigger =&gt;
+    ///                 trigger.Once()
+    ///                     .Await(token =&gt; notificationReceived.Task.WaitAsync(token))
+    ///                     .ThenInvoke((stateMachine, token) =&gt; stateMachine.Transition("Process", token))));
+    ///     </code>
+    ///     This would await the <c>notificationReceived</c> result and then transition the state machine with the
+    ///     <c>"Process"</c> transition from the <c>"Pending"</c> state only.
+    /// </example>
+    IParameterlessStateConfiguration<TState, TTransition> WithTrigger(
+        Func<
+            IInitialTriggerConfiguration<TState, TTransition>,
+            ITriggerConfiguration<TState, TTransition>
+        > configureTrigger
     );
 
     /// <summary>

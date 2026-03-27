@@ -14,7 +14,7 @@ namespace ZCrew.StateCraft;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-public interface IAwaitingTriggerConfiguration<TState, TTransition> : ITriggerConfiguration<TState, TTransition>
+public interface IAwaitingTriggerConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -23,21 +23,21 @@ public interface IAwaitingTriggerConfiguration<TState, TTransition> : ITriggerCo
     /// </summary>
     /// <param name="trigger">The synchronous action to execute when triggered.</param>
     /// <returns>The final stage of trigger configuration.</returns>
-    IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(Action trigger);
+    ITriggerConfiguration<TState, TTransition> ThenInvoke(Action trigger);
 
     /// <summary>
     ///     Configures the delegate that is called when the trigger is signaled.
     /// </summary>
     /// <param name="trigger">The asynchronous function to execute when triggered.</param>
     /// <returns>The final stage of trigger configuration.</returns>
-    IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(Func<CancellationToken, Task> trigger);
+    ITriggerConfiguration<TState, TTransition> ThenInvoke(Func<CancellationToken, Task> trigger);
 
     /// <summary>
     ///     Configures the delegate that is called when the trigger is signaled.
     /// </summary>
     /// <param name="trigger">The asynchronous function to execute when triggered.</param>
     /// <returns>The final stage of trigger configuration.</returns>
-    IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(Func<CancellationToken, ValueTask> trigger);
+    ITriggerConfiguration<TState, TTransition> ThenInvoke(Func<CancellationToken, ValueTask> trigger);
 
     /// <summary>
     ///     Configures the delegate that is called when the trigger is signaled, with access to the state machine.
@@ -46,7 +46,7 @@ public interface IAwaitingTriggerConfiguration<TState, TTransition> : ITriggerCo
     ///     The synchronous action to execute when triggered, receiving the state machine as a parameter.
     /// </param>
     /// <returns>The final stage of trigger configuration.</returns>
-    IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(Action<IStateMachine<TState, TTransition>> trigger);
+    ITriggerConfiguration<TState, TTransition> ThenInvoke(Action<IStateMachine<TState, TTransition>> trigger);
 
     /// <summary>
     ///     Configures the delegate that is called when the trigger is signaled, with access to the state machine.
@@ -55,7 +55,7 @@ public interface IAwaitingTriggerConfiguration<TState, TTransition> : ITriggerCo
     ///     The asynchronous function to execute when triggered, receiving the state machine as a parameter.
     /// </param>
     /// <returns>The final stage of trigger configuration.</returns>
-    IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(
+    ITriggerConfiguration<TState, TTransition> ThenInvoke(
         Func<IStateMachine<TState, TTransition>, CancellationToken, Task> trigger
     );
 
@@ -66,7 +66,7 @@ public interface IAwaitingTriggerConfiguration<TState, TTransition> : ITriggerCo
     ///     The asynchronous function to execute when triggered, receiving the state machine as a parameter.
     /// </param>
     /// <returns>The final stage of trigger configuration.</returns>
-    IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(
+    ITriggerConfiguration<TState, TTransition> ThenInvoke(
         Func<IStateMachine<TState, TTransition>, CancellationToken, ValueTask> trigger
     );
 }
