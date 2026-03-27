@@ -10,21 +10,16 @@ namespace ZCrew.StateCraft;
 ///     With <see cref="CallAction"/> or <see cref="CallTrigger"/> that exception is suppressed since it is how those
 ///     background tasks are stopped. For other methods that exception is rethrown and the handlers are not called.
 /// </remarks>
-[Obsolete(
-    $"Use the {nameof(RethrowExceptionBehavior)} instead. "
-        + $"You can specify behavior by overriding the 'OnException' and 'OnException<T>' methods. "
-        + $"Removed in v2.0.0"
-)]
-public class DefaultExceptionBehavior : IExceptionBehavior
+public class RethrowExceptionBehavior : IExceptionBehavior
 {
-    protected readonly IReadOnlyList<IAsyncFunc<Exception, ExceptionResult>> OnExceptionHandlers;
+    protected readonly IReadOnlyList<IAsyncAction<ExceptionContext>> OnExceptionHandlers;
 
     /// <summary>
     ///     Constructs a new instance with the <paramref name="onExceptionHandlers"/> which will be called first-to-last
     ///     when an exception is thrown.
     /// </summary>
     /// <param name="onExceptionHandlers">The handlers to invoke when an exception is thrown.</param>
-    public DefaultExceptionBehavior(IEnumerable<IAsyncFunc<Exception, ExceptionResult>> onExceptionHandlers)
+    public RethrowExceptionBehavior(IEnumerable<IAsyncAction<ExceptionContext>> onExceptionHandlers)
     {
         this.OnExceptionHandlers = onExceptionHandlers.ToArray();
     }
@@ -37,7 +32,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// </remarks>
     public virtual Task CallOnEntry(Func<CancellationToken, Task> handler, CancellationToken token = default)
     {
-        return Execute(handler, token);
+        return Execute(handler, ExceptionCallSite.OnEntry, token);
     }
 
     /// <inheritdoc />
@@ -48,7 +43,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// </remarks>
     public virtual Task CallOnExit(Func<CancellationToken, Task> handler, CancellationToken token = default)
     {
-        return Execute(handler, token);
+        return Execute(handler, ExceptionCallSite.OnExit, token);
     }
 
     /// <inheritdoc />
@@ -59,7 +54,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// </remarks>
     public virtual Task CallOnStateChange(Func<CancellationToken, Task> handler, CancellationToken token = default)
     {
-        return Execute(handler, token);
+        return Execute(handler, ExceptionCallSite.OnStateChange, token);
     }
 
     /// <inheritdoc />
@@ -70,7 +65,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// </remarks>
     public virtual Task CallOnActivate(Func<CancellationToken, Task> handler, CancellationToken token = default)
     {
-        return Execute(handler, token);
+        return Execute(handler, ExceptionCallSite.OnActivate, token);
     }
 
     /// <inheritdoc />
@@ -81,7 +76,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// </remarks>
     public virtual Task CallOnDeactivate(Func<CancellationToken, Task> handler, CancellationToken token = default)
     {
-        return Execute(handler, token);
+        return Execute(handler, ExceptionCallSite.OnDeactivate, token);
     }
 
     /// <inheritdoc />
@@ -95,7 +90,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
         CancellationToken token = default
     )
     {
-        return Execute(handler, token);
+        return Execute(handler, ExceptionCallSite.Condition, token);
     }
 
     /// <inheritdoc />
@@ -106,7 +101,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// </remarks>
     public virtual Task CallMap(Func<CancellationToken, Task> handler, CancellationToken token = default)
     {
-        return Execute(handler, token);
+        return Execute(handler, ExceptionCallSite.Map, token);
     }
 
     /// <inheritdoc />
@@ -117,7 +112,7 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// </remarks>
     public virtual Task CallAction(Func<CancellationToken, Task> handler, CancellationToken token = default)
     {
-        return ExecuteCancelable(handler, token);
+        return ExecuteCancelable(handler, ExceptionCallSite.Action, token);
     }
 
     /// <inheritdoc />
@@ -128,31 +123,51 @@ public class DefaultExceptionBehavior : IExceptionBehavior
     /// </remarks>
     public virtual Task CallTrigger(Func<CancellationToken, Task> handler, CancellationToken token = default)
     {
-        return ExecuteCancelable(handler, token);
+        return ExecuteCancelable(handler, ExceptionCallSite.Trigger, token);
     }
 
-    protected virtual async Task OnException(ExceptionDispatchInfo exceptionInfo, CancellationToken token)
+    /// <summary>
+    ///     Invokes all exception handlers in-order. If any handler throws an exception then the remaining handlers will
+    ///     not be called. This is called by all call sites except <see cref="CallCondition"/>.
+    /// </summary>
+    /// <param name="exceptionContext">The context including the call site and exception.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    protected virtual async Task OnException(ExceptionContext exceptionContext, CancellationToken token)
     {
         foreach (var handler in this.OnExceptionHandlers)
         {
-            var result = await handler.InvokeAsync(exceptionInfo.SourceException, token);
-            switch (result)
-            {
-                case ExceptionResult.RethrowResult:
-                    exceptionInfo.Throw();
-                    break;
-                case ExceptionResult.ThrowResult { Exception: var exception }:
-                    throw exception;
-                case ExceptionResult.ContinueResult:
-                    continue;
-            }
+            await handler.InvokeAsync(exceptionContext, token);
         }
 
-        // No handler made a decision, rethrow with original stack trace
-        exceptionInfo.Throw();
+        // After calling each handler, rethrow
+        exceptionContext.ThrowException();
     }
 
-    private async Task Execute(Func<CancellationToken, Task> handler, CancellationToken token)
+    /// <summary>
+    ///     Invokes all exception handlers in-order. If any handler throws an exception then the remaining handlers will
+    ///     not be called. This is called by <see cref="CallCondition"/>.
+    /// </summary>
+    /// <param name="exceptionContext">The context including the callsite and exception.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    protected virtual async Task<T> OnException<T>(ExceptionContext exceptionContext, CancellationToken token)
+    {
+        foreach (var handler in this.OnExceptionHandlers)
+        {
+            await handler.InvokeAsync(exceptionContext, token);
+        }
+
+        // After calling each handler, rethrow
+        exceptionContext.ThrowException();
+
+        // Never hit, the above call always throws
+        return default;
+    }
+
+    private async Task Execute(
+        Func<CancellationToken, Task> handler,
+        ExceptionCallSite callSite,
+        CancellationToken token
+    )
     {
         try
         {
@@ -165,11 +180,16 @@ public class DefaultExceptionBehavior : IExceptionBehavior
         }
         catch (Exception ex)
         {
-            await OnException(ExceptionDispatchInfo.Capture(ex), CancellationToken.None);
+            var exceptionContext = new ExceptionContext(ExceptionDispatchInfo.Capture(ex), callSite);
+            await OnException(exceptionContext, CancellationToken.None);
         }
     }
 
-    private async Task ExecuteCancelable(Func<CancellationToken, Task> handler, CancellationToken token)
+    private async Task ExecuteCancelable(
+        Func<CancellationToken, Task> handler,
+        ExceptionCallSite callSite,
+        CancellationToken token
+    )
     {
         try
         {
@@ -181,11 +201,16 @@ public class DefaultExceptionBehavior : IExceptionBehavior
         }
         catch (Exception ex)
         {
-            await OnException(ExceptionDispatchInfo.Capture(ex), CancellationToken.None);
+            var exceptionContext = new ExceptionContext(ExceptionDispatchInfo.Capture(ex), callSite);
+            await OnException(exceptionContext, CancellationToken.None);
         }
     }
 
-    private async Task<T> Execute<T>(Func<CancellationToken, Task<T>> handler, CancellationToken token)
+    private async Task<T> Execute<T>(
+        Func<CancellationToken, Task<T>> handler,
+        ExceptionCallSite callSite,
+        CancellationToken token
+    )
     {
         try
         {
@@ -198,8 +223,8 @@ public class DefaultExceptionBehavior : IExceptionBehavior
         }
         catch (Exception ex)
         {
-            await OnException(ExceptionDispatchInfo.Capture(ex), CancellationToken.None);
-            throw;
+            var exceptionContext = new ExceptionContext(ExceptionDispatchInfo.Capture(ex), callSite);
+            return await OnException<T>(exceptionContext, CancellationToken.None);
         }
     }
 }

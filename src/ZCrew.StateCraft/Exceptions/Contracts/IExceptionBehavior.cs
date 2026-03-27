@@ -5,7 +5,7 @@ namespace ZCrew.StateCraft;
 ///     specific handler invocation, giving implementations control over how exceptions are
 ///     intercepted, logged, suppressed, or propagated.
 /// </summary>
-/// <seealso cref="ZCrew.StateCraft.Exceptions.DefaultExceptionBehavior"/>
+/// <seealso cref="ZCrew.StateCraft.DefaultExceptionBehavior"/>
 public interface IExceptionBehavior
 {
     /// <summary>
