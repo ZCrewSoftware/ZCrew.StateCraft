@@ -79,8 +79,8 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
 
     /// <summary>
     ///     <para>
-    ///     Configures a <see cref="handler"/> delegate which will be called when the state changes. The parameters to
-    ///     the <paramref name="handler"/> are: the previous state, the transition, and the next state.
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state changes. The parameters
+    ///     to the <paramref name="handler"/> are: the previous state, the transition, and the next state.
     ///     </para>
     ///     <para>
     ///     Since this is configured for a specific state, the 'next state' will always be 'this state'.
@@ -92,8 +92,8 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
 
     /// <summary>
     ///     <para>
-    ///     Configures a <see cref="handler"/> delegate which will be called when the state changes. The parameters to
-    ///     the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state changes. The parameters
+    ///     to the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
     ///     monitor for cancellation.
     ///     </para>
     ///     <para>
@@ -108,8 +108,8 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
 
     /// <summary>
     ///     <para>
-    ///     Configures a <see cref="handler"/> delegate which will be called when the state changes. The parameters to
-    ///     the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state changes. The parameters
+    ///     to the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
     ///     monitor for cancellation.
     ///     </para>
     ///     <para>
@@ -123,48 +123,48 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
     );
 
     /// <summary>
-    ///     Configures a <see cref="handler"/> delegate which will be called when this state is entered. This action can
-    ///     not be interrupted by other state changes and should not perform state changes.
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this state is entered. This
+    ///     action can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is entered.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> OnEntry(Action handler);
 
     /// <summary>
-    ///     Configures a <see cref="handler"/> delegate which will be called when this state is entered. This action can
-    ///     not be interrupted by other state changes and should not perform state changes.
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this state is entered. This
+    ///     action can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is entered.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> OnEntry(Func<CancellationToken, Task> handler);
 
     /// <summary>
-    ///     Configures a <see cref="handler"/> delegate which will be called when this state is entered. This action can
-    ///     not be interrupted by other state changes and should not perform state changes.
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this state is entered. This
+    ///     action can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is entered.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> OnEntry(Func<CancellationToken, ValueTask> handler);
 
     /// <summary>
-    ///     Configures a <see cref="handler"/> delegate which will be called when this state is exited. This action can
-    ///     not be interrupted by other state changes and should not perform state changes.
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this state is exited. This action
+    ///     can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is exited.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> OnExit(Action handler);
 
     /// <summary>
-    ///     Configures a <see cref="handler"/> delegate which will be called when this state is exited. This action can
-    ///     not be interrupted by other state changes and should not perform state changes.
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this state is exited. This action
+    ///     can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is exited.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> OnExit(Func<CancellationToken, Task> handler);
 
     /// <summary>
-    ///     Configures a <see cref="handler"/> delegate which will be called when this state is exited. This action can
-    ///     not be interrupted by other state changes and should not perform state changes.
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this state is exited. This action
+    ///     can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is exited.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>

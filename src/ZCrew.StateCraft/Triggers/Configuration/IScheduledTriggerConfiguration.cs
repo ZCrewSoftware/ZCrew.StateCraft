@@ -2,6 +2,17 @@ using System.Threading.Channels;
 
 namespace ZCrew.StateCraft;
 
+/// <summary>
+///     Represents the stage of trigger configuration where a signal to await is specified.
+/// </summary>
+/// <typeparam name="TState">
+///     The state type. This should be an <see langword="enum"/> type or it should be an equatable type so the state
+///     machine behaves as expected.
+/// </typeparam>
+/// <typeparam name="TTransition">
+///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
+///     state machine behaves as expected.
+/// </typeparam>
 public interface IScheduledTriggerConfiguration<TState, TTransition> : ITriggerConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
