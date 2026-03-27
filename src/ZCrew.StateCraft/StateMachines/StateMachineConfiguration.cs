@@ -14,14 +14,18 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
 {
     private IStateMachineActivator<TState, TTransition>? initialStateProducer;
     private readonly List<IAsyncAction<TState, TTransition, TState>> onStateChanges = [];
+#pragma warning disable CS0618 // Type or member is obsolete
     private readonly List<IAsyncFunc<Exception, ExceptionResult>> deprecatedOnExceptionHandlers = [];
+#pragma warning restore CS0618 // Type or member is obsolete
     private readonly List<IAsyncAction<ExceptionContext>> onExceptionHandlers = [];
     private readonly List<IStateConfiguration<TState, TTransition>> stateConfigurations = [];
     private readonly List<IFinalTriggerConfiguration<TState, TTransition>> triggerConfigurations = [];
     private StateMachineOptions stateMachineOptions = StateMachineOptions.None;
 
     private Func<
+#pragma warning disable CS0618 // Type or member is obsolete
         IEnumerable<IAsyncFunc<Exception, ExceptionResult>>,
+#pragma warning restore CS0618 // Type or member is obsolete
         IExceptionBehavior
     >? deprecatedExceptionBehaviorProvider;
     private Func<IEnumerable<IAsyncAction<ExceptionContext>>, IExceptionBehavior>? exceptionBehaviorProvider;
@@ -301,6 +305,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         return this;
     }
 
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithExceptionBehavior(
         Func<IEnumerable<IAsyncFunc<Exception, ExceptionResult>>, IExceptionBehavior> exceptionBehaviorProvider
@@ -312,6 +317,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         this.exceptionBehaviorProvider = null;
         return this;
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithExceptionBehavior(
@@ -350,6 +356,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         return this;
     }
 
+#pragma warning disable CS0618 // Type or member is obsolete
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> OnException(Func<Exception, ExceptionResult> handler)
     {
@@ -374,6 +381,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         this.deprecatedOnExceptionHandlers.Add(handler.AsAsyncFunc());
         return this;
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> OnException(Action<ExceptionContext> handler)
@@ -432,7 +440,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         {
             // Easiest case: no handlers so just return an empty list with the new version
             case (0, 0):
-                return new RethrowExceptionBehavior([]);
+                return this.exceptionBehaviorProvider?.Invoke([]) ?? new RethrowExceptionBehavior([]);
 
             // Mixed case: either the user specified:
             //   1. new behavior with old handlers

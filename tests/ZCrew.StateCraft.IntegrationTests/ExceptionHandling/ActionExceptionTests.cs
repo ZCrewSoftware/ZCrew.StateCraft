@@ -10,8 +10,7 @@ public class ActionExceptionTests
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Rethrow());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
@@ -25,7 +24,7 @@ public class ActionExceptionTests
         );
 
         // Assert
-        onException.Received(1).Invoke(exception);
+        onException.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 
     [Fact]
@@ -92,8 +91,7 @@ public class ActionExceptionTests
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Rethrow());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
@@ -107,7 +105,7 @@ public class ActionExceptionTests
         );
 
         // Assert
-        onException.Received(1).Invoke(exception);
+        onException.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
 
         return;
 
@@ -123,8 +121,7 @@ public class ActionExceptionTests
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Rethrow());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
@@ -138,7 +135,7 @@ public class ActionExceptionTests
         );
 
         // Assert
-        onException.Received(1).Invoke(exception);
+        onException.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 
     [Fact]
@@ -210,8 +207,7 @@ public class ActionExceptionTests
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Rethrow());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
@@ -228,7 +224,7 @@ public class ActionExceptionTests
         );
 
         // Assert
-        onException.Received(1).Invoke(exception);
+        onException.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 
     [Fact]
@@ -300,8 +296,7 @@ public class ActionExceptionTests
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Rethrow());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
@@ -318,7 +313,7 @@ public class ActionExceptionTests
         );
 
         // Assert
-        onException.Received(1).Invoke(exception);
+        onException.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
 
         return;
 
@@ -334,8 +329,7 @@ public class ActionExceptionTests
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Rethrow());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
@@ -352,7 +346,7 @@ public class ActionExceptionTests
         );
 
         // Assert
-        onException.Received(1).Invoke(exception);
+        onException.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 
     [Fact]
@@ -429,8 +423,7 @@ public class ActionExceptionTests
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Rethrow());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
@@ -447,7 +440,7 @@ public class ActionExceptionTests
         );
 
         // Assert
-        onException.Received(1).Invoke(exception);
+        onException.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 
     [Fact]
@@ -485,8 +478,7 @@ public class ActionExceptionTests
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Rethrow());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A", 42)
@@ -503,7 +495,7 @@ public class ActionExceptionTests
         );
 
         // Assert
-        onException.Received(1).Invoke(exception);
+        onException.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 
     [Fact]
@@ -537,7 +529,7 @@ public class ActionExceptionTests
     }
 
     [Fact]
-    public async Task Activate_WhenOnExceptionReturnsThrow_ShouldThrowNewException()
+    public async Task Activate_WhenOnExceptionThrows_ShouldThrowNewException()
     {
         // Arrange
         var originalException = new InvalidOperationException("Original exception");
@@ -545,7 +537,7 @@ public class ActionExceptionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .OnException(_ => ExceptionResult.Throw(newException))
+            .OnException((ExceptionContext _) => throw newException)
             .WithState("A", state => state.WithAction(a => a.Invoke(() => throw originalException)))
             .Build();
 
@@ -559,14 +551,12 @@ public class ActionExceptionTests
     }
 
     [Fact]
-    public async Task Activate_WhenOnExceptionReturnsContinue_ShouldCallNextHandler()
+    public async Task Activate_WhenMultipleOnExceptionHandlers_ShouldCallAll()
     {
         // Arrange
         var exception = new InvalidOperationException("Test exception");
-        var firstHandler = Substitute.For<Func<Exception, ExceptionResult>>();
-        firstHandler.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Continue());
-        var secondHandler = Substitute.For<Func<Exception, ExceptionResult>>();
-        secondHandler.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Rethrow());
+        var firstHandler = Substitute.For<Action<ExceptionContext>>();
+        var secondHandler = Substitute.For<Action<ExceptionContext>>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
@@ -581,7 +571,7 @@ public class ActionExceptionTests
         );
 
         // Assert
-        firstHandler.Received(1).Invoke(exception);
-        secondHandler.Received(1).Invoke(exception);
+        firstHandler.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
+        secondHandler.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 }

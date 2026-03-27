@@ -13,11 +13,7 @@ public class CancellationExceptionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .OnException(_ =>
-            {
-                onExceptionCalled = true;
-                return ExceptionResult.Continue();
-            })
+            .OnException(_ => onExceptionCalled = true)
             .WithState("A", state => state.OnActivate(_ => throw new OperationCanceledException(cts.Token)))
             .Build();
 
@@ -39,11 +35,7 @@ public class CancellationExceptionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .OnException(_ =>
-            {
-                onExceptionCalled = true;
-                return ExceptionResult.Continue();
-            })
+            .OnException(_ => onExceptionCalled = true)
             .WithState("A", state => state.OnEntry(() => throw new OperationCanceledException(cts.Token)))
             .Build();
 
@@ -65,11 +57,7 @@ public class CancellationExceptionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .OnException(_ =>
-            {
-                onExceptionCalled = true;
-                return ExceptionResult.Continue();
-            })
+            .OnException(_ => onExceptionCalled = true)
             .WithState("A", state => state.OnExit(() => throw new OperationCanceledException(cts.Token)))
             .Build();
 
@@ -92,11 +80,7 @@ public class CancellationExceptionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .OnException(_ =>
-            {
-                onExceptionCalled = true;
-                return ExceptionResult.Continue();
-            })
+            .OnException(_ => onExceptionCalled = true)
             .WithState("A", state => state.OnDeactivate(_ => throw new OperationCanceledException(cts.Token)))
             .Build();
 
@@ -119,11 +103,7 @@ public class CancellationExceptionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .OnException(_ =>
-            {
-                onExceptionCalled = true;
-                return ExceptionResult.Continue();
-            })
+            .OnException(_ => onExceptionCalled = true)
             .WithState(
                 "A",
                 state => state.OnExit(() => throw new OperationCanceledException(cts.Token)).WithTransition("To B", "B")
@@ -150,11 +130,7 @@ public class CancellationExceptionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .OnException(_ =>
-            {
-                onExceptionCalled = true;
-                return ExceptionResult.Continue();
-            })
+            .OnException(_ => onExceptionCalled = true)
             .WithState("A", state => state.WithTransition("To B", "B"))
             .WithState("B", state => state.OnEntry(() => throw new OperationCanceledException(cts.Token)))
             .Build();
@@ -178,11 +154,7 @@ public class CancellationExceptionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .OnException(_ =>
-            {
-                onExceptionCalled = true;
-                return ExceptionResult.Continue();
-            })
+            .OnException(_ => onExceptionCalled = true)
             .OnStateChange((_, _, _) => throw new OperationCanceledException(cts.Token))
             .WithState("A", state => state.WithTransition("To B", "B"))
             .WithState("B", state => state)
@@ -202,8 +174,7 @@ public class CancellationExceptionTests
     public async Task Activate_WhenActionThrowsOperationCanceledException_ShouldNotCallOnExceptionHandlerAndSuppressException()
     {
         // Arrange
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Continue());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -221,15 +192,14 @@ public class CancellationExceptionTests
         await stateMachine.Activate(cts.Token);
 
         // Assert
-        onException.DidNotReceive().Invoke(Arg.Any<Exception>());
+        onException.DidNotReceive().Invoke(Arg.Any<ExceptionContext>());
     }
 
     [Fact]
     public async Task Activate_WhenAsyncActionThrowsOperationCanceledException_ShouldNotCallOnExceptionHandler()
     {
         // Arrange
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Continue());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -244,7 +214,7 @@ public class CancellationExceptionTests
         await stateMachine.Activate(cts.Token);
 
         // Assert
-        onException.DidNotReceive().Invoke(Arg.Any<Exception>());
+        onException.DidNotReceive().Invoke(Arg.Any<ExceptionContext>());
 
         return;
 
@@ -259,8 +229,7 @@ public class CancellationExceptionTests
     public async Task Transition_WhenActionThrowsOperationCanceledException_ShouldNotCallOnExceptionHandler()
     {
         // Arrange
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Continue());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -280,15 +249,14 @@ public class CancellationExceptionTests
         await stateMachine.Transition("To B", cts.Token);
 
         // Assert
-        onException.DidNotReceive().Invoke(Arg.Any<Exception>());
+        onException.DidNotReceive().Invoke(Arg.Any<ExceptionContext>());
     }
 
     [Fact]
     public async Task Transition_WhenAsyncActionThrowsOperationCanceledException_ShouldNotCallOnExceptionHandler()
     {
         // Arrange
-        var onException = Substitute.For<Func<Exception, ExceptionResult>>();
-        onException.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Continue());
+        var onException = Substitute.For<Action<ExceptionContext>>();
         var cts = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -305,7 +273,7 @@ public class CancellationExceptionTests
         await stateMachine.Transition("To B", cts.Token);
 
         // Assert
-        onException.DidNotReceive().Invoke(Arg.Any<Exception>());
+        onException.DidNotReceive().Invoke(Arg.Any<ExceptionContext>());
 
         return;
 

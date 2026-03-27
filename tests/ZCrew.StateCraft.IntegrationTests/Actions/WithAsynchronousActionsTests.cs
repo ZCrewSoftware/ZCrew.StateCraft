@@ -1196,11 +1196,7 @@ public class WithAsynchronousActionsTests
             .Configure<string, string>()
             .WithAsynchronousActions()
             .WithInitialState("A")
-            .OnException(ex =>
-            {
-                exceptionHandled.TrySetResult(ex);
-                return ExceptionResult.Rethrow();
-            })
+            .OnException(ctx => exceptionHandled.TrySetResult(ctx.Exception))
             .WithState(
                 "A",
                 state =>
