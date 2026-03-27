@@ -298,6 +298,19 @@ public interface IStateMachineConfiguration<TState, TTransition>
     );
 
     /// <summary>
+    ///     Obsolete. Use:
+    ///     <see cref="WithExceptionBehavior(Func{IEnumerable{IAsyncAction{ExceptionContext}}, IExceptionBehavior})"/>
+    ///     instead.
+    /// </summary>
+    [Obsolete(
+        "Use WithExceptionBehavior(Func<IEnumerable<IAsyncAction<ExceptionContext>>, IExceptionBehavior>); "
+            + "Removed in v2.0.0"
+    )]
+    IStateMachineConfiguration<TState, TTransition> WithExceptionBehavior(
+        Func<IEnumerable<IAsyncFunc<Exception, ExceptionResult>>, IExceptionBehavior> exceptionBehaviorProvider
+    );
+
+    /// <summary>
     ///     Configures a custom <see cref="IExceptionBehavior"/> provider. This will be called each time
     ///     <see cref="Build()"/> is called.
     /// </summary>
@@ -306,11 +319,11 @@ public interface IStateMachineConfiguration<TState, TTransition>
     /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     /// <remarks>
-    ///     A default exception behavior, <see cref="DefaultExceptionBehavior"/>, has been provided with
+    ///     A default exception behavior, <see cref="RethrowExceptionBehavior"/>, has been provided with
     ///     <see langword="virtual"/> methods which can be overriden as necessary.
     /// </remarks>
     IStateMachineConfiguration<TState, TTransition> WithExceptionBehavior(
-        Func<IEnumerable<IAsyncFunc<Exception, ExceptionResult>>, IExceptionBehavior> exceptionBehaviorProvider
+        Func<IEnumerable<IAsyncAction<ExceptionContext>>, IExceptionBehavior> exceptionBehaviorProvider
     );
 
     /// <summary>
@@ -352,44 +365,34 @@ public interface IStateMachineConfiguration<TState, TTransition>
     );
 
     /// <summary>
+    ///     Obsolete. Use <see cref="OnException(Action{ExceptionContext})"/> instead.
+    /// </summary>
+    [Obsolete("Use OnException(Action<ExceptionContext>); Removed in v2.0.0")]
+    IStateMachineConfiguration<TState, TTransition> OnException(Func<Exception, ExceptionResult> handler);
+
+    /// <summary>
+    ///     Obsolete. Use <see cref="OnException(Action{ExceptionContext})"/> instead.
+    /// </summary>
+    [Obsolete("Use OnException(Func<ExceptionContext, CancellationToken, Task>); Removed in v2.0.0")]
+    IStateMachineConfiguration<TState, TTransition> OnException(
+        Func<Exception, CancellationToken, Task<ExceptionResult>> handler
+    );
+
+    /// <summary>
+    ///     Obsolete. Use <see cref="OnException(Action{ExceptionContext})"/> instead.
+    /// </summary>
+    [Obsolete("Use OnException(Func<ExceptionContext, CancellationToken, ValueTask>); Removed in v2.0.0")]
+    IStateMachineConfiguration<TState, TTransition> OnException(
+        Func<Exception, CancellationToken, ValueTask<ExceptionResult>> handler
+    );
+
+    /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when an exception is thrown during
     ///     state machine operations (lifecycle, conditions, mapping, actions, and triggers).
     /// </summary>
-    /// <param name="handler">
-    ///     The delegate to call when an exception occurs. Return an <see cref="ExceptionResult"/> to indicate
-    ///     how the exception should be handled.
-    /// </param>
+    /// <param name="handler">The delegate to call when an exception occurs.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    /// <remarks>
-    ///     <para>
-    ///     Exception handlers are invoked in registration order. Return values determine behavior:
-    ///     <list type="bullet">
-    ///         <item>
-    ///             <see cref="ExceptionResult.Rethrow"/> - The exception is rethrown with its original stack trace.
-    ///         </item>
-    ///         <item><see cref="ExceptionResult.Throw"/> - A different exception is thrown instead.</item>
-    ///         <item>
-    ///             <see cref="ExceptionResult.Continue"/> - The next handler is invoked. If no more handlers exist, the
-    ///             exception is rethrown.
-    ///         </item>
-    ///     </list>
-    ///     </para>
-    ///     <para>
-    ///     If a handler itself throws, that exception propagates immediately.
-    ///     </para>
-    /// </remarks>
-    /// <example>
-    ///     <code>
-    ///     StateMachine
-    ///         .Configure&lt;State, Transition&gt;()
-    ///         .OnException(ex => ex switch
-    ///         {
-    ///             InvalidOperationException => ExceptionResult.Rethrow(),
-    ///             _ => ExceptionResult.Continue()
-    ///         });
-    ///     </code>
-    /// </example>
-    IStateMachineConfiguration<TState, TTransition> OnException(Func<Exception, ExceptionResult> handler);
+    IStateMachineConfiguration<TState, TTransition> OnException(Action<ExceptionContext> handler);
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when an exception is thrown during
@@ -398,7 +401,7 @@ public interface IStateMachineConfiguration<TState, TTransition>
     /// <param name="handler">The delegate to call when an exception occurs.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> OnException(
-        Func<Exception, CancellationToken, Task<ExceptionResult>> handler
+        Func<ExceptionContext, CancellationToken, Task> handler
     );
 
     /// <summary>
@@ -408,7 +411,7 @@ public interface IStateMachineConfiguration<TState, TTransition>
     /// <param name="handler">The delegate to call when an exception occurs.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> OnException(
-        Func<Exception, CancellationToken, ValueTask<ExceptionResult>> handler
+        Func<ExceptionContext, CancellationToken, ValueTask> handler
     );
 
     /// <summary>

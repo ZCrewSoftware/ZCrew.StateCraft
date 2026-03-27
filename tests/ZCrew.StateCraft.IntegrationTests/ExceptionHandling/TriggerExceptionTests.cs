@@ -11,14 +11,8 @@ public class TriggerExceptionTests
         var signal = new TaskCompletionSource();
         var exception = new InvalidOperationException("Signal error");
         var handlerCalled = new TaskCompletionSource();
-        var exceptionHandler = Substitute.For<Func<Exception, ExceptionResult>>();
-        exceptionHandler
-            .Invoke(Arg.Any<Exception>())
-            .Returns(_ =>
-            {
-                handlerCalled.TrySetResult();
-                return ExceptionResult.Continue();
-            });
+        var exceptionHandler = Substitute.For<Action<ExceptionContext>>();
+        exceptionHandler.When(h => h.Invoke(Arg.Any<ExceptionContext>())).Do(_ => handlerCalled.TrySetResult());
 
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -35,7 +29,7 @@ public class TriggerExceptionTests
         await handlerCalled.Task;
 
         // Assert
-        exceptionHandler.Received(1).Invoke(exception);
+        exceptionHandler.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 
     [Fact(Timeout = 5000)]
@@ -45,14 +39,8 @@ public class TriggerExceptionTests
         var signal = new TaskCompletionSource();
         var exception = new InvalidOperationException("Trigger error");
         var handlerCalled = new TaskCompletionSource();
-        var exceptionHandler = Substitute.For<Func<Exception, ExceptionResult>>();
-        exceptionHandler
-            .Invoke(Arg.Any<Exception>())
-            .Returns(_ =>
-            {
-                handlerCalled.TrySetResult();
-                return ExceptionResult.Continue();
-            });
+        var exceptionHandler = Substitute.For<Action<ExceptionContext>>();
+        exceptionHandler.When(h => h.Invoke(Arg.Any<ExceptionContext>())).Do(_ => handlerCalled.TrySetResult());
 
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -69,7 +57,7 @@ public class TriggerExceptionTests
         await handlerCalled.Task;
 
         // Assert
-        exceptionHandler.Received(1).Invoke(exception);
+        exceptionHandler.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 
     [Fact(Timeout = 5000)]
@@ -78,14 +66,8 @@ public class TriggerExceptionTests
         // Arrange
         var exception = new InvalidOperationException("Immediate signal error");
         var handlerCalled = new TaskCompletionSource();
-        var exceptionHandler = Substitute.For<Func<Exception, ExceptionResult>>();
-        exceptionHandler
-            .Invoke(Arg.Any<Exception>())
-            .Returns(_ =>
-            {
-                handlerCalled.TrySetResult();
-                return ExceptionResult.Continue();
-            });
+        var exceptionHandler = Substitute.For<Action<ExceptionContext>>();
+        exceptionHandler.When(h => h.Invoke(Arg.Any<ExceptionContext>())).Do(_ => handlerCalled.TrySetResult());
 
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -100,15 +82,14 @@ public class TriggerExceptionTests
         await handlerCalled.Task;
 
         // Assert
-        exceptionHandler.Received(1).Invoke(exception);
+        exceptionHandler.Received(1).Invoke(Arg.Is<ExceptionContext>(ctx => ctx.Exception == exception));
     }
 
     [Fact(Timeout = 5000)]
     public async Task Trigger_WhenCancelled_ShouldNotCallExceptionHandler()
     {
         // Arrange
-        var exceptionHandler = Substitute.For<Func<Exception, ExceptionResult>>();
-        exceptionHandler.Invoke(Arg.Any<Exception>()).Returns(ExceptionResult.Continue());
+        var exceptionHandler = Substitute.For<Action<ExceptionContext>>();
 
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -126,7 +107,7 @@ public class TriggerExceptionTests
         await stateMachine.Deactivate(TestContext.Current.CancellationToken);
 
         // Assert
-        exceptionHandler.DidNotReceive().Invoke(Arg.Any<Exception>());
+        exceptionHandler.DidNotReceive().Invoke(Arg.Any<ExceptionContext>());
     }
 
     [Fact(Timeout = 5000)]
@@ -138,14 +119,8 @@ public class TriggerExceptionTests
         var triggerCount = 0;
         var exception = new InvalidOperationException("Stop repeating");
         var handlerCalled = new TaskCompletionSource();
-        var exceptionHandler = Substitute.For<Func<Exception, ExceptionResult>>();
-        exceptionHandler
-            .Invoke(Arg.Any<Exception>())
-            .Returns(_ =>
-            {
-                handlerCalled.TrySetResult();
-                return ExceptionResult.Continue();
-            });
+        var exceptionHandler = Substitute.For<Action<ExceptionContext>>();
+        exceptionHandler.When(h => h.Invoke(Arg.Any<ExceptionContext>())).Do(_ => handlerCalled.TrySetResult());
 
         var stateMachine = StateMachine
             .Configure<string, string>()
@@ -179,6 +154,6 @@ public class TriggerExceptionTests
         await handlerCalled.Task;
 
         // Assert
-        exceptionHandler.Received(1).Invoke(Arg.Any<Exception>());
+        exceptionHandler.Received(1).Invoke(Arg.Any<ExceptionContext>());
     }
 }

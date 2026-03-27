@@ -1,12 +1,9 @@
 # Exception Behavior
 
-> **Preview Notice:** Exception handling behavior is under active discussion and may change in a future release.
-> See [Discussion #21](https://github.com/ZCrewSoftware/ZCrew.StateCraft/discussions/21) for details.
-
 The `IExceptionBehavior` interface controls how each call site in the state machine — lifecycle handlers, conditions,
 actions, triggers, and mapping functions — is wrapped with exception handling. By default, StateCraft provides a
-`DefaultExceptionBehavior` that routes exceptions through `OnException` handlers. You can replace or extend this
-behavior using `WithExceptionBehavior`.
+`RethrowExceptionBehavior` that routes exceptions through `OnException` handlers and then rethrows. You can replace
+or extend this behavior using `WithExceptionBehavior`.
 
 ## Configuring Exception Behavior
 
@@ -30,28 +27,30 @@ breakers).
 
 ## Default Behavior
 
-When no custom behavior is configured, StateCraft uses `DefaultExceptionBehavior`. This class:
+When no custom behavior is configured, StateCraft uses `RethrowExceptionBehavior`. This class:
 
 1. Wraps each call site (`OnEntry`, `OnExit`, `OnActivate`, `OnDeactivate`, `OnStateChange`, conditions, mapping,
    actions, and triggers) in a `try`/`catch` block.
-2. Routes caught exceptions through the registered `OnException` handlers in order.
-3. Handles `OperationCanceledException` specially — rethrown for lifecycle/conditions/mapping, suppressed for
+2. Routes caught exceptions through the registered `OnException` handlers in order, providing an `ExceptionContext`
+   that includes the exception and the call site where it was thrown.
+3. After all handlers have been called, rethrows the original exception with its original stack trace.
+4. Handles `OperationCanceledException` specially — rethrown for lifecycle/conditions/mapping, suppressed for
    actions/triggers (see [Exception Handling](./11-exception-handling.md#operationcanceledexception)).
 
 This is the same behavior described in the [Exception Handling](./11-exception-handling.md) documentation.
 
 ## Overriding the Default Behavior
 
-`DefaultExceptionBehavior` has `virtual` methods, so you can subclass it to override behavior for specific call sites
+`RethrowExceptionBehavior` has `virtual` methods, so you can subclass it to override behavior for specific call sites
 without reimplementing everything:
 
 ```csharp
-public class LoggingExceptionBehavior : DefaultExceptionBehavior
+public class LoggingExceptionBehavior : RethrowExceptionBehavior
 {
     private readonly ILogger logger;
 
     public LoggingExceptionBehavior(
-        IEnumerable<IAsyncFunc<Exception, ExceptionResult>> onExceptionHandlers,
+        IEnumerable<IAsyncAction<ExceptionContext>> onExceptionHandlers,
         ILogger logger)
         : base(onExceptionHandlers)
     {
@@ -72,19 +71,49 @@ Register it with the provider:
 .WithExceptionBehavior(handlers => new LoggingExceptionBehavior(handlers, logger))
 ```
 
+You can also override the `OnException` and `OnException<T>` methods to customize how exception handlers are invoked.
+For example, to suppress exceptions for a specific call site:
+
+```csharp
+public class SuppressActionExceptionBehavior : RethrowExceptionBehavior
+{
+    public SuppressActionExceptionBehavior(
+        IEnumerable<IAsyncAction<ExceptionContext>> onExceptionHandlers)
+        : base(onExceptionHandlers) { }
+
+    protected override async Task OnException(ExceptionContext exceptionContext, CancellationToken token)
+    {
+        // Call handlers but don't rethrow for action exceptions
+        if (exceptionContext.CallSite == ExceptionCallSite.Action)
+        {
+            foreach (var handler in OnExceptionHandlers)
+            {
+                await handler.InvokeAsync(exceptionContext, token);
+            }
+
+            return;
+        }
+
+        await base.OnException(exceptionContext, token);
+    }
+}
+```
+
 ### Overridable Methods
 
-| Method             | Call Site                           |
-|--------------------|-------------------------------------|
-| `CallOnActivate`   | State `OnActivate` handler          |
-| `CallOnEntry`      | State `OnEntry` handler             |
-| `CallOnExit`       | State `OnExit` handler              |
-| `CallOnDeactivate` | State `OnDeactivate` handler        |
-| `CallOnStateChange`| `OnStateChange` handler             |
-| `CallCondition`    | Transition condition evaluation     |
-| `CallMap`          | Mapped transition mapping function  |
-| `CallAction`       | State action invocation             |
-| `CallTrigger`      | Trigger invocation                  |
+| Method              | Call Site                                                                 |
+|---------------------|---------------------------------------------------------------------------|
+| `CallOnActivate`    | State `OnActivate` handler                                                |
+| `CallOnEntry`       | State `OnEntry` handler                                                   |
+| `CallOnExit`        | State `OnExit` handler                                                    |
+| `CallOnDeactivate`  | State `OnDeactivate` handler                                              |
+| `CallOnStateChange` | `OnStateChange` handler                                                   |
+| `CallCondition`     | Transition condition evaluation                                           |
+| `CallMap`           | Mapped transition mapping function                                        |
+| `CallAction`        | State action invocation                                                   |
+| `CallTrigger`       | Trigger invocation                                                        |
+| `OnException`       | Exception handler invocation                                              |
+| `OnException<T>`    | Exception handler invocation (with return value, used by `CallCondition`) |
 
 All methods are `virtual` and can be overridden independently.
 
@@ -128,10 +157,9 @@ use `OnException` handlers instead:
 
 ```csharp
 // Good: Use OnException for handling exceptions
-.OnException(ex =>
+.OnException(ctx =>
 {
-    logger.LogError(ex, "State machine error");
-    return ExceptionResult.Continue();
+    logger.LogError(ctx.Exception, "State machine error at {CallSite}", ctx.CallSite);
 })
 
 // Avoid: Using WithExceptionBehavior just to handle exceptions
@@ -146,7 +174,7 @@ the default behavior out of the box.
 If a custom `IExceptionBehavior` suppresses an exception (catches it without rethrowing), the state machine may
 end up in an inconsistent state. For example, if `CallOnEntry` suppresses an exception thrown by an `OnEntry`
 handler, the state machine will consider the entry successful even though the handler did not complete. Subsequent
-lifecycle events (transitions out of that state, `OnExit`, etc.) will proceed as if entry succeeded. 
+lifecycle events (transitions out of that state, `OnExit`, etc.) will proceed as if entry succeeded.
 
 The same applies to other call sites:
 
@@ -159,7 +187,7 @@ Only suppress exceptions when you are certain the state machine can safely conti
 
 ## Next Steps
 
-- [Exception Handling](./11-exception-handling.md) - OnException handlers and ExceptionResult
+- [Exception Handling](./11-exception-handling.md) - OnException handlers and ExceptionContext
 - [State Lifecycle](./4-state-lifecycle.md) - Lifecycle handler documentation
 - [Actions](./5-actions.md) - Long-running interruptible state work
 - [Triggers](./10-triggers.md) - Autonomous transitions based on signals

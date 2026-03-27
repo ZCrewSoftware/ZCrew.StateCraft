@@ -1,4 +1,5 @@
 using NSubstitute;
+using ZCrew.Extensions.Tasks;
 
 namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 
@@ -79,7 +80,7 @@ public class BuildTests
         var stateMachine = configuration.Build();
 
         // Assert
-        Assert.IsType<DefaultExceptionBehavior>(stateMachine.ExceptionBehavior);
+        Assert.IsType<RethrowExceptionBehavior>(stateMachine.ExceptionBehavior);
     }
 
     [Fact]
@@ -90,7 +91,7 @@ public class BuildTests
         var configuration = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .WithExceptionBehavior(_ => exceptionBehavior);
+            .WithExceptionBehavior((IEnumerable<IAsyncAction<ExceptionContext>> _) => exceptionBehavior);
 
         // Act
         var stateMachine = configuration.Build();
@@ -119,9 +120,7 @@ public class BuildTests
         await machine1.Transition("To B", TestContext.Current.CancellationToken);
 
         // Assert
-        handler
-            .DidNotReceive()
-            .Invoke(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
+        handler.DidNotReceive().Invoke(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
     }
 
     [Fact]

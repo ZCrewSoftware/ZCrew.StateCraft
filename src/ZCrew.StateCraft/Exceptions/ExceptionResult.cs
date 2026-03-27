@@ -7,6 +7,11 @@ namespace ZCrew.StateCraft;
 ///     If you are unsure of which value to use, it is safe to use <see cref="Continue"/> as this will invoke every
 ///     exception handler and then rethrow the exception.
 /// </remarks>
+[Obsolete(
+    $"Use the {nameof(RethrowExceptionBehavior)} instead. "
+        + $"You can specify behavior by overriding the 'OnException' and 'OnException<T>' methods. "
+        + $"Removed in v2.0.0"
+)]
 public abstract record ExceptionResult
 {
     private ExceptionResult() { }

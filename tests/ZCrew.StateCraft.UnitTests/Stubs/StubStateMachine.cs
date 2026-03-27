@@ -36,7 +36,7 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
 
     public ITracker<TState, TTransition>? Tracker => null;
 
-    public IExceptionBehavior ExceptionBehavior { get; } = new DefaultExceptionBehavior([]);
+    public IExceptionBehavior ExceptionBehavior { get; } = new RethrowExceptionBehavior([]);
 
     public void AddState(IState<TState, TTransition> state) { }
 
@@ -207,5 +207,4 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
     {
         return await action();
     }
-
 }
