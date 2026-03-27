@@ -1,24 +1,21 @@
 # Exception Handling
 
-> **Preview Notice:** Exception handling behavior is under active discussion and may change in a future release.
-> See [Discussion #21](https://github.com/ZCrewSoftware/ZCrew.StateCraft/discussions/21) for details.
-
 StateCraft provides a configurable exception handling mechanism for errors that occur during state lifecycle
 operations. Exception handlers are configured at the machine level and are invoked for exceptions thrown in
-`OnActivate`, `OnEntry`, `OnExit`, `OnStateChange`, `OnDeactivate`, actions, and triggers.
+`OnActivate`, `OnEntry`, `OnExit`, `OnStateChange`, `OnDeactivate`, conditions, mapping, actions, and triggers.
 
 ## OnException Handlers
 
-Exception handlers are configured using `OnException` on the state machine configuration:
+Exception handlers are configured using `OnException` on the state machine configuration. Each handler receives
+an `ExceptionContext` containing the exception and the call site where it was thrown:
 
 ```csharp
 var machine = StateMachine
     .Configure<State, Transition>()
     .WithInitialState(State.Idle)
-    .OnException(ex =>
+    .OnException(ctx =>
     {
-        logger.LogError(ex, "State machine error");
-        return ExceptionResult.Continue();
+        logger.LogError(ctx.Exception, "State machine error at {CallSite}", ctx.CallSite);
     })
     .WithState(State.Idle, state => state
         .WithTransition(Transition.Start, State.Running))
@@ -26,8 +23,24 @@ var machine = StateMachine
     .Build();
 ```
 
-Multiple handlers can be registered and are invoked in registration order. Each handler receives the exception
-and returns an `ExceptionResult` that determines what happens next.
+Multiple handlers can be registered and are invoked in registration order. After all handlers have been called,
+the original exception is rethrown with its original stack trace.
+
+### ExceptionContext
+
+The `ExceptionContext` provides information about the exception and where it occurred:
+
+| Property        | Type                    | Description                                               |
+|-----------------|-------------------------|-----------------------------------------------------------|
+| `Exception`     | `Exception`             | The exception that was thrown.                            |
+| `CallSite`      | `ExceptionCallSite`     | The state machine call site where the exception occurred. |
+| `ExceptionInfo` | `ExceptionDispatchInfo` | The captured exception with its original stack trace.     |
+
+The `CallSite` property is an enum with the following values: `OnEntry`, `OnExit`, `OnStateChange`, `OnActivate`,
+`OnDeactivate`, `Condition`, `Map`, `Action`, `Trigger`.
+
+`ExceptionContext` also provides a `ThrowException()` method that rethrows the original exception preserving its
+stack trace.
 
 ### Handler Signatures
 
@@ -35,35 +48,36 @@ Exception handlers support three signatures, consistent with all StateCraft hand
 
 ```csharp
 // Synchronous
-.OnException(ex => ExceptionResult.Continue())
+.OnException(ctx => logger.LogError(ctx.Exception, "Error"))
 
 // Async Task
-.OnException(async (ex, token) =>
+.OnException(async (ctx, token) =>
 {
-    await LogErrorAsync(ex, token);
-    return ExceptionResult.Continue();
+    await LogErrorAsync(ctx.Exception, token);
 })
 
 // Async ValueTask
-.OnException((ex, token) =>
+.OnException((ctx, token) =>
 {
-    LogError(ex);
-    return ValueTask.FromResult(ExceptionResult.Continue());
+    LogError(ctx.Exception);
+    return ValueTask.CompletedTask;
 })
 ```
 
-### ExceptionResult
+### Throwing a Different Exception
 
-The `ExceptionResult` type controls what happens after a handler runs. It has three possible values:
+To throw a different exception instead of the original, throw directly from the handler. Remaining handlers
+are not invoked:
 
-| Value                              | Behavior                                                                                                                      |
-|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| `ExceptionResult.Continue()`       | Passes the exception to the next handler. If no more handlers exist, the exception is rethrown with its original stack trace. |
-| `ExceptionResult.Rethrow()`        | Immediately rethrows the original exception with its original stack trace. Remaining handlers are skipped.                    |
-| `ExceptionResult.Throw(exception)` | Throws a different exception instead of the original. Remaining handlers are skipped.                                         |
-
-`Continue()` is a safe default when you are unsure which value to use. It ensures every registered handler
-is invoked and the exception is still thrown afterward.
+```csharp
+.OnException(ctx =>
+{
+    if (ctx.Exception is TimeoutException timeout)
+    {
+        throw new StateTransitionException("Transition timed out", timeout);
+    }
+})
+```
 
 ### Example
 
@@ -73,21 +87,18 @@ var machine = StateMachine
     .WithInitialState(State.Idle)
 
     // First handler: log everything
-    .OnException(ex =>
+    .OnException(ctx =>
     {
-        logger.LogError(ex, "State machine error");
-        return ExceptionResult.Continue();
+        logger.LogError(ctx.Exception, "Error at {CallSite}", ctx.CallSite);
     })
 
     // Second handler: wrap known exceptions
-    .OnException(ex => ex switch
+    .OnException(ctx =>
     {
-        TimeoutException timeout => ExceptionResult.Throw(
-            new StateTransitionException("Transition timed out", timeout)),
-
-        InvalidOperationException => ExceptionResult.Rethrow(),
-
-        _ => ExceptionResult.Continue()
+        if (ctx.Exception is TimeoutException timeout)
+        {
+            throw new StateTransitionException("Transition timed out", timeout);
+        }
     })
 
     .WithState(State.Idle, state => state
@@ -99,9 +110,14 @@ var machine = StateMachine
 
 In this example, if `ConnectAsync` throws a `TimeoutException`:
 
-1. The first handler logs the error and returns `Continue()`, so the next handler is invoked.
-2. The second handler matches `TimeoutException` and returns `Throw(...)`, so a `StateTransitionException`
-   is thrown instead of the original `TimeoutException`.
+1. The first handler logs the error and returns normally, so the next handler is invoked.
+2. The second handler matches `TimeoutException` and throws a `StateTransitionException`.
+
+If `ConnectAsync` throws a different exception type:
+
+1. The first handler logs the error and returns normally.
+2. The second handler does not match, so it returns normally.
+3. After all handlers run, the original exception is rethrown with its original stack trace.
 
 If the exception handler itself throws, that exception propagates immediately. Remaining handlers are not invoked.
 
@@ -315,6 +331,7 @@ catch (Exception ex)
 
 ## Next Steps
 
+- [Exception Behavior](./12-exception-behavior.md) - Custom exception behavior
 - [State Lifecycle](./4-state-lifecycle.md) - Lifecycle handler documentation
 - [Actions](./5-actions.md) - Long-running interruptible state work
 - [Triggers](./10-triggers.md) - Autonomous transitions based on signals
