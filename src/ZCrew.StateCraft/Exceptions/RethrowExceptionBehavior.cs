@@ -12,6 +12,9 @@ namespace ZCrew.StateCraft;
 /// </remarks>
 public class RethrowExceptionBehavior : IExceptionBehavior
 {
+    /// <summary>
+    ///     The list of exception handlers passed in.
+    /// </summary>
     protected readonly IReadOnlyList<IAsyncAction<ExceptionContext>> OnExceptionHandlers;
 
     /// <summary>

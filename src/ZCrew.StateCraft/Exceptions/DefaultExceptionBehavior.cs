@@ -17,6 +17,9 @@ namespace ZCrew.StateCraft;
 )]
 public class DefaultExceptionBehavior : IExceptionBehavior
 {
+    /// <summary>
+    ///     The list of exception handlers passed in.
+    /// </summary>
     protected readonly IReadOnlyList<IAsyncFunc<Exception, ExceptionResult>> OnExceptionHandlers;
 
     /// <summary>
@@ -131,6 +134,13 @@ public class DefaultExceptionBehavior : IExceptionBehavior
         return ExecuteCancelable(handler, token);
     }
 
+    /// <summary>
+    ///     Invokes all exception handlers in-order. If any handler throws an exception by using
+    ///     <see cref="ExceptionResult.RethrowResult"/> or <see cref="ExceptionResult.ThrowResult"/>, or unintentionally
+    ///     then the remaining handlers will not be called
+    /// </summary>
+    /// <param name="exceptionInfo">The exception that was thrown with the original stack trace.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
     protected virtual async Task OnException(ExceptionDispatchInfo exceptionInfo, CancellationToken token)
     {
         foreach (var handler in this.OnExceptionHandlers)

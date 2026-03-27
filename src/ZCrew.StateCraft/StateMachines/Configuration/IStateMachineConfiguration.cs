@@ -327,8 +327,8 @@ public interface IStateMachineConfiguration<TState, TTransition>
     );
 
     /// <summary>
-    ///     Configures a <see cref="handler"/> delegate which will be called when the state changes. The parameters to
-    ///     the <paramref name="handler"/> are: the previous state, the transition, and the next state.
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state changes. The parameters
+    ///     to the <paramref name="handler"/> are: the previous state, the transition, and the next state.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is changed.</param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
@@ -343,8 +343,8 @@ public interface IStateMachineConfiguration<TState, TTransition>
     IStateMachineConfiguration<TState, TTransition> OnStateChange(Action<TState, TTransition, TState> handler);
 
     /// <summary>
-    ///     Configures a <see cref="handler"/> delegate which will be called when the state changes. The parameters to
-    ///     the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state changes. The parameters
+    ///     to the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
     ///     monitor for cancellation.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is changed.</param>
@@ -354,8 +354,8 @@ public interface IStateMachineConfiguration<TState, TTransition>
     );
 
     /// <summary>
-    ///     Configures a <see cref="handler"/> delegate which will be called when the state changes. The parameters to
-    ///     the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state changes. The parameters
+    ///     to the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
     ///     monitor for cancellation.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is changed.</param>
