@@ -370,4 +370,4 @@ Reserve actions for work that should be cancellable. Use `OnEntry` for quick, re
 - [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
 - [Triggers](./10-triggers.md) - Autonomous transitions based on signals
 - [Exception Handling](./11-exception-handling.md) - Error handling strategies
-- [State Lifecycle](./4-state-lifecycle.md) - Lifecycle handler documentation
+- [State Machine Lifecycle](./4-state-machine-lifecycle.md) - Lifecycle handler documentation

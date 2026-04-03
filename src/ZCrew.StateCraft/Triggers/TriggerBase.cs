@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Triggers.Contracts;
 
@@ -15,10 +16,6 @@ internal abstract class TriggerBase<TState, TTransition> : ITrigger
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly object executeLock = new();
-    private Task? executeTask;
-    private CancellationTokenSource? executionCancellationTokenSource;
-
     /// <summary>
     ///     The state machine that this trigger is associated with.
     /// </summary>
@@ -36,60 +33,40 @@ internal abstract class TriggerBase<TState, TTransition> : ITrigger
     /// <inheritdoc />
     public int TriggeredCount { get; protected set; }
 
+    private IBackgroundWorker? worker;
+
     /// <inheritdoc />
-    public Task Activate(CancellationToken token)
+    public async Task Activate(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        lock (this.executeLock)
-        {
-            if (this.executeTask != null)
-            {
-                return Task.CompletedTask;
-            }
+        TriggeredCount = 0;
+        this.worker = await this.StateMachine.BackgroundDispatcher.Dispatch(WrapExecute, token);
+        return;
 
-            // Start the trigger task in the background - the cancellation token is used to signal the deactivation of
-            // the trigger
-            this.executionCancellationTokenSource = new CancellationTokenSource();
-            this.executeTask = this.StateMachine.ExceptionBehavior.CallTrigger(
-                Execute,
-                this.executionCancellationTokenSource.Token
-            );
+        [StackTraceHidden]
+        Task WrapExecute(CancellationToken backgroundToken)
+        {
+            return this.StateMachine.ExceptionBehavior.CallTrigger(Execute, backgroundToken);
         }
-        return Task.CompletedTask;
     }
 
     /// <inheritdoc />
     public async Task Deactivate(CancellationToken token)
     {
-        // Capture these to local variables to avoid async locking and race conditions
-        CancellationTokenSource cts;
-        Task task;
-        lock (this.executeLock)
+        var handleRef = this.worker;
+        this.worker = null;
+        if (handleRef != null)
         {
-            if (this.executeTask == null)
-            {
-                return;
-            }
-
-            cts = this.executionCancellationTokenSource!;
-            task = this.executeTask;
-
-            this.executionCancellationTokenSource = null;
-            this.executeTask = null;
-            TriggeredCount = 0;
+            await handleRef.Deactivate(token);
         }
-
-        // Dispose of the CTS then await the completion of the task. If the trigger task threw an exception then it is
-        // just ignored but still sent to the exception handlers
-        await cts.CancelAsync();
-        cts.Dispose();
-        await task.WaitAsync(token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
     }
 
     /// <summary>
     ///     Executes the trigger logic. This method is called in a background task when the trigger is activated.
     /// </summary>
-    /// <param name="token">The token to monitor for cancellation requests. This token is cancelled when the trigger is deactivated.</param>
+    /// <param name="token">
+    ///     The token to monitor for cancellation requests. This token is canceled when the trigger is deactivated.
+    /// </param>
     /// <returns>A task representing the trigger execution.</returns>
     protected abstract Task Execute(CancellationToken token);
 }

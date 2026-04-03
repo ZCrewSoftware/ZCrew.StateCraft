@@ -188,6 +188,6 @@ Only suppress exceptions when you are certain the state machine can safely conti
 ## Next Steps
 
 - [Exception Handling](./11-exception-handling.md) - OnException handlers and ExceptionContext
-- [State Lifecycle](./4-state-lifecycle.md) - Lifecycle handler documentation
+- [State Machine Lifecycle](./4-state-machine-lifecycle.md) - Lifecycle handler documentation
 - [Actions](./5-actions.md) - Long-running interruptible state work
 - [Triggers](./10-triggers.md) - Autonomous transitions based on signals

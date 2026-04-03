@@ -19,7 +19,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
 #pragma warning restore CS0618 // Type or member is obsolete
     private readonly List<IAsyncAction<ExceptionContext>> onExceptionHandlers = [];
     private readonly List<IStateConfiguration<TState, TTransition>> stateConfigurations = [];
-    private readonly List<IFinalTriggerConfiguration<TState, TTransition>> triggerConfigurations = [];
+    private readonly List<ITriggerConfiguration<TState, TTransition>> triggerConfigurations = [];
     private StateMachineOptions stateMachineOptions = StateMachineOptions.None;
 
     private Func<
@@ -424,13 +424,13 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     public IStateMachineConfiguration<TState, TTransition> WithTrigger(
         Func<
             IInitialTriggerConfiguration<TState, TTransition>,
-            IFinalTriggerConfiguration<TState, TTransition>
+            ITriggerConfiguration<TState, TTransition>
         > configureTrigger
     )
     {
         var initialTriggerConfiguration = new InitialTriggerConfiguration<TState, TTransition>();
-        var finalTriggerConfiguration = configureTrigger(initialTriggerConfiguration);
-        this.triggerConfigurations.Add(finalTriggerConfiguration);
+        var triggerConfiguration = configureTrigger(initialTriggerConfiguration);
+        this.triggerConfigurations.Add(triggerConfiguration);
         return this;
     }
 

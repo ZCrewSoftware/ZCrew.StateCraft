@@ -3,12 +3,19 @@
 Triggers are autonomous transition initiators that run in the background while the state machine is active.
 They await an asynchronous signal and then execute an action, typically transitioning the state machine.
 
-Triggers are configured at the machine level, not on individual states, and are useful when a component of a system
-needs to transition the state machine but it is not possible or desirable to call upon the state machine directly.
+Triggers are useful when a component of a system needs to transition the state machine but it is not possible or
+desirable to call upon the state machine directly.
+
+Triggers can be configured at two levels:
+
+- **Machine-level** — active for the entire lifetime of the state machine
+- **State-scoped** — active only while a specific state is entered, deactivated on exit, and reactivated on reentry
 
 ## Configuration
 
-Triggers are configured using `WithTrigger` on the state machine configuration:
+### Machine-Level Triggers
+
+Machine-level triggers are configured using `WithTrigger` on the state machine configuration:
 
 ```csharp
 var signal = new TaskCompletionSource();
@@ -25,6 +32,33 @@ var machine = StateMachine
         .ThenInvoke(async (sm, token) => await sm.Transition(Transition.Start, token)))
     .Build();
 ```
+
+### State-Scoped Triggers
+
+State-scoped triggers are configured using `WithTrigger` on a state configuration. They activate when the state is
+entered (after `OnEntry` handlers) and deactivate when the state is exited (before `OnExit` handlers):
+
+```csharp
+var workQueue = Channel.CreateUnbounded<WorkItem>();
+
+var machine = StateMachine
+    .Configure<State, Transition>()
+    .WithInitialState(State.Idle)
+    .WithState(State.Idle, state => state
+        .WithTransition(Transition.Start, State.Processing))
+    .WithState(State.Processing, state => state
+        .WithTrigger(trigger => trigger
+            .Repeat()
+            .Await(async token => await workQueue.Reader.WaitToReadAsync(token))
+            .ThenInvoke(async (sm, token) => await sm.Transition(Transition.ProcessNext, token)))
+        .WithTransition(Transition.ProcessNext, State.Processing)
+        .WithTransition(Transition.Done, State.Complete))
+    .WithState(State.Complete, state => state)
+    .Build();
+```
+
+When the state machine transitions away from `Processing`, the trigger is deactivated. If the state machine
+transitions back to `Processing`, the trigger is reactivated and its `TriggeredCount` resets to zero.
 
 ### Handler Signatures
 
@@ -54,21 +88,22 @@ receive the state machine instance.
 
 ### Multiple Triggers
 
-A state machine can have multiple triggers:
+A state machine can have multiple triggers at both levels. Machine-level triggers and state-scoped triggers can
+coexist:
 
 ```csharp
 var machine = StateMachine
     .Configure<State, Transition>()
     .WithInitialState(State.Idle)
     .WithState(State.Idle, state => state
+        .WithTrigger(trigger => trigger
+            .Once()
+            .Await(token => startSignal.Task.WaitAsync(token))
+            .ThenInvoke(async (sm, token) => await sm.Transition(Transition.Start, token)))
         .WithTransition(Transition.Start, State.Running)
         .WithTransition(Transition.Cancel, State.Canceled))
     .WithState(State.Running, state => state)
     .WithState(State.Canceled, state => state)
-    .WithTrigger(trigger => trigger
-        .Once()
-        .Await(token => startSignal.Task.WaitAsync(token))
-        .ThenInvoke(async (sm, token) => await sm.Transition(Transition.Start, token)))
     .WithTrigger(trigger => trigger
         .Once()
         .Await(token => cancelSignal.Task.WaitAsync(token))
@@ -76,36 +111,51 @@ var machine = StateMachine
     .Build();
 ```
 
-All triggers are activated together when the state machine is activated and deactivated together when the state machine
-is deactivated.
+When a state has multiple triggers and one of them transitions the state machine, the remaining triggers on that
+state are deactivated as part of the exit sequence.
 
 ## Lifecycle
 
 ### Activation and Deactivation
 
-Triggers are activated as part of the state machine's activation sequence and deactivated during the deactivation
-sequence:
+Machine-level and state-scoped triggers activate at different points in the state machine lifecycle:
 
 **Activation order:**
 
 1. State machine activator runs
-2. Initial state is activated
-3. **Triggers are activated** (each starts a background task)
+2. Initial state is activated (`OnActivate`)
+3. **Machine-level triggers are activated**
 4. Initial state's `OnEntry` runs
+5. **Initial state's state-scoped triggers are activated**
+6. Initial state action starts
+
+**Transition order (State A → State B):**
+
+1. Cancel and await State A's action (if asynchronous)
+2. **State A's state-scoped triggers are deactivated**
+3. State A's `OnExit` runs
+4. `OnStateChange` handlers run
+5. State B's `OnEntry` runs
+6. **State B's state-scoped triggers are activated**
+7. State B's action starts
 
 **Deactivation order:**
 
-1. Current state's `OnExit` runs
-2. **Triggers are deactivated** (cancellation token is canceled, background tasks are awaited)
-3. Current state is deactivated
+1. Cancel and await final state's action (if asynchronous)
+2. **Final state's state-scoped triggers are deactivated**
+3. Final state's `OnExit` runs
+4. **Machine-level triggers are deactivated**
+5. Final state is deactivated (`OnDeactivate`)
 
-When a trigger is deactivated, its cancellation token is canceled and the state machine awaits the background task to
-complete. The trigger's `TriggeredCount` is reset to zero on deactivation.
+When a trigger is deactivated, its cancellation token is canceled and the background task is awaited.
+The trigger's `TriggeredCount` is reset to zero on deactivation.
 
 ### RunOnce
 
 A `Once()` trigger executes a single time per activation cycle. After the signal completes and the action runs, the
-trigger remains dormant until the state machine is deactivated and reactivated:
+trigger remains dormant until it is deactivated and reactivated. For machine-level triggers, this means the state
+machine must be deactivated and reactivated. For state-scoped triggers, transitioning away and back to the state
+reactivates the trigger:
 
 ```csharp
 var notification = new TaskCompletionSource();
@@ -131,7 +181,8 @@ var workQueue = Channel.CreateUnbounded<WorkItem>();
     .ThenInvoke(async (sm, token) => await sm.Transition(Transition.ProcessNext, token)))
 ```
 
-The loop continues until the state machine is deactivated or an exception is thrown.
+The loop continues until the trigger is deactivated or an exception is thrown. For machine-level triggers, this is
+when the state machine is deactivated. For state-scoped triggers, this is when the state is exited.
 
 ### Exception Handling
 

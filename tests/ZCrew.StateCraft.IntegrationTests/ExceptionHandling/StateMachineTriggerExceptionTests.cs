@@ -2,7 +2,7 @@ using NSubstitute;
 
 namespace ZCrew.StateCraft.IntegrationTests.ExceptionHandling;
 
-public class TriggerExceptionTests
+public class StateMachineTriggerExceptionTests
 {
     [Fact(Timeout = 5000)]
     public async Task Trigger_WhenSignalThrowsException_ShouldCallExceptionHandler()

@@ -11,7 +11,7 @@ namespace ZCrew.StateCraft.Triggers;
 internal class RepeatingTriggerConfiguration<TState, TTransition>
     : IScheduledTriggerConfiguration<TState, TTransition>,
         IAwaitingTriggerConfiguration<TState, TTransition>,
-        IFinalTriggerConfiguration<TState, TTransition>
+        ITriggerConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -48,34 +48,32 @@ internal class RepeatingTriggerConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(Action trigger)
+    public ITriggerConfiguration<TState, TTransition> ThenInvoke(Action trigger)
     {
         return ThenInvoke(_ => trigger());
     }
 
     /// <inheritdoc />
-    public IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(Func<CancellationToken, Task> trigger)
+    public ITriggerConfiguration<TState, TTransition> ThenInvoke(Func<CancellationToken, Task> trigger)
     {
         return ThenInvoke((_, token) => trigger(token));
     }
 
     /// <inheritdoc />
-    public IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(Func<CancellationToken, ValueTask> trigger)
+    public ITriggerConfiguration<TState, TTransition> ThenInvoke(Func<CancellationToken, ValueTask> trigger)
     {
         return ThenInvoke((_, token) => trigger(token));
     }
 
     /// <inheritdoc />
-    public IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(
-        Action<IStateMachine<TState, TTransition>> trigger
-    )
+    public ITriggerConfiguration<TState, TTransition> ThenInvoke(Action<IStateMachine<TState, TTransition>> trigger)
     {
         this.configuredTrigger = trigger.AsAsyncAction();
         return this;
     }
 
     /// <inheritdoc />
-    public IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(
+    public ITriggerConfiguration<TState, TTransition> ThenInvoke(
         Func<IStateMachine<TState, TTransition>, CancellationToken, Task> trigger
     )
     {
@@ -84,7 +82,7 @@ internal class RepeatingTriggerConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public IFinalTriggerConfiguration<TState, TTransition> ThenInvoke(
+    public ITriggerConfiguration<TState, TTransition> ThenInvoke(
         Func<IStateMachine<TState, TTransition>, CancellationToken, ValueTask> trigger
     )
     {

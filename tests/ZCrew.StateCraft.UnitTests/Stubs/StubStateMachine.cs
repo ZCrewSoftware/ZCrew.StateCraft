@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.Async;
+using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
@@ -37,6 +39,8 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
     public ITracker<TState, TTransition>? Tracker => null;
 
     public IExceptionBehavior ExceptionBehavior { get; } = new RethrowExceptionBehavior([]);
+
+    public IBackgroundDispatcher BackgroundDispatcher { get; } = new BackgroundDispatcher();
 
     public void AddState(IState<TState, TTransition> state) { }
 

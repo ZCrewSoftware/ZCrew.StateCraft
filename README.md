@@ -10,7 +10,7 @@ A fluent, async-first state machine library for .NET. StateCraft provides a clea
 - **[Conditional Transitions](docs/7-parameterized-transitions.md)** - Guard conditions that determine if a transition should proceed
 - **[Mapped Transitions](docs/8-mapped-transitions.md)** - Transform parameters during transitions between states
 - **[Reentrant Transitions](docs/9-reentrant-transitions.md)** - Preserve parameters when transitioning between states of the same type
-- **[Lifecycle Handlers](docs/4-state-lifecycle.md)** - OnEntry, OnExit, and OnStateChange hooks for state management
+- **[Lifecycle Handlers](docs/4-state-machine-lifecycle.md)** - OnEntry, OnExit, and OnStateChange hooks for state management
 - **[Triggers](docs/10-triggers.md)** - Autonomous transition initiators (one-shot and repeating) that activate with the state machine
 - **[Actions](docs/5-actions.md)** - Long-running actions that states perform, which can transition the state machine
 - **[Exception Handling](docs/11-exception-handling.md)** - Configurable exception handlers and [custom exception behavior](docs/12-exception-behavior.md)

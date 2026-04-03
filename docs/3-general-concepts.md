@@ -316,7 +316,7 @@ Reusing configurations:
 
 ## Next Steps
 
-- [State Lifecycle](./4-state-lifecycle.md) - Detailed lifecycle handler documentation
+- [State Machine Lifecycle](./4-state-machine-lifecycle.md) - Detailed lifecycle handler documentation
 - [Actions](./5-actions.md) - Long-running interruptible state work
 - [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
 - [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data

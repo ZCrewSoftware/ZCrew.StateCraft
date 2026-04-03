@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Nito.AsyncEx;
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async;
+using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
@@ -13,21 +15,18 @@ using ZCrew.StateCraft.Triggers.Contracts;
 
 namespace ZCrew.StateCraft.StateMachines;
 
-/// <inheritdoc cref="IStateMachine{TState,TTransition}"/>
-internal sealed partial class StateMachine<TState, TTransition> : StateMachineBase, IStateMachine<TState, TTransition>
+/// <inheritdoc/>
+internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
+    private readonly AsyncLock stateMachineLock = new();
     private readonly IStateMachineActivator<TState, TTransition> stateMachineActivator;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges;
     private readonly StateMachineOptions options;
     private readonly IReadOnlyList<ITrigger> triggers;
     private InternalState internalState;
-
-    private readonly AsyncLock stateMachineLock = new();
-    private Task? actionTask;
-    private CancellationTokenSource? actionCancellationTokenSource;
-    private bool deferDisposingActionCancellationTokenSource;
+    private IBackgroundWorker? actionBackgroundWorker;
 
     /// <summary>
     ///     Creates a new <see cref="StateMachine{TState,TTransition}"/>.
@@ -75,6 +74,9 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
 
     /// <inheritdoc />
     public IStateMachineParameters Parameters { get; } = new StateMachineParameters();
+
+    /// <inheritdoc />
+    public IBackgroundDispatcher BackgroundDispatcher { get; } = new BackgroundDispatcher();
 
     /// <inheritdoc />
     public async Task Activate(CancellationToken token = default)
@@ -164,18 +166,7 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
 
             // An action has deactivated the state machine and the token needs to be cleaned up before deactivating
             // The 'token' here may be the action's cancellation token
-            if (this.deferDisposingActionCancellationTokenSource)
-            {
-                var actionCts = this.actionCancellationTokenSource;
-                this.actionCancellationTokenSource = null;
-                this.deferDisposingActionCancellationTokenSource = false;
-
-                if (actionCts != null)
-                {
-                    await actionCts.CancelAsync();
-                    actionCts.Dispose();
-                }
-            }
+            await BackgroundDispatcher.Flush(token);
 
             Parameters.Clear();
             PreviousState = null;
@@ -220,32 +211,7 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
         this.internalState = InternalState.Exiting;
         if (this.options.HasFlag(StateMachineOptions.RunActionsAsynchronously))
         {
-            var task = this.actionTask;
-            this.actionTask = null;
-
-            // Since the asynchronous action is interacting with the state machine we can compensate for a user-issue by
-            // avoiding cancellation until that action has been completed
-            if (RemoveFromAsynchronousCallChain())
-            {
-                this.deferDisposingActionCancellationTokenSource = true;
-            }
-            else
-            {
-                var actionCts = this.actionCancellationTokenSource;
-                this.actionCancellationTokenSource = null;
-                if (actionCts != null)
-                {
-                    await actionCts.CancelAsync();
-                    actionCts.Dispose();
-                }
-
-                if (task != null)
-                {
-                    // Avoid catching exceptions here again if the action threw an exception. This will often fail due
-                    // to an OperationCanceledException, as the action's cancellation token was disposed of
-                    await task.ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
-                }
-            }
+            await DeactivateActions(token);
         }
 
         await PreviousState.Exit(Parameters, token);
@@ -286,47 +252,12 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
 
         if (this.options.HasFlag(StateMachineOptions.RunActionsAsynchronously))
         {
-            var actionCts = new CancellationTokenSource();
-
-            // Add this ID to the call chain to avoid deadlocks on ExitState
-            AddToAsynchronousCallChain();
-
-            // Start the execution of the action and allow the state machine to be transitioned or deactivated.
-            // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
-            // always released.
-            var action = CurrentState.Action(Parameters, actionCts.Token);
-
-            // The action transitioned so the cancellation token disposal was deferred until the transition completed.
-            // Dispose of the current token before creating a new one
-            if (this.deferDisposingActionCancellationTokenSource)
-            {
-                if (this.actionCancellationTokenSource != null)
-                {
-                    await this.actionCancellationTokenSource.CancelAsync();
-                    this.actionCancellationTokenSource.Dispose();
-                }
-
-                this.deferDisposingActionCancellationTokenSource = false;
-            }
-
-            // Store CTS and task before releasing the lock so concurrent transitions can find
-            // and cancel them. Without this, there is a window where a concurrent transition
-            // acquires the lock and ExitState finds actionCancellationTokenSource still null,
-            // leaving the action task orphaned with no cancellation path.
-            this.actionCancellationTokenSource = actionCts;
-            this.actionTask = action;
+            // Start the execution of the action in the background
+            // Note: Current state + parameters will be grabbed before the task is awaited
+            this.actionBackgroundWorker = await BackgroundDispatcher.Dispatch(ActivateActions, token);
+            await BackgroundDispatcher.Flush(token);
 
             this.internalState = InternalState.Active;
-
-            // Either completed already or threw an exception — clean up eagerly
-            if (action.IsCompleted)
-            {
-                this.actionCancellationTokenSource = null;
-                this.actionTask = null;
-                await actionCts.CancelAsync();
-                actionCts.Dispose();
-                await action;
-            }
 
             methodLock.Dispose();
         }
@@ -386,6 +317,17 @@ internal sealed partial class StateMachine<TState, TTransition> : StateMachineBa
         var canceledToken = new CancellationToken(true);
         var action = CurrentState.Action(Parameters, canceledToken);
         await action.ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+    }
+
+    private Task ActivateActions(CancellationToken token)
+    {
+        Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
+        return CurrentState.Action(Parameters, token);
+    }
+
+    private Task DeactivateActions(CancellationToken token)
+    {
+        return this.actionBackgroundWorker?.Deactivate(token) ?? Task.CompletedTask;
     }
 
     private async Task ActivateTriggers(CancellationToken token)

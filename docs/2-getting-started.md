@@ -114,7 +114,7 @@ await machine.Deactivate(cancellationToken);
 
 This runs `OnExit` and `OnDeactivate` handlers for the current state.
 
-## State Lifecycle Handlers
+## State Machine Lifecycle Handlers
 
 Each state supports lifecycle handlers:
 
@@ -204,7 +204,7 @@ Order delivered
 ## Next Steps
 
 - [General Concepts](./3-general-concepts.md) - Handler signatures, initial state, and build validation
-- [State Lifecycle](./4-state-lifecycle.md) - Detailed lifecycle documentation
+- [State Machine Lifecycle](./4-state-machine-lifecycle.md) - Detailed lifecycle documentation
 - [Actions](./5-actions.md) - Long-running interruptible state work
 - [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
 - [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
