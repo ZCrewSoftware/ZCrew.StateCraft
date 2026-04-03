@@ -69,7 +69,7 @@ await machine.Deactivate(cancellationToken);
 
 - [Getting Started](./2-getting-started.md) - Installation and first state machine
 - [General Concepts](./3-general-concepts.md) - Handler signatures, initial state, and build validation
-- [State Lifecycle](./4-state-lifecycle.md) - Detailed lifecycle documentation
+- [State Machine Lifecycle](./4-state-machine-lifecycle.md) - Detailed lifecycle documentation
 - [Actions](./5-actions.md) - Long-running interruptible state work
 - [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
 - [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data

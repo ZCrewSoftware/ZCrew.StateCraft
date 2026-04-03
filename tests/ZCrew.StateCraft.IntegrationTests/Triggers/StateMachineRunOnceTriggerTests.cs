@@ -3,7 +3,7 @@ using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft.IntegrationTests.Triggers;
 
-public class RunOnceTriggerTests
+public class StateMachineRunOnceTriggerTests
 {
     [Fact(Timeout = 5000)]
     public async Task Once_WhenSignalCompletes_ShouldExecuteTrigger()
@@ -140,6 +140,35 @@ public class RunOnceTriggerTests
         {
             await sm.Transition("ToB", token);
             transitionCompleted.TrySetResult();
+        }
+    }
+
+    [Fact(Timeout = 5000)]
+    public async Task Once_WithStateMachineAccess_ShouldDeactivateStateMachine()
+    {
+        // Arrange
+        var deactivateCompleted = new TaskCompletionSource();
+
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state)
+            .WithTrigger(t => t.Once().Await(() => { }).ThenInvoke(TriggerAction))
+            .Build();
+
+        // Act
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        await deactivateCompleted.Task;
+
+        // Assert
+        Assert.Null(stateMachine.CurrentState);
+
+        return;
+
+        async Task TriggerAction(IStateMachine<string, string> sm, CancellationToken token)
+        {
+            await sm.Deactivate(token);
+            deactivateCompleted.TrySetResult();
         }
     }
 }

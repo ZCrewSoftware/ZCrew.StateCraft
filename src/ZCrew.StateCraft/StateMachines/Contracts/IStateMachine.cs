@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.Tracking.Contracts;
 
@@ -55,6 +56,11 @@ public interface IStateMachine<TState, TTransition>
     ///     The exception behavior for this state machine.
     /// </summary>
     internal IExceptionBehavior ExceptionBehavior { get; }
+
+    /// <summary>
+    ///     The async dispatcher for managing background workers spawned from this state machine.
+    /// </summary>
+    internal IBackgroundDispatcher BackgroundDispatcher { get; }
 
     /// <summary>
     ///     Activates the state machine by setting the initial state and invoking the activation handlers, entry

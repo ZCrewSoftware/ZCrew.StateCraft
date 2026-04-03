@@ -1,21 +1,25 @@
-# State Lifecycle
+# State Machine Lifecycle
 
-This document covers the lifecycle handlers available in StateCraft and best practices for using them effectively.
+This document covers the lifecycle hooks, triggers, and actions available in StateCraft and the order in which they
+execute.
 
 ## Overview
 
-StateCraft provides hooks at key points in a state machine's lifecycle:
+StateCraft provides hooks, triggers, and actions at key points in a state machine's lifecycle:
 
-| Handler         | Description                               | Machine-Level option | State-Level option |
-|-----------------|-------------------------------------------|----------------------|--------------------|
-| `OnActivate`    | Called once when the state machine starts | ✘                    | ✔                  |
-| `OnEntry`       | Called each time a state is entered       | ✘                    | ✔                  |
-| `OnExit`        | Called each time a state is exited        | ✘                    | ✔                  |
-| `OnStateChange` | Called during transitions                 | ✔                    | ✔                  |
-| `OnDeactivate`  | Called once when the state machine stops  | ✘                    | ✔                  |
+| Component       | Description                               | Machine | State  |
+|-----------------|-------------------------------------------|---------|--------|
+| `OnActivate`    | Called once when the state machine starts | ✘       | v1.0   |
+| `OnEntry`       | Called each time a state is entered       | ✘       | v1.0   |
+| `WithTrigger`   | Background signal-driven transition       | v1.0    | v1.1   |
+| `WithAction`    | Long-running interruptible state work     | ✘       | v1.0   |
+| `OnExit`        | Called each time a state is exited        | ✘       | v1.0   |
+| `OnStateChange` | Called during transitions                 | v1.0    | v1.0   |
+| `OnDeactivate`  | Called once when the state machine stops  | ✘       | v1.0   |
 
-Each handler supports both synchronous and asynchronous signatures.
-Each state-level handler will have the same parameters as the state, if any (up to 4 parameters).
+Each hook supports both synchronous and asynchronous signatures.
+Each state-level hook will have the same parameters as the state, if any (up to 4 parameters).
+See [Triggers](./10-triggers.md) and [Actions](./5-actions.md) for detailed configuration of those components.
 
 ## State Machine Flow
 
@@ -24,8 +28,10 @@ Each state-level handler will have the same parameters as the state, if any (up 
 When `Activate()` is called:
 
 1. `OnActivate` - Activate the initial state
-2. `OnEntry` - Initialize the initial state
-3. Start initial state actions
+2. Machine-level triggers are activated
+3. `OnEntry` - Initialize the initial state
+4. State-scoped triggers are activated
+5. Start initial state actions
 
 If `OnEntry` fails after `OnActivate` has completed, `OnDeactivate` is called on the initial state to ensure
 proper cleanup. If `OnActivate` itself fails, `OnDeactivate` is not called.
@@ -35,19 +41,23 @@ proper cleanup. If `OnActivate` itself fails, `OnDeactivate` is not called.
 During a transition from State A to State B:
 
 1. Cancel and await previous state (State A) actions
-2. `OnExit` - Clean up the previous state (State A)
-3. `OnStateChange` (machine-level) - Machine-level state change
-4. `OnStateChange` (state-level) - State-level state change (State B)
-5. `OnEntry` - Initialize the next state (State B)
-6. Start next state (State B) actions
+2. Deactivate State A's state-scoped triggers
+3. `OnExit` - Clean up the previous state (State A)
+4. `OnStateChange` (machine-level) - Machine-level state change
+5. `OnStateChange` (state-level) - State-level state change (State B)
+6. `OnEntry` - Initialize the next state (State B)
+7. Activate State B's state-scoped triggers
+8. Start next state (State B) actions
 
 ### Deactivation Flow
 
 When `Deactivate()` is called:
 
 1. Cancel and await final state actions
-2. `OnExit` - Clean up the final state
-3. `OnDeactivate` - Deactivate the final state
+2. Deactivate final state's state-scoped triggers
+3. `OnExit` - Clean up the final state
+4. Deactivate machine-level triggers
+5. `OnDeactivate` - Deactivate the final state
 
 ## Activation
 
