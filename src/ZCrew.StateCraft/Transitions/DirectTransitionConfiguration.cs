@@ -1,16 +1,21 @@
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Configuration;
-using ZCrew.StateCraft.Transitions.Contracts;
+using ZCrew.StateCraft.Validation;
+using ZCrew.StateCraft.Validation.Contracts;
+using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.Transitions;
 
-/// <inheritdoc />
-internal class DirectTransitionConfiguration<TState, TTransition> : ITransitionConfiguration<TState, TTransition>
+/// <inheritdoc cref="ITransitionConfiguration{TState,TTransition}"/>
+internal class DirectTransitionConfiguration<TState, TTransition>
+    : ITransitionConfiguration<TState, TTransition>,
+        IValidatable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly INextStateConfiguration<TState, TTransition> nextStateConfiguration;
+    private readonly TTransition transitionValue;
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -18,68 +23,59 @@ internal class DirectTransitionConfiguration<TState, TTransition> : ITransitionC
     /// </summary>
     /// <param name="previousStateConfiguration">The configuration for the previous state.</param>
     /// <param name="nextStateConfiguration">The configuration for the next state.</param>
-    /// <param name="transition">The transition value that triggers this transition.</param>
+    /// <param name="transitionValue">The transition value that triggers this transition.</param>
     public DirectTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
         INextStateConfiguration<TState, TTransition> nextStateConfiguration,
-        TTransition transition
+        TTransition transitionValue
     )
     {
         this.previousStateConfiguration = previousStateConfiguration;
         this.nextStateConfiguration = nextStateConfiguration;
-        TransitionValue = transition;
+        this.transitionValue = transitionValue;
     }
 
     /// <inheritdoc />
-    public TState PreviousStateValue => this.previousStateConfiguration.StateValue;
-
-    /// <inheritdoc />
-    public TTransition TransitionValue { get; }
-
-    /// <inheritdoc />
-    public TState NextStateValue => this.nextStateConfiguration.StateValue;
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> PreviousStateTypeParameters => this.previousStateConfiguration.TypeParameters;
-
-    /// <inheritdoc/>
-    public IReadOnlyList<Type> TransitionTypeParameters => this.nextStateConfiguration.TypeParameters;
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> NextStateTypeParameters => this.nextStateConfiguration.TypeParameters;
-
-    /// <inheritdoc />
-    public bool IsConditional =>
-        this.previousStateConfiguration.IsConditional || this.nextStateConfiguration.IsConditional;
-
-    /// <inheritdoc />
-    public ITransition<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
+    public void Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var previousState = this.previousStateConfiguration.Build(stateMachine.StateTable);
         var nextState = this.nextStateConfiguration.Build(stateMachine.StateTable);
         var transition = new DirectTransition<TState, TTransition>(
             previousState,
             nextState,
-            TransitionValue,
+            this.transitionValue,
             stateMachine
         );
 
         previousState.State.AddTransition(transition);
+    }
 
-        return transition;
+    /// <inheritdoc />
+    public void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context)
+    {
+        var transition = new TransitionValidationModel<TState, TTransition>(
+            this.previousStateConfiguration.StateValue,
+            this.transitionValue,
+            this.nextStateConfiguration.StateValue,
+            this.previousStateConfiguration.TypeParameters,
+            this.nextStateConfiguration.TypeParameters,
+            this.nextStateConfiguration.TypeParameters,
+            this.previousStateConfiguration.IsConditional || this.nextStateConfiguration.IsConditional
+        );
+        context.Transitions.Add(transition);
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
         if (
-            PreviousStateValue.Equals(NextStateValue)
-            && PreviousStateTypeParameters.SequenceEqual(NextStateTypeParameters)
+            this.previousStateConfiguration.StateValue.Equals(this.nextStateConfiguration.StateValue)
+            && this.previousStateConfiguration.TypeParameters.SequenceEqual(this.nextStateConfiguration.TypeParameters)
         )
         {
-            return $"{TransitionValue}({this.previousStateConfiguration}) ↩";
+            return $"{this.transitionValue}({this.previousStateConfiguration}) ↩";
         }
 
-        return $"{TransitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
+        return $"{this.transitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
     }
 }

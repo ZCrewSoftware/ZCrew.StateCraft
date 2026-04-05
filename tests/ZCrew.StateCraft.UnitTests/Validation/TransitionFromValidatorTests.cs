@@ -3,7 +3,7 @@ using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.UnitTests.Validation;
 
-public class TransitionToValidatorTests
+public class TransitionFromValidatorTests
 {
     [Fact]
     public void Validate_WhenStateMachineHasNoStates_ShouldPass()
@@ -12,7 +12,7 @@ public class TransitionToValidatorTests
         var context = new StateMachineValidationContext<string, string>();
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         Assert.Empty(context.ValidationErrors);
@@ -28,7 +28,7 @@ public class TransitionToValidatorTests
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         Assert.Empty(context.ValidationErrors);
@@ -42,8 +42,8 @@ public class TransitionToValidatorTests
         {
             States =
             {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", [typeof(Tuple<int, string>)]),
+                new StateValidationModel<string, string>("A", [typeof(Tuple<int, string>)]),
+                new StateValidationModel<string, string>("B", []),
             },
             Transitions =
             {
@@ -51,16 +51,16 @@ public class TransitionToValidatorTests
                     "A",
                     "To B",
                     "B",
+                    [typeof(Tuple<int, string>)],
+                    [typeof(Tuple<int, string>)],
                     [],
-                    [typeof(Tuple<int, string>)],
-                    [typeof(Tuple<int, string>)],
                     false
                 ),
             },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         Assert.Empty(context.ValidationErrors);
@@ -74,8 +74,8 @@ public class TransitionToValidatorTests
         {
             States =
             {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", [typeof((int, string))]),
+                new StateValidationModel<string, string>("A", [typeof((int, string))]),
+                new StateValidationModel<string, string>("B", []),
             },
             Transitions =
             {
@@ -83,16 +83,16 @@ public class TransitionToValidatorTests
                     "A",
                     "To B",
                     "B",
+                    [typeof((int, string))],
+                    [typeof((int, string))],
                     [],
-                    [typeof((int, string))],
-                    [typeof((int, string))],
                     false
                 ),
             },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         Assert.Empty(context.ValidationErrors);
@@ -106,8 +106,8 @@ public class TransitionToValidatorTests
         {
             States =
             {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", [typeof(List<string>)]),
+                new StateValidationModel<string, string>("A", [typeof(List<string>)]),
+                new StateValidationModel<string, string>("B", []),
             },
             Transitions =
             {
@@ -115,16 +115,16 @@ public class TransitionToValidatorTests
                     "A",
                     "To B",
                     "B",
+                    [typeof(List<string>)],
+                    [typeof(List<string>)],
                     [],
-                    [typeof(List<string>)],
-                    [typeof(List<string>)],
                     false
                 ),
             },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         Assert.Empty(context.ValidationErrors);
@@ -138,8 +138,8 @@ public class TransitionToValidatorTests
         {
             States =
             {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", [typeof(int?)]),
+                new StateValidationModel<string, string>("A", [typeof(int?)]),
+                new StateValidationModel<string, string>("B", []),
             },
             Transitions =
             {
@@ -147,33 +147,33 @@ public class TransitionToValidatorTests
                     "A",
                     "To B",
                     "B",
+                    [typeof(int?)],
+                    [typeof(int?)],
                     [],
-                    [typeof(int?)],
-                    [typeof(int?)],
                     false
                 ),
             },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         Assert.Empty(context.ValidationErrors);
     }
 
     [Fact]
-    public void Validate_WhenTransitionToNonExistentState_ShouldFail()
+    public void Validate_WhenTransitionFromNonExistentState_ShouldFail()
     {
         // Arrange
         var context = new StateMachineValidationContext<string, string>
         {
-            States = { new StateValidationModel<string, string>("A", []) },
+            States = { new StateValidationModel<string, string>("B", []) },
             Transitions = { new TransitionValidationModel<string, string>("A", "To B", "B", [], [], [], false) },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         var error = Assert.Single(context.ValidationErrors);
@@ -181,7 +181,7 @@ public class TransitionToValidatorTests
     }
 
     [Fact]
-    public void Validate_WhenParameterizedTransitionToParameterlessState_ShouldFail()
+    public void Validate_WhenParameterizedTransitionFromParameterlessState_ShouldFail()
     {
         // Arrange
         var context = new StateMachineValidationContext<string, string>
@@ -197,82 +197,82 @@ public class TransitionToValidatorTests
                     "A",
                     "To B",
                     "B",
+                    [typeof(int)],
+                    [typeof(int)],
                     [],
-                    [typeof(int)],
-                    [typeof(int)],
                     false
                 ),
             },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         var error = Assert.Single(context.ValidationErrors);
-        Assert.Contains("To B(A) → B<int>", error);
+        Assert.Contains("To B(A<int>) → B", error);
     }
 
     [Fact]
-    public void Validate_WhenParameterlessTransitionToParameterizedState_ShouldSuggestExplicitForm()
+    public void Validate_WhenParameterlessTransitionFromParameterizedState_ShouldSuggestExplicitForm()
     {
         // Arrange
         var context = new StateMachineValidationContext<string, string>
         {
             States =
             {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", [typeof(int)]),
+                new StateValidationModel<string, string>("A", [typeof(int)]),
+                new StateValidationModel<string, string>("B", []),
             },
             Transitions = { new TransitionValidationModel<string, string>("A", "To B", "B", [], [], [], false) },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         var error = Assert.Single(context.ValidationErrors);
         Assert.Contains("as parameterless", error);
-        Assert.Contains("B<int>", error);
+        Assert.Contains("A<int>", error);
         Assert.Contains("WithTransition(transition, t =>", error);
     }
 
     [Fact]
-    public void Validate_WhenParameterlessTransitionToMultipleParameterizedStates_ShouldListAllAlternatives()
+    public void Validate_WhenParameterlessTransitionFromMultipleParameterizedStates_ShouldListAllAlternatives()
     {
         // Arrange
         var context = new StateMachineValidationContext<string, string>
         {
             States =
             {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", [typeof(int)]),
-                new StateValidationModel<string, string>("B", [typeof(string)]),
+                new StateValidationModel<string, string>("A", [typeof(int)]),
+                new StateValidationModel<string, string>("A", [typeof(string)]),
+                new StateValidationModel<string, string>("B", []),
             },
             Transitions = { new TransitionValidationModel<string, string>("A", "To B", "B", [], [], [], false) },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         var error = Assert.Single(context.ValidationErrors);
         Assert.Contains("as parameterless", error);
-        Assert.Contains("B<int>", error);
-        Assert.Contains("B<string>", error);
+        Assert.Contains("A<int>", error);
+        Assert.Contains("A<string>", error);
         Assert.Contains("WithTransition(transition, t =>", error);
     }
 
     [Fact]
-    public void Validate_WhenTransitionToStateWithNonAssignableParameterType_ShouldFail()
+    public void Validate_WhenTransitionFromStateWithNonAssignableParameterType_ShouldFail()
     {
         // Arrange
         var context = new StateMachineValidationContext<string, string>
         {
             States =
             {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", [typeof(int)]),
+                new StateValidationModel<string, string>("A", [typeof(int)]),
+                new StateValidationModel<string, string>("B", []),
             },
             Transitions =
             {
@@ -280,32 +280,32 @@ public class TransitionToValidatorTests
                     "A",
                     "To B",
                     "B",
+                    [typeof(string)],
+                    [typeof(string)],
                     [],
-                    [typeof(string)],
-                    [typeof(string)],
                     false
                 ),
             },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         var error = Assert.Single(context.ValidationErrors);
-        Assert.Contains("To B(A) → B<string>", error);
+        Assert.Contains("To B(A<string>) → B", error);
     }
 
     [Fact]
-    public void Validate_WhenTransitionToStateWithAssignableParameterType_ShouldPass()
+    public void Validate_WhenTransitionFromStateWithAssignableParameterType_ShouldPass()
     {
         // Arrange
         var context = new StateMachineValidationContext<string, string>
         {
             States =
             {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", [typeof(object)]),
+                new StateValidationModel<string, string>("A", [typeof(object)]),
+                new StateValidationModel<string, string>("B", []),
             },
             Transitions =
             {
@@ -313,16 +313,16 @@ public class TransitionToValidatorTests
                     "A",
                     "To B",
                     "B",
+                    [typeof(string)],
+                    [typeof(string)],
                     [],
-                    [typeof(string)],
-                    [typeof(string)],
                     false
                 ),
             },
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         Assert.Empty(context.ValidationErrors);
@@ -334,11 +334,7 @@ public class TransitionToValidatorTests
         // Arrange
         var context = new StateMachineValidationContext<string, string>
         {
-            States =
-            {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", []),
-            },
+            States = { new StateValidationModel<string, string>("C", []) },
             Transitions =
             {
                 new TransitionValidationModel<string, string>("A", "To C", "C", [], [], [], false),
@@ -347,7 +343,7 @@ public class TransitionToValidatorTests
         };
 
         // Act
-        TransitionToValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
 
         // Assert
         Assert.Collection(

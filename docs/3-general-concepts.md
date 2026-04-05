@@ -179,6 +179,7 @@ Validation catches configuration errors before runtime:
 |----------------------------|--------------------------------------------------------------------------------|
 | Duplicate states           | `"A is duplicated"` or `"A<int> is duplicated"`                                |
 | Invalid transition targets | `"To B(A) → B has no matching next state"`                                     |
+| Invalid transition targets | `"To B(A) → B has no matching previous state"`                                 |
 | Unreachable transitions    | `"To B(A) → B is unreachable because it is shadowed by a previous transition"` |
 
 Validation throws `InvalidOperationException` with all errors if any are found.

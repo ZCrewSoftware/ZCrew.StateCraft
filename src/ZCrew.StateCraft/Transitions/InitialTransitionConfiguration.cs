@@ -99,6 +99,13 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
+    public IFromTransitionConfiguration<TState, TTransition> From()
+    {
+        var nextStateConfiguration = this.previousStateConfiguration.ToNextStateConfiguration();
+        return new FromTransitionConfiguration<TState, TTransition>(this.transitionValue, nextStateConfiguration);
+    }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return $"{this.transitionValue}({this.previousStateConfiguration}) → ?";

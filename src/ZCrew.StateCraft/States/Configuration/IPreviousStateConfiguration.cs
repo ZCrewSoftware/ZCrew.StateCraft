@@ -39,4 +39,12 @@ internal interface IPreviousStateConfiguration<TState, TTransition>
     /// <param name="stateTable">The state table to resolve the source state from.</param>
     /// <returns>A new <see cref="IPreviousState{TState, TTransition}"/> instance.</returns>
     IPreviousState<TState, TTransition> Build(StateTable<TState, TTransition> stateTable);
+
+    /// <summary>
+    ///     Transforms this state from a previous state to a next state. This is used for inverted transitions, which
+    ///     start with a <see cref="IPreviousStateConfiguration{TState,TTransition}"/> but need to invert the direction
+    ///     of the transition.
+    /// </summary>
+    /// <returns>The same previous state information representing a next state.</returns>
+    INextStateConfiguration<TState, TTransition> ToNextStateConfiguration();
 }

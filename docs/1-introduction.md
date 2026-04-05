@@ -77,3 +77,5 @@ await machine.Deactivate(cancellationToken);
 - [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
 - [Triggers](./10-triggers.md) - Autonomous transitions based on signals
 - [Exception Handling](./11-exception-handling.md) - Error handling strategies
+- [Exception Behavior](./12-exception-behavior.md) - Custom exception handling implementations
+- [Inverted Transitions](./13-inverted-transitions.md) - Define transitions by destination instead of source

@@ -2,11 +2,16 @@ using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions;
+using ZCrew.StateCraft.Validation;
+using ZCrew.StateCraft.Validation.Contracts;
+using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.States;
 
-/// <inheritdoc />
-internal class StateConfiguration<TState, TTransition, T> : IParameterizedStateConfiguration<TState, TTransition, T>
+/// <inheritdoc cref="IParameterizedStateConfiguration{TState,TTransition,T}" />
+internal class StateConfiguration<TState, TTransition, T>
+    : IParameterizedStateConfiguration<TState, TTransition, T>,
+        IValidatable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -38,7 +43,7 @@ internal class StateConfiguration<TState, TTransition, T> : IParameterizedStateC
     public IEnumerable<ITransitionConfiguration<TState, TTransition>> Transitions => this.transitionConfigurations;
 
     /// <inheritdoc />
-    public IState<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
+    public void Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var actions = this.actionConfigurations.Select(action => action.Build()).ToList();
         var state = new State<TState, TTransition, T>(
@@ -53,8 +58,6 @@ internal class StateConfiguration<TState, TTransition, T> : IParameterizedStateC
         );
 
         stateMachine.AddState(state);
-
-        return state;
     }
 
     /// <inheritdoc />
@@ -207,6 +210,13 @@ internal class StateConfiguration<TState, TTransition, T> : IParameterizedStateC
     {
         this.onExitHandlers.Add(handler.AsAsyncAction());
         return this;
+    }
+
+    /// <inheritdoc />
+    public void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context)
+    {
+        var state = new StateValidationModel<TState, TTransition>(State, TypeParameters);
+        context.States.Add(state);
     }
 
     /// <inheritdoc />

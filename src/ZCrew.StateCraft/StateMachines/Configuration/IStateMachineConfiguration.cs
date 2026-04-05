@@ -1,5 +1,6 @@
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.StateMachines.Contracts;
+using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft;
 
