@@ -98,6 +98,11 @@ internal class PreviousState<TState, TTransition, T> : IPreviousState<TState, TT
     /// <inheritdoc />
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
+        if (this.conditions.Count == 0)
+        {
+            return true;
+        }
+
         var parameter = parameters.GetPreviousParameter<T>();
         foreach (var condition in this.conditions)
         {
@@ -158,6 +163,11 @@ internal class PreviousState<TState, TTransition, T1, T2> : IPreviousState<TStat
     /// <inheritdoc />
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
+        if (this.conditions.Count == 0)
+        {
+            return true;
+        }
+
         var (p1, p2) = parameters.GetPreviousParameters<T1, T2>();
         foreach (var condition in this.conditions)
         {
@@ -219,6 +229,11 @@ internal class PreviousState<TState, TTransition, T1, T2, T3> : IPreviousState<T
     /// <inheritdoc />
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
+        if (this.conditions.Count == 0)
+        {
+            return true;
+        }
+
         var (p1, p2, p3) = parameters.GetPreviousParameters<T1, T2, T3>();
         foreach (var condition in this.conditions)
         {
@@ -281,6 +296,11 @@ internal class PreviousState<TState, TTransition, T1, T2, T3, T4> : IPreviousSta
     /// <inheritdoc />
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
+        if (this.conditions.Count == 0)
+        {
+            return true;
+        }
+
         var (p1, p2, p3, p4) = parameters.GetPreviousParameters<T1, T2, T3, T4>();
         foreach (var condition in this.conditions)
         {
