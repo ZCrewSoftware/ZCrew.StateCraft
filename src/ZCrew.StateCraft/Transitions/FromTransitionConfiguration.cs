@@ -48,19 +48,19 @@ internal class FromTransitionConfiguration<TState, TTransition>
     /// <inheritdoc />
     public IFromAllStatesTransitionConfiguration<TState, TTransition> Except(TState state)
     {
-        return Exclude(this.nextStateConfiguration.StateValue, []);
+        return Exclude(state, []);
     }
 
     /// <inheritdoc />
     public IFromAllStatesTransitionConfiguration<TState, TTransition> Except<TPrevious>(TState state)
     {
-        return Exclude(this.nextStateConfiguration.StateValue, [typeof(TPrevious)]);
+        return Exclude(state, [typeof(TPrevious)]);
     }
 
     /// <inheritdoc />
     public IFromAllStatesTransitionConfiguration<TState, TTransition> Except<TPrevious1, TPrevious2>(TState state)
     {
-        return Exclude(this.nextStateConfiguration.StateValue, [typeof(TPrevious1), typeof(TPrevious2)]);
+        return Exclude(state, [typeof(TPrevious1), typeof(TPrevious2)]);
     }
 
     /// <inheritdoc />
@@ -68,10 +68,7 @@ internal class FromTransitionConfiguration<TState, TTransition>
         TState state
     )
     {
-        return Exclude(
-            this.nextStateConfiguration.StateValue,
-            [typeof(TPrevious1), typeof(TPrevious2), typeof(TPrevious3)]
-        );
+        return Exclude(state, [typeof(TPrevious1), typeof(TPrevious2), typeof(TPrevious3)]);
     }
 
     /// <inheritdoc />
@@ -82,10 +79,7 @@ internal class FromTransitionConfiguration<TState, TTransition>
         TPrevious4
     >(TState state)
     {
-        return Exclude(
-            this.nextStateConfiguration.StateValue,
-            [typeof(TPrevious1), typeof(TPrevious2), typeof(TPrevious3), typeof(TPrevious4)]
-        );
+        return Exclude(state, [typeof(TPrevious1), typeof(TPrevious2), typeof(TPrevious3), typeof(TPrevious4)]);
     }
 
     /// <inheritdoc />

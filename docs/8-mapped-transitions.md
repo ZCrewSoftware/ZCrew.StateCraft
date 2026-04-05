@@ -273,10 +273,16 @@ actual transition. Avoid modifying external state:
 
 Use lifecycle handlers like `OnEntry` or `OnStateChange` for side effects instead.
 
+### Consider Inverted Transitions for Shared Destinations
+
+If many states share the same transition to a common destination (e.g., a `Canceled` state), consider using
+[Inverted Transitions](./13-inverted-transitions.md) instead of repeating the transition on each state.
+
 ## Next Steps
 
 - [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
 - [Parameterless Transitions](./6-parameterless-transitions.md) - Transitions without data
 - [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
+- [Inverted Transitions](./13-inverted-transitions.md) - Define transitions by destination instead of source
 - [Triggers](./10-triggers.md) - Autonomous transitions based on signals
 - [Exception Handling](./11-exception-handling.md) - Error handling strategies

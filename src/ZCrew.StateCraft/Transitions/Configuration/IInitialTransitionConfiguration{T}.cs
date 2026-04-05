@@ -95,6 +95,9 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>();
 
+    /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition}.From"/>
+    IFromTransitionConfiguration<TState, TTransition> From();
+
     /// <summary>
     ///     Configures the transition to map the previous parameter of type <typeparamref name="T"/> to the next
     ///     parameter of type <typeparamref name="TNext"/>. The state machine should be activated with
