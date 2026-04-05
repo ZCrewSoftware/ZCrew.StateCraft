@@ -307,7 +307,12 @@ var workAvailable = new SemaphoreSlim(0);
 ### Always Observe Cancellation Tokens
 
 Signal functions receive a cancellation token that is canceled when the state machine is deactivated.
-Pass this token to all async operations so the trigger can be interrupted cleanly:
+Pass this token to all async operations so the trigger can be interrupted cleanly.
+
+> **Warning:** Cancellation tokens **must** be observed. The token is canceled when the trigger is no longer needed
+> — either because the state machine has been deactivated or, for state-scoped triggers, because the state has
+> changed. Failing to observe the token can lead to memory leaks, deadlocks, or invalid operations where a stale
+> trigger continues to interact with the state machine after it is no longer appropriate to do so.
 
 ```csharp
 // Good: Passes cancellation token to async operations

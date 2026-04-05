@@ -1,6 +1,5 @@
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.StateMachines.Contracts;
-using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft;
 
@@ -31,6 +30,13 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     without awaiting the completion of the action. Without this option the transition will await the completion
     ///     of the action, which may incur delays if the action is long-running.
     /// </summary>
+    /// <remarks>
+    ///     Asynchronous actions receive a <see cref="CancellationToken"/> that is canceled when the state
+    ///     machine transitions to a different state or is deactivated. Actions <b>must</b> observe this
+    ///     token — once canceled, the action's work is no longer relevant. Failing to observe it can lead
+    ///     to memory leaks, deadlocks, or invalid operations where a stale action continues to interact
+    ///     with the state machine after the state has already changed.
+    /// </remarks>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     /// <example>
     /// <code>

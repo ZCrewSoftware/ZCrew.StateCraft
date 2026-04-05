@@ -255,7 +255,12 @@ var machine = StateMachine
 
 ### Always Observe Cancellation Tokens
 
-This is the most important practice for actions. The cancellation token signals when to stop work:
+This is the most important practice for actions. The cancellation token signals when to stop work.
+
+> **Warning:** Cancellation tokens **must** be observed. The token is canceled when the state machine transitions
+> to a different state or is deactivated — meaning the action's work is no longer relevant. Failing to observe the
+> token can lead to memory leaks, deadlocks, or invalid operations where a stale action continues to interact with
+> the state machine after the state has already changed.
 
 ```csharp
 // Good: Respects cancellation throughout
