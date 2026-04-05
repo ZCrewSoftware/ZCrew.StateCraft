@@ -1,5 +1,4 @@
 using ZCrew.StateCraft.StateMachines.Contracts;
-using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft;
 
@@ -24,45 +23,8 @@ public interface ITransitionConfiguration<TState, TTransition>
     where TTransition : notnull
 {
     /// <summary>
-    ///     The previous state value.
-    /// </summary>
-    internal TState PreviousStateValue { get; }
-
-    /// <summary>
-    ///     The transition value.
-    /// </summary>
-    internal TTransition TransitionValue { get; }
-
-    /// <summary>
-    ///     The next state value.
-    /// </summary>
-    internal TState NextStateValue { get; }
-
-    /// <summary>
-    ///     The type parameters of the previous state. Empty if the previous state has no parameters.
-    /// </summary>
-    internal IReadOnlyList<Type> PreviousStateTypeParameters { get; }
-
-    /// <summary>
-    ///     The type parameters of the transition. Empty if the transition can be invoked without providing a parameter.
-    /// </summary>
-    internal IReadOnlyList<Type> TransitionTypeParameters { get; }
-
-    /// <summary>
-    ///     The type parameters of the next state. Empty if the next state has no parameters.
-    /// </summary>
-    internal IReadOnlyList<Type> NextStateTypeParameters { get; }
-
-    /// <summary>
-    ///     Indicates whether the transition is conditional. A conditional transition has one or more conditions that
-    ///     must be satisfied for the transition to be taken.
-    /// </summary>
-    internal bool IsConditional { get; }
-
-    /// <summary>
     ///     Build the transition based on the configuration.
     /// </summary>
     /// <param name="stateMachine">The parent state machine.</param>
-    /// <returns>The transition model.</returns>
-    internal ITransition<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine);
+    internal void Build(IStateMachine<TState, TTransition> stateMachine);
 }

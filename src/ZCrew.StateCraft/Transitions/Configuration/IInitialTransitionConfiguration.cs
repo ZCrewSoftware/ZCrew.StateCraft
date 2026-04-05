@@ -90,6 +90,27 @@ public interface IInitialTransitionConfiguration<TState, TTransition>
     IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>();
 
     /// <summary>
+    ///     Configures an inverted transition, where the "previous" state becomes the "next" state. The builder then
+    ///     configures which states the transition uses as the previous states.
+    /// </summary>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    /// <example>
+    ///     Configuring a state machine with a <c>Canceled</c> state that all states (except <c>Completed</c> or
+    ///     <c>Canceled</c>) can transition to:
+    ///     <code>
+    ///         StateMachine.Configure&lt;State, Transition&gt;()
+    ///             // ...
+    ///             .WithState(State.Canceled, state => state
+    ///                 .WithTransition(Transition.Cancel, transition => transition
+    ///                     .From()
+    ///                     .AllOtherStates()
+    ///                     .Except(State.Completed)))
+    ///             // ...
+    ///     </code>
+    /// </example>
+    IFromTransitionConfiguration<TState, TTransition> From();
+
+    /// <summary>
     ///     Configure the state to transition to.
     /// </summary>
     /// <param name="state">The next state.</param>

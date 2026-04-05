@@ -41,6 +41,5 @@ public interface IStateConfiguration<TState, TTransition>
     ///     Build the state based on the configuration.
     /// </summary>
     /// <param name="stateMachine">The parent state machine.</param>
-    /// <returns>The state model.</returns>
-    internal IState<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine);
+    internal void Build(IStateMachine<TState, TTransition> stateMachine);
 }

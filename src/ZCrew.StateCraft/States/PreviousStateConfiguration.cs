@@ -48,6 +48,12 @@ internal class PreviousStateConfiguration<TState, TTransition> : IPartialPreviou
     }
 
     /// <inheritdoc />
+    public INextStateConfiguration<TState, TTransition> ToNextStateConfiguration()
+    {
+        return new NextStateConfiguration<TState, TTransition>(StateValue, this.conditions);
+    }
+
+    /// <inheritdoc />
     public void Add(IAsyncFunc<bool> condition)
     {
         this.conditions.Add(condition);
@@ -104,6 +110,12 @@ internal class PreviousStateConfiguration<TState, TTransition, T>
     {
         var state = stateTable.LookupState<T>(StateValue);
         return new PreviousState<TState, TTransition, T>(state, this.conditions);
+    }
+
+    /// <inheritdoc />
+    public INextStateConfiguration<TState, TTransition> ToNextStateConfiguration()
+    {
+        return new NextStateConfiguration<TState, TTransition, T>(StateValue, this.conditions);
     }
 
     /// <inheritdoc />
@@ -164,6 +176,12 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2>
     {
         var state = stateTable.LookupState<T1, T2>(StateValue);
         return new PreviousState<TState, TTransition, T1, T2>(state, this.conditions);
+    }
+
+    /// <inheritdoc />
+    public INextStateConfiguration<TState, TTransition> ToNextStateConfiguration()
+    {
+        return new NextStateConfiguration<TState, TTransition, T1, T2>(StateValue, this.conditions);
     }
 
     /// <inheritdoc />
@@ -228,6 +246,12 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3>
     }
 
     /// <inheritdoc />
+    public INextStateConfiguration<TState, TTransition> ToNextStateConfiguration()
+    {
+        return new NextStateConfiguration<TState, TTransition, T1, T2, T3>(StateValue, this.conditions);
+    }
+
+    /// <inheritdoc />
     public void Add(IAsyncFunc<T1, T2, T3, bool> condition)
     {
         this.conditions.Add(condition);
@@ -287,6 +311,12 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3, T4>
     {
         var state = stateTable.LookupState<T1, T2, T3, T4>(StateValue);
         return new PreviousState<TState, TTransition, T1, T2, T3, T4>(state, this.conditions);
+    }
+
+    /// <inheritdoc />
+    public INextStateConfiguration<TState, TTransition> ToNextStateConfiguration()
+    {
+        return new NextStateConfiguration<TState, TTransition, T1, T2, T3, T4>(StateValue, this.conditions);
     }
 
     /// <inheritdoc />

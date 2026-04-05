@@ -1,4 +1,5 @@
 using System.Text;
+using ZCrew.StateCraft.Validation.Contracts;
 
 namespace ZCrew.StateCraft.Validation;
 
@@ -20,12 +21,29 @@ internal static class StateMachineValidation
         where TState : notnull
         where TTransition : notnull
     {
-        var context = new StateMachineValidationContext<TState, TTransition>
+        var context = new StateMachineValidationContext<TState, TTransition>();
+        var states = stateMachineConfiguration.States;
+        var transitions = stateMachineConfiguration.States.SelectMany(state => state.Transitions);
+
+        // To accomodate transitions that are one-to-many, many-to-one, or many-to-many, add the states first and then
+        // the transitions. This ensures all states are present when creating the transition models
+        foreach (var state in states)
         {
-            Configuration = stateMachineConfiguration,
-        };
+            if (state is IValidatable<TState, TTransition> validatable)
+            {
+                validatable.AddToValidationContext(context);
+            }
+        }
+        foreach (var transition in transitions)
+        {
+            if (transition is IValidatable<TState, TTransition> validatable)
+            {
+                validatable.AddToValidationContext(context);
+            }
+        }
 
         DuplicateStateValidator.Validate(context);
+        TransitionFromValidator.Validate(context);
         TransitionToValidator.Validate(context);
         UnreachableTransitionValidator.Validate(context);
 

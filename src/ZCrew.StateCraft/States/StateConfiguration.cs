@@ -3,11 +3,16 @@ using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions;
 using ZCrew.StateCraft.Triggers;
+using ZCrew.StateCraft.Validation;
+using ZCrew.StateCraft.Validation.Contracts;
+using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.States;
 
 /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}"/>
-internal class StateConfiguration<TState, TTransition> : IInitialStateConfiguration<TState, TTransition>
+internal class StateConfiguration<TState, TTransition>
+    : IInitialStateConfiguration<TState, TTransition>,
+        IValidatable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -40,7 +45,7 @@ internal class StateConfiguration<TState, TTransition> : IInitialStateConfigurat
     public IEnumerable<ITransitionConfiguration<TState, TTransition>> Transitions => this.transitionConfigurations;
 
     /// <inheritdoc />
-    public IState<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
+    public void Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var actions = this.actionConfigurations.Select(action => action.Build()).ToList();
         var triggers = this.triggerConfigurations.Select(trigger => trigger.Build(stateMachine)).ToList();
@@ -57,8 +62,6 @@ internal class StateConfiguration<TState, TTransition> : IInitialStateConfigurat
         );
 
         stateMachine.AddState(state);
-
-        return state;
     }
 
     /// <inheritdoc />
@@ -248,6 +251,13 @@ internal class StateConfiguration<TState, TTransition> : IInitialStateConfigurat
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>()
     {
         return new StateConfiguration<TState, TTransition, T1, T2, T3, T4>(State);
+    }
+
+    /// <inheritdoc />
+    public void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context)
+    {
+        var state = new StateValidationModel<TState, TTransition>(State, TypeParameters);
+        context.States.Add(state);
     }
 
     /// <inheritdoc />

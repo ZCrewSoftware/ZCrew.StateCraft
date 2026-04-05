@@ -1,12 +1,16 @@
 using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Configuration;
-using ZCrew.StateCraft.Transitions.Contracts;
+using ZCrew.StateCraft.Validation;
+using ZCrew.StateCraft.Validation.Contracts;
+using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.Transitions;
 
-/// <inheritdoc />
-internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionConfiguration<TState, TTransition>
+/// <inheritdoc cref="ITransitionConfiguration{TState,TTransition}"/>
+internal class MappedTransitionConfiguration<TState, TTransition>
+    : ITransitionConfiguration<TState, TTransition>,
+        IValidatable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -58,7 +62,7 @@ internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionC
         this.previousStateConfiguration.IsConditional || this.nextStateConfiguration.IsConditional;
 
     /// <inheritdoc />
-    public ITransition<TState, TTransition> Build(IStateMachine<TState, TTransition> stateMachine)
+    public void Build(IStateMachine<TState, TTransition> stateMachine)
     {
         var previousState = this.previousStateConfiguration.Build(stateMachine.StateTable);
         var nextState = this.nextStateConfiguration.Build(stateMachine.StateTable);
@@ -71,8 +75,21 @@ internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionC
         );
 
         previousState.State.AddTransition(transition);
+    }
 
-        return transition;
+    /// <inheritdoc />
+    public void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context)
+    {
+        var transition = new TransitionValidationModel<TState, TTransition>(
+            PreviousStateValue,
+            TransitionValue,
+            NextStateValue,
+            PreviousStateTypeParameters,
+            TransitionTypeParameters,
+            NextStateTypeParameters,
+            IsConditional
+        );
+        context.Transitions.Add(transition);
     }
 
     /// <inheritdoc />
