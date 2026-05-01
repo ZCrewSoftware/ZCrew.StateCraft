@@ -1,5 +1,7 @@
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
+using ZCrew.StateCraft.Async;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions;
 using ZCrew.StateCraft.Validation;
@@ -15,11 +17,11 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly List<IAsyncAction<TState, T1, T2, T3, T4>> onActivateHandlers = [];
-    private readonly List<IAsyncAction<TState, T1, T2, T3, T4>> onDeactivateHandlers = [];
-    private readonly List<IAsyncAction<TState, TTransition, TState, T1, T2, T3, T4>> onStateChangeHandlers = [];
-    private readonly List<IAsyncAction<T1, T2, T3, T4>> onEntryHandlers = [];
-    private readonly List<IAsyncAction<T1, T2, T3, T4>> onExitHandlers = [];
+    private readonly List<AsyncHandler<TState, T1, T2, T3, T4>> onActivateHandlers = [];
+    private readonly List<AsyncHandler<TState, T1, T2, T3, T4>> onDeactivateHandlers = [];
+    private readonly List<AsyncHandler<TState, TTransition, TState, T1, T2, T3, T4>> onStateChangeHandlers = [];
+    private readonly List<AsyncHandler<T1, T2, T3, T4>> onEntryHandlers = [];
+    private readonly List<AsyncHandler<T1, T2, T3, T4>> onExitHandlers = [];
     private readonly List<IActionConfiguration<T1, T2, T3, T4>> actionConfigurations = [];
     private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
@@ -89,7 +91,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Action<TState, T1, T2, T3, T4> handler
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -98,7 +100,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<TState, T1, T2, T3, T4, CancellationToken, Task> handler
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -107,7 +109,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<TState, T1, T2, T3, T4, CancellationToken, ValueTask> handler
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -116,7 +118,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Action<TState, T1, T2, T3, T4> handler
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -125,7 +127,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<TState, T1, T2, T3, T4, CancellationToken, Task> handler
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -134,7 +136,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<TState, T1, T2, T3, T4, CancellationToken, ValueTask> handler
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -143,7 +145,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Action<TState, TTransition, TState, T1, T2, T3, T4> handler
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -152,7 +154,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<TState, TTransition, TState, T1, T2, T3, T4, CancellationToken, Task> handler
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -161,14 +163,14 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<TState, TTransition, TState, T1, T2, T3, T4, CancellationToken, ValueTask> handler
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnEntry(Action<T1, T2, T3, T4> handler)
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -177,7 +179,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<T1, T2, T3, T4, CancellationToken, Task> handler
     )
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -186,14 +188,14 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<T1, T2, T3, T4, CancellationToken, ValueTask> handler
     )
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnExit(Action<T1, T2, T3, T4> handler)
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -202,7 +204,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<T1, T2, T3, T4, CancellationToken, Task> handler
     )
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -211,7 +213,7 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
         Func<T1, T2, T3, T4, CancellationToken, ValueTask> handler
     )
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 

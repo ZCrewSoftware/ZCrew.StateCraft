@@ -1,4 +1,5 @@
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.States.Configuration;
@@ -55,7 +56,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext>
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext> If(Func<TNext, bool> condition)
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -64,7 +65,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext>
         Func<TNext, CancellationToken, Task<bool>> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -73,7 +74,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext>
         Func<TNext, CancellationToken, ValueTask<bool>> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -134,7 +135,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(Func<TNext1, TNext2, bool> condition)
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -143,7 +144,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
         Func<TNext1, TNext2, CancellationToken, Task<bool>> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -152,7 +153,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
         Func<TNext1, TNext2, CancellationToken, ValueTask<bool>> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -215,7 +216,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
         Func<TNext1, TNext2, TNext3, bool> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -224,7 +225,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
         Func<TNext1, TNext2, TNext3, CancellationToken, Task<bool>> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -233,7 +234,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
         Func<TNext1, TNext2, TNext3, CancellationToken, ValueTask<bool>> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -304,7 +305,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
         Func<TNext1, TNext2, TNext3, TNext4, bool> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -313,7 +314,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
         Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, Task<bool>> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -322,7 +323,7 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
         Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, ValueTask<bool>> condition
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 

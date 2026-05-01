@@ -1,4 +1,4 @@
-using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.States.Configuration;
 using ZCrew.StateCraft.States.Contracts;
 
@@ -20,7 +20,7 @@ internal class PreviousStateConfiguration<TState, TTransition> : IPartialPreviou
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly List<IAsyncFunc<bool>> conditions = [];
+    private readonly List<AsyncCondition> conditions = [];
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="PreviousStateConfiguration{TState, TTransition}"/> class.
@@ -54,7 +54,7 @@ internal class PreviousStateConfiguration<TState, TTransition> : IPartialPreviou
     }
 
     /// <inheritdoc />
-    public void Add(IAsyncFunc<bool> condition)
+    public void Add(AsyncCondition condition)
     {
         this.conditions.Add(condition);
     }
@@ -84,7 +84,7 @@ internal class PreviousStateConfiguration<TState, TTransition, T>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly List<IAsyncFunc<T, bool>> conditions = [];
+    private readonly List<AsyncCondition<T>> conditions = [];
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -119,7 +119,7 @@ internal class PreviousStateConfiguration<TState, TTransition, T>
     }
 
     /// <inheritdoc />
-    public void Add(IAsyncFunc<T, bool> condition)
+    public void Add(AsyncCondition<T> condition)
     {
         this.conditions.Add(condition);
     }
@@ -150,7 +150,7 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly List<IAsyncFunc<T1, T2, bool>> conditions = [];
+    private readonly List<AsyncCondition<T1, T2>> conditions = [];
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -185,7 +185,7 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2>
     }
 
     /// <inheritdoc />
-    public void Add(IAsyncFunc<T1, T2, bool> condition)
+    public void Add(AsyncCondition<T1, T2> condition)
     {
         this.conditions.Add(condition);
     }
@@ -217,7 +217,7 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly List<IAsyncFunc<T1, T2, T3, bool>> conditions = [];
+    private readonly List<AsyncCondition<T1, T2, T3>> conditions = [];
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -252,7 +252,7 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3>
     }
 
     /// <inheritdoc />
-    public void Add(IAsyncFunc<T1, T2, T3, bool> condition)
+    public void Add(AsyncCondition<T1, T2, T3> condition)
     {
         this.conditions.Add(condition);
     }
@@ -285,7 +285,7 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3, T4>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly List<IAsyncFunc<T1, T2, T3, T4, bool>> conditions = [];
+    private readonly List<AsyncCondition<T1, T2, T3, T4>> conditions = [];
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -320,7 +320,7 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3, T4>
     }
 
     /// <inheritdoc />
-    public void Add(IAsyncFunc<T1, T2, T3, T4, bool> condition)
+    public void Add(AsyncCondition<T1, T2, T3, T4> condition)
     {
         this.conditions.Add(condition);
     }

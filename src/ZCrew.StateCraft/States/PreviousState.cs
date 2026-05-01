@@ -1,4 +1,4 @@
-using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.States.Contracts;
 
@@ -19,14 +19,14 @@ internal class PreviousState<TState, TTransition> : IPreviousState<TState, TTran
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="PreviousState{TState, TTransition}"/> class.
     /// </summary>
     /// <param name="state">The state that this previous state references.</param>
     /// <param name="conditions">The conditions that must be satisfied before transitioning.</param>
-    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<IAsyncFunc<bool>> conditions)
+    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<AsyncCondition> conditions)
     {
         State = state;
         this.conditions = conditions;
@@ -43,7 +43,7 @@ internal class PreviousState<TState, TTransition> : IPreviousState<TState, TTran
     {
         foreach (var condition in this.conditions)
         {
-            var result = await condition.InvokeAsync(token);
+            var result = await condition.Evaluate(token);
             if (!result)
             {
                 return false;
@@ -76,14 +76,14 @@ internal class PreviousState<TState, TTransition, T> : IPreviousState<TState, TT
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<T, bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition<T>> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="PreviousState{TState, TTransition, T}"/> class.
     /// </summary>
     /// <param name="state">The state that this previous state references.</param>
     /// <param name="conditions">The parameterized conditions that must be satisfied before transitioning.</param>
-    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<IAsyncFunc<T, bool>> conditions)
+    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<AsyncCondition<T>> conditions)
     {
         State = state;
         this.conditions = conditions;
@@ -106,7 +106,7 @@ internal class PreviousState<TState, TTransition, T> : IPreviousState<TState, TT
         var parameter = parameters.GetPreviousParameter<T>();
         foreach (var condition in this.conditions)
         {
-            var result = await condition.InvokeAsync(parameter, token);
+            var result = await condition.Evaluate(parameter, token);
             if (!result)
             {
                 return false;
@@ -140,7 +140,7 @@ internal class PreviousState<TState, TTransition, T1, T2> : IPreviousState<TStat
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<T1, T2, bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition<T1, T2>> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -148,7 +148,7 @@ internal class PreviousState<TState, TTransition, T1, T2> : IPreviousState<TStat
     /// </summary>
     /// <param name="state">The state that this previous state references.</param>
     /// <param name="conditions">The parameterized conditions that must be satisfied before transitioning.</param>
-    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<IAsyncFunc<T1, T2, bool>> conditions)
+    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<AsyncCondition<T1, T2>> conditions)
     {
         State = state;
         this.conditions = conditions;
@@ -171,7 +171,7 @@ internal class PreviousState<TState, TTransition, T1, T2> : IPreviousState<TStat
         var (p1, p2) = parameters.GetPreviousParameters<T1, T2>();
         foreach (var condition in this.conditions)
         {
-            var result = await condition.InvokeAsync(p1, p2, token);
+            var result = await condition.Evaluate(p1, p2, token);
             if (!result)
             {
                 return false;
@@ -206,7 +206,7 @@ internal class PreviousState<TState, TTransition, T1, T2, T3> : IPreviousState<T
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<T1, T2, T3, bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition<T1, T2, T3>> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -214,7 +214,7 @@ internal class PreviousState<TState, TTransition, T1, T2, T3> : IPreviousState<T
     /// </summary>
     /// <param name="state">The state that this previous state references.</param>
     /// <param name="conditions">The parameterized conditions that must be satisfied before transitioning.</param>
-    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<IAsyncFunc<T1, T2, T3, bool>> conditions)
+    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<AsyncCondition<T1, T2, T3>> conditions)
     {
         State = state;
         this.conditions = conditions;
@@ -237,7 +237,7 @@ internal class PreviousState<TState, TTransition, T1, T2, T3> : IPreviousState<T
         var (p1, p2, p3) = parameters.GetPreviousParameters<T1, T2, T3>();
         foreach (var condition in this.conditions)
         {
-            var result = await condition.InvokeAsync(p1, p2, p3, token);
+            var result = await condition.Evaluate(p1, p2, p3, token);
             if (!result)
             {
                 return false;
@@ -273,7 +273,7 @@ internal class PreviousState<TState, TTransition, T1, T2, T3, T4> : IPreviousSta
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<T1, T2, T3, T4, bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition<T1, T2, T3, T4>> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -281,7 +281,7 @@ internal class PreviousState<TState, TTransition, T1, T2, T3, T4> : IPreviousSta
     /// </summary>
     /// <param name="state">The state that this previous state references.</param>
     /// <param name="conditions">The parameterized conditions that must be satisfied before transitioning.</param>
-    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<IAsyncFunc<T1, T2, T3, T4, bool>> conditions)
+    public PreviousState(IState<TState, TTransition> state, IReadOnlyList<AsyncCondition<T1, T2, T3, T4>> conditions)
     {
         State = state;
         this.conditions = conditions;
@@ -304,7 +304,7 @@ internal class PreviousState<TState, TTransition, T1, T2, T3, T4> : IPreviousSta
         var (p1, p2, p3, p4) = parameters.GetPreviousParameters<T1, T2, T3, T4>();
         foreach (var condition in this.conditions)
         {
-            var result = await condition.InvokeAsync(p1, p2, p3, p4, token);
+            var result = await condition.Evaluate(p1, p2, p3, p4, token);
             if (!result)
             {
                 return false;
