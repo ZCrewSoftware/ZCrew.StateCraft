@@ -1,4 +1,4 @@
-using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async;
 
 namespace ZCrew.StateCraft.States.Configuration;
 
@@ -23,7 +23,7 @@ internal interface IPartialPreviousStateConfiguration<TState, TTransition>
     ///     Adds a parameterless condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<bool> condition);
+    void Add(AsyncCondition condition);
 }
 
 /// <summary>
@@ -48,7 +48,7 @@ internal interface IPartialPreviousStateConfiguration<TState, TTransition, T>
     ///     Adds a single-parameter condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<T, bool> condition);
+    void Add(AsyncCondition<T> condition);
 }
 
 /// <summary>
@@ -74,7 +74,7 @@ internal interface IPartialPreviousStateConfiguration<TState, TTransition, T1, T
     ///     Adds a two-parameter condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<T1, T2, bool> condition);
+    void Add(AsyncCondition<T1, T2> condition);
 }
 
 /// <summary>
@@ -101,7 +101,7 @@ internal interface IPartialPreviousStateConfiguration<TState, TTransition, T1, T
     ///     Adds a three-parameter condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<T1, T2, T3, bool> condition);
+    void Add(AsyncCondition<T1, T2, T3> condition);
 }
 
 /// <summary>
@@ -129,5 +129,5 @@ internal interface IPartialPreviousStateConfiguration<TState, TTransition, T1, T
     ///     Adds a four-parameter condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<T1, T2, T3, T4, bool> condition);
+    void Add(AsyncCondition<T1, T2, T3, T4> condition);
 }

@@ -1,4 +1,4 @@
-using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.States.Configuration;
 using ZCrew.StateCraft.States.Contracts;
 
@@ -20,14 +20,14 @@ internal class NextStateConfiguration<TState, TTransition> : INextStateConfigura
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="NextStateConfiguration{TState, TTransition}"/> class.
     /// </summary>
     /// <param name="stateValue">The target state value.</param>
     /// <param name="conditions">The conditions that must be satisfied before transitioning.</param>
-    public NextStateConfiguration(TState stateValue, IReadOnlyList<IAsyncFunc<bool>> conditions)
+    public NextStateConfiguration(TState stateValue, IReadOnlyList<AsyncCondition> conditions)
     {
         StateValue = stateValue;
         this.conditions = conditions;
@@ -73,14 +73,14 @@ internal class NextStateConfiguration<TState, TTransition, T> : INextStateConfig
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<T, bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition<T>> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="NextStateConfiguration{TState, TTransition, T}"/> class.
     /// </summary>
     /// <param name="stateValue">The target state value.</param>
     /// <param name="conditions">The parameterized conditions that must be satisfied before transitioning.</param>
-    public NextStateConfiguration(TState stateValue, IReadOnlyList<IAsyncFunc<T, bool>> conditions)
+    public NextStateConfiguration(TState stateValue, IReadOnlyList<AsyncCondition<T>> conditions)
     {
         StateValue = stateValue;
         this.conditions = conditions;
@@ -127,7 +127,7 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2> : INextStateC
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<T1, T2, bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition<T1, T2>> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -135,7 +135,7 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2> : INextStateC
     /// </summary>
     /// <param name="stateValue">The target state value.</param>
     /// <param name="conditions">The parameterized conditions that must be satisfied before transitioning.</param>
-    public NextStateConfiguration(TState stateValue, IReadOnlyList<IAsyncFunc<T1, T2, bool>> conditions)
+    public NextStateConfiguration(TState stateValue, IReadOnlyList<AsyncCondition<T1, T2>> conditions)
     {
         StateValue = stateValue;
         this.conditions = conditions;
@@ -183,7 +183,7 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3> : INextSt
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<T1, T2, T3, bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition<T1, T2, T3>> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -191,7 +191,7 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3> : INextSt
     /// </summary>
     /// <param name="stateValue">The target state value.</param>
     /// <param name="conditions">The parameterized conditions that must be satisfied before transitioning.</param>
-    public NextStateConfiguration(TState stateValue, IReadOnlyList<IAsyncFunc<T1, T2, T3, bool>> conditions)
+    public NextStateConfiguration(TState stateValue, IReadOnlyList<AsyncCondition<T1, T2, T3>> conditions)
     {
         StateValue = stateValue;
         this.conditions = conditions;
@@ -241,7 +241,7 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3, T4>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncFunc<T1, T2, T3, T4, bool>> conditions;
+    private readonly IReadOnlyList<AsyncCondition<T1, T2, T3, T4>> conditions;
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -249,7 +249,7 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3, T4>
     /// </summary>
     /// <param name="stateValue">The target state value.</param>
     /// <param name="conditions">The parameterized conditions that must be satisfied before transitioning.</param>
-    public NextStateConfiguration(TState stateValue, IReadOnlyList<IAsyncFunc<T1, T2, T3, T4, bool>> conditions)
+    public NextStateConfiguration(TState stateValue, IReadOnlyList<AsyncCondition<T1, T2, T3, T4>> conditions)
     {
         StateValue = stateValue;
         this.conditions = conditions;

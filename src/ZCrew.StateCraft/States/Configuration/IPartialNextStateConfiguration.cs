@@ -1,4 +1,4 @@
-using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async;
 
 namespace ZCrew.StateCraft.States.Configuration;
 
@@ -21,7 +21,7 @@ internal interface IPartialNextStateConfiguration<TState, TTransition>
     ///     Adds a parameterless condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<bool> condition);
+    void Add(AsyncCondition condition);
 
     /// <summary>
     ///     Completes the partial configuration by specifying the target state, producing a full
@@ -52,7 +52,7 @@ internal interface IPartialNextStateConfiguration<TState, TTransition, T>
     ///     Adds a single-parameter condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<T, bool> condition);
+    void Add(AsyncCondition<T> condition);
 
     /// <summary>
     ///     Completes the partial configuration by specifying the target state, producing a full
@@ -84,7 +84,7 @@ internal interface IPartialNextStateConfiguration<TState, TTransition, T1, T2>
     ///     Adds a two-parameter condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<T1, T2, bool> condition);
+    void Add(AsyncCondition<T1, T2> condition);
 
     /// <summary>
     ///     Completes the partial configuration by specifying the target state, producing a full
@@ -117,7 +117,7 @@ internal interface IPartialNextStateConfiguration<TState, TTransition, T1, T2, T
     ///     Adds a three-parameter condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<T1, T2, T3, bool> condition);
+    void Add(AsyncCondition<T1, T2, T3> condition);
 
     /// <summary>
     ///     Completes the partial configuration by specifying the target state, producing a full
@@ -151,7 +151,7 @@ internal interface IPartialNextStateConfiguration<TState, TTransition, T1, T2, T
     ///     Adds a four-parameter condition that must be satisfied for the transition to proceed.
     /// </summary>
     /// <param name="condition">The condition to add.</param>
-    void Add(IAsyncFunc<T1, T2, T3, T4, bool> condition);
+    void Add(AsyncCondition<T1, T2, T3, T4> condition);
 
     /// <summary>
     ///     Completes the partial configuration by specifying the target state, producing a full

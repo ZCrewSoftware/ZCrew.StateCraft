@@ -1,4 +1,5 @@
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Mapping;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.States.Configuration;
@@ -36,14 +37,14 @@ internal class InitialTransitionConfiguration<TState, TTransition, T>
     /// <inheritdoc />
     public IInitialTransitionConfiguration<TState, TTransition, T> If(Func<T, bool> condition)
     {
-        this.previousStateConfiguration.Add(condition.AsAsyncFunc());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
     /// <inheritdoc />
     public IInitialTransitionConfiguration<TState, TTransition, T> If(Func<T, CancellationToken, Task<bool>> condition)
     {
-        this.previousStateConfiguration.Add(condition.AsAsyncFunc());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
@@ -52,7 +53,7 @@ internal class InitialTransitionConfiguration<TState, TTransition, T>
         Func<T, CancellationToken, ValueTask<bool>> condition
     )
     {
-        this.previousStateConfiguration.Add(condition.AsAsyncFunc());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 

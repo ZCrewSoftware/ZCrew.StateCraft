@@ -1,5 +1,7 @@
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
+using ZCrew.StateCraft.Async;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions;
 using ZCrew.StateCraft.Validation;
@@ -15,11 +17,11 @@ internal class StateConfiguration<TState, TTransition, T>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly List<IAsyncAction<TState, T>> onActivateHandlers = [];
-    private readonly List<IAsyncAction<TState, T>> onDeactivateHandlers = [];
-    private readonly List<IAsyncAction<TState, TTransition, TState, T>> onStateChangeHandlers = [];
-    private readonly List<IAsyncAction<T>> onEntryHandlers = [];
-    private readonly List<IAsyncAction<T>> onExitHandlers = [];
+    private readonly List<AsyncHandler<TState, T>> onActivateHandlers = [];
+    private readonly List<AsyncHandler<TState, T>> onDeactivateHandlers = [];
+    private readonly List<AsyncHandler<TState, TTransition, TState, T>> onStateChangeHandlers = [];
+    private readonly List<AsyncHandler<T>> onEntryHandlers = [];
+    private readonly List<AsyncHandler<T>> onExitHandlers = [];
     private readonly List<IActionConfiguration<T>> actionConfigurations = [];
     private readonly List<ITransitionConfiguration<TState, TTransition>> transitionConfigurations = [];
 
@@ -92,7 +94,7 @@ internal class StateConfiguration<TState, TTransition, T>
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T> OnActivate(Action<TState, T> handler)
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -101,7 +103,7 @@ internal class StateConfiguration<TState, TTransition, T>
         Func<TState, T, CancellationToken, Task> handler
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -110,14 +112,14 @@ internal class StateConfiguration<TState, TTransition, T>
         Func<TState, T, CancellationToken, ValueTask> handler
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T> OnDeactivate(Action<TState, T> handler)
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -126,7 +128,7 @@ internal class StateConfiguration<TState, TTransition, T>
         Func<TState, T, CancellationToken, Task> handler
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -135,7 +137,7 @@ internal class StateConfiguration<TState, TTransition, T>
         Func<TState, T, CancellationToken, ValueTask> handler
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -144,7 +146,7 @@ internal class StateConfiguration<TState, TTransition, T>
         Action<TState, TTransition, TState, T> handler
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -153,7 +155,7 @@ internal class StateConfiguration<TState, TTransition, T>
         Func<TState, TTransition, TState, T, CancellationToken, Task> handler
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -162,21 +164,21 @@ internal class StateConfiguration<TState, TTransition, T>
         Func<TState, TTransition, TState, T, CancellationToken, ValueTask> handler
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T> OnEntry(Action<T> handler)
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T> OnEntry(Func<T, CancellationToken, Task> handler)
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -185,21 +187,21 @@ internal class StateConfiguration<TState, TTransition, T>
         Func<T, CancellationToken, ValueTask> handler
     )
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T> OnExit(Action<T> handler)
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T> OnExit(Func<T, CancellationToken, Task> handler)
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 
@@ -208,7 +210,7 @@ internal class StateConfiguration<TState, TTransition, T>
         Func<T, CancellationToken, ValueTask> handler
     )
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
         return this;
     }
 

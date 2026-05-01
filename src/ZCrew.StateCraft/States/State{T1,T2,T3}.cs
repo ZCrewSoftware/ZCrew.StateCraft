@@ -1,5 +1,5 @@
-using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
+using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
@@ -13,11 +13,11 @@ internal class State<TState, TTransition, T1, T2, T3> : IState<TState, TTransiti
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncAction<TState, T1, T2, T3>> onActivateHandlers;
-    private readonly IReadOnlyList<IAsyncAction<TState, T1, T2, T3>> onDeactivateHandlers;
-    private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState, T1, T2, T3>> onStateChangeHandlers;
-    private readonly IReadOnlyList<IAsyncAction<T1, T2, T3>> onEntryHandlers;
-    private readonly IReadOnlyList<IAsyncAction<T1, T2, T3>> onExitHandlers;
+    private readonly IReadOnlyList<AsyncHandler<TState, T1, T2, T3>> onActivateHandlers;
+    private readonly IReadOnlyList<AsyncHandler<TState, T1, T2, T3>> onDeactivateHandlers;
+    private readonly IReadOnlyList<AsyncHandler<TState, TTransition, TState, T1, T2, T3>> onStateChangeHandlers;
+    private readonly IReadOnlyList<AsyncHandler<T1, T2, T3>> onEntryHandlers;
+    private readonly IReadOnlyList<AsyncHandler<T1, T2, T3>> onExitHandlers;
     private readonly IReadOnlyList<IAction<T1, T2, T3>> actions;
     private readonly TransitionTable<TState, TTransition> transitionTable = [];
 
@@ -26,11 +26,11 @@ internal class State<TState, TTransition, T1, T2, T3> : IState<TState, TTransiti
     /// </summary>
     public State(
         TState state,
-        IReadOnlyList<IAsyncAction<TState, T1, T2, T3>> onActivateHandlers,
-        IReadOnlyList<IAsyncAction<TState, T1, T2, T3>> onDeactivateHandlers,
-        IReadOnlyList<IAsyncAction<TState, TTransition, TState, T1, T2, T3>> onStateChangeHandlers,
-        IReadOnlyList<IAsyncAction<T1, T2, T3>> onEntryHandlers,
-        IReadOnlyList<IAsyncAction<T1, T2, T3>> onExitHandlers,
+        IReadOnlyList<AsyncHandler<TState, T1, T2, T3>> onActivateHandlers,
+        IReadOnlyList<AsyncHandler<TState, T1, T2, T3>> onDeactivateHandlers,
+        IReadOnlyList<AsyncHandler<TState, TTransition, TState, T1, T2, T3>> onStateChangeHandlers,
+        IReadOnlyList<AsyncHandler<T1, T2, T3>> onEntryHandlers,
+        IReadOnlyList<AsyncHandler<T1, T2, T3>> onExitHandlers,
         IReadOnlyList<IAction<T1, T2, T3>> actions,
         IStateMachine<TState, TTransition> stateMachine
     )
@@ -64,10 +64,7 @@ internal class State<TState, TTransition, T1, T2, T3> : IState<TState, TTransiti
         StateMachine.Tracker?.Activated(this, (p1, p2, p3));
         foreach (var handler in this.onActivateHandlers)
         {
-            await StateMachine.ExceptionBehavior.CallOnActivate(
-                t => handler.InvokeAsync(StateValue, p1, p2, p3, t),
-                token
-            );
+            await StateMachine.ExceptionBehavior.CallOnActivate(t => handler.Invoke(StateValue, p1, p2, p3, t), token);
         }
     }
 
@@ -79,7 +76,7 @@ internal class State<TState, TTransition, T1, T2, T3> : IState<TState, TTransiti
         foreach (var handler in this.onDeactivateHandlers)
         {
             await StateMachine.ExceptionBehavior.CallOnDeactivate(
-                t => handler.InvokeAsync(StateValue, p1, p2, p3, t),
+                t => handler.Invoke(StateValue, p1, p2, p3, t),
                 token
             );
         }
@@ -97,7 +94,7 @@ internal class State<TState, TTransition, T1, T2, T3> : IState<TState, TTransiti
         foreach (var handler in this.onStateChangeHandlers)
         {
             await StateMachine.ExceptionBehavior.CallOnStateChange(
-                t => handler.InvokeAsync(previousState, transition, StateValue, p1, p2, p3, t),
+                t => handler.Invoke(previousState, transition, StateValue, p1, p2, p3, t),
                 token
             );
         }
@@ -110,7 +107,7 @@ internal class State<TState, TTransition, T1, T2, T3> : IState<TState, TTransiti
         StateMachine.Tracker?.Entered(this, (p1, p2, p3));
         foreach (var handler in this.onEntryHandlers)
         {
-            await StateMachine.ExceptionBehavior.CallOnEntry(t => handler.InvokeAsync(p1, p2, p3, t), token);
+            await StateMachine.ExceptionBehavior.CallOnEntry(t => handler.Invoke(p1, p2, p3, t), token);
         }
     }
 
@@ -121,7 +118,7 @@ internal class State<TState, TTransition, T1, T2, T3> : IState<TState, TTransiti
         StateMachine.Tracker?.Exited(this, (p1, p2, p3));
         foreach (var handler in this.onExitHandlers)
         {
-            await StateMachine.ExceptionBehavior.CallOnExit(t => handler.InvokeAsync(p1, p2, p3, t), token);
+            await StateMachine.ExceptionBehavior.CallOnExit(t => handler.Invoke(p1, p2, p3, t), token);
         }
     }
 
@@ -151,13 +148,12 @@ internal class State<TState, TTransition, T1, T2, T3> : IState<TState, TTransiti
         var result = await this.transitionTable.LookupTransition(transition, parameters, token);
         if (result == null)
         {
-            var available = this.transitionTable
-                .Select(t => t.ToString())
-                .ToList();
+            var available = this.transitionTable.Select(t => t.ToString()).ToList();
 
-            var availableInfo = available.Count > 0
-                ? $" Available from '{StateValue}': {string.Join(", ", available)}."
-                : $" No transitions registered for '{StateValue}'.";
+            var availableInfo =
+                available.Count > 0
+                    ? $" Available from '{StateValue}': {string.Join(", ", available)}."
+                    : $" No transitions registered for '{StateValue}'.";
 
             throw new InvalidOperationException(
                 $"No transition could be found for '{transition}' from state '{StateValue}'.{availableInfo}"

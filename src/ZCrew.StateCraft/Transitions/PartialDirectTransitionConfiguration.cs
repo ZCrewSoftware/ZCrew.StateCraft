@@ -1,4 +1,5 @@
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.States.Configuration;
 
@@ -49,21 +50,21 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition>
     /// <inheritdoc />
     public IDirectTransitionConfiguration<TState, TTransition> If(Func<bool> condition)
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
     /// <inheritdoc />
     public IDirectTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, Task<bool>> condition)
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 
     /// <inheritdoc />
     public IDirectTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, ValueTask<bool>> condition)
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
         return this;
     }
 

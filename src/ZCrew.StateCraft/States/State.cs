@@ -1,5 +1,5 @@
-using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions.Contracts;
+using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
@@ -22,11 +22,11 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    private readonly IReadOnlyList<IAsyncAction<TState>> onActivateHandlers;
-    private readonly IReadOnlyList<IAsyncAction<TState>> onDeactivateHandlers;
-    private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChangeHandlers;
-    private readonly IReadOnlyList<IAsyncAction> onEntryHandlers;
-    private readonly IReadOnlyList<IAsyncAction> onExitHandlers;
+    private readonly IReadOnlyList<AsyncHandler<TState>> onActivateHandlers;
+    private readonly IReadOnlyList<AsyncHandler<TState>> onDeactivateHandlers;
+    private readonly IReadOnlyList<AsyncHandler<TState, TTransition, TState>> onStateChangeHandlers;
+    private readonly IReadOnlyList<AsyncHandler> onEntryHandlers;
+    private readonly IReadOnlyList<AsyncHandler> onExitHandlers;
     private readonly IReadOnlyList<IAction> actions;
     private readonly IReadOnlyList<ITrigger> triggers;
     private readonly TransitionTable<TState, TTransition> transitionTable = [];
@@ -45,11 +45,11 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
     /// <param name="stateMachine">The state machine that owns this state.</param>
     public State(
         TState state,
-        IReadOnlyList<IAsyncAction<TState>> onActivateHandlers,
-        IReadOnlyList<IAsyncAction<TState>> onDeactivateHandlers,
-        IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChangeHandlers,
-        IReadOnlyList<IAsyncAction> onEntryHandlers,
-        IReadOnlyList<IAsyncAction> onExitHandlers,
+        IReadOnlyList<AsyncHandler<TState>> onActivateHandlers,
+        IReadOnlyList<AsyncHandler<TState>> onDeactivateHandlers,
+        IReadOnlyList<AsyncHandler<TState, TTransition, TState>> onStateChangeHandlers,
+        IReadOnlyList<AsyncHandler> onEntryHandlers,
+        IReadOnlyList<AsyncHandler> onExitHandlers,
         IReadOnlyList<IAction> actions,
         IReadOnlyList<ITrigger> triggers,
         IStateMachine<TState, TTransition> stateMachine
@@ -84,7 +84,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         StateMachine.Tracker?.Activated(this);
         foreach (var handler in this.onActivateHandlers)
         {
-            await StateMachine.ExceptionBehavior.CallOnActivate(t => handler.InvokeAsync(StateValue, t), token);
+            await StateMachine.ExceptionBehavior.CallOnActivate(t => handler.Invoke(StateValue, t), token);
         }
     }
 
@@ -94,7 +94,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         StateMachine.Tracker?.Deactivated(this);
         foreach (var handler in this.onDeactivateHandlers)
         {
-            await StateMachine.ExceptionBehavior.CallOnDeactivate(t => handler.InvokeAsync(StateValue, t), token);
+            await StateMachine.ExceptionBehavior.CallOnDeactivate(t => handler.Invoke(StateValue, t), token);
         }
     }
 
@@ -109,7 +109,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         foreach (var handler in this.onStateChangeHandlers)
         {
             await StateMachine.ExceptionBehavior.CallOnStateChange(
-                t => handler.InvokeAsync(previousState, transition, StateValue, t),
+                t => handler.Invoke(previousState, transition, StateValue, t),
                 token
             );
         }
@@ -121,7 +121,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         StateMachine.Tracker?.Entered(this);
         foreach (var handler in this.onEntryHandlers)
         {
-            await StateMachine.ExceptionBehavior.CallOnEntry(handler.InvokeAsync, token);
+            await StateMachine.ExceptionBehavior.CallOnEntry(handler.Invoke, token);
         }
 
         foreach (var trigger in this.triggers)
@@ -141,7 +141,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         StateMachine.Tracker?.Exited(this);
         foreach (var handler in this.onExitHandlers)
         {
-            await StateMachine.ExceptionBehavior.CallOnExit(handler.InvokeAsync, token);
+            await StateMachine.ExceptionBehavior.CallOnExit(handler.Invoke, token);
         }
     }
 
