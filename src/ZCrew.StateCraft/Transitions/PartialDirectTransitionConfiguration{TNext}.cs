@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.States;
@@ -48,27 +49,32 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext>
     }
 
     /// <inheritdoc />
-    public IDirectTransitionConfiguration<TState, TTransition, TNext> If(Func<TNext, bool> condition)
+    public IDirectTransitionConfiguration<TState, TTransition, TNext> If(
+        Func<TNext, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IDirectTransitionConfiguration<TState, TTransition, TNext> If(
-        Func<TNext, CancellationToken, Task<bool>> condition
+        Func<TNext, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IDirectTransitionConfiguration<TState, TTransition, TNext> If(
-        Func<TNext, CancellationToken, ValueTask<bool>> condition
+        Func<TNext, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 

@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -16,7 +18,7 @@ namespace ZCrew.StateCraft;
 /// <typeparam name="TNext">The type of the mapped parameter for the next state.</typeparam>
 /// <remarks>
 ///     <para>
-///     Conditions added via <see cref="If(Func{TNext, bool})"/> are evaluated in the order they are registered.
+///     Conditions added via <see cref="If(Func{TNext, bool}, string?)"/> are evaluated in the order they are registered.
 ///     All conditions must return <see langword="true"/> for the transition to proceed (logical AND).
 ///     Evaluation short-circuits on the first <see langword="false"/> result.
 ///     </para>
@@ -34,25 +36,44 @@ public interface IMappedTransitionConfiguration<TState, TTransition, TNext>
     ///     The condition receives the mapped parameter value from the previous that will be passed to the next state.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IMappedTransitionConfiguration<TState, TTransition, TNext> If(Func<TNext, bool> condition);
-
-    /// <summary>
-    ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
-    ///     The condition receives the mapped parameter value from the previous that will be passed to the next state.
-    /// </summary>
-    /// <param name="condition">The delegate to check when resolving the transition.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IMappedTransitionConfiguration<TState, TTransition, TNext> If(Func<TNext, CancellationToken, Task<bool>> condition);
-
-    /// <summary>
-    ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
-    ///     The condition receives the mapped parameter value from the previous that will be passed to the next state.
-    /// </summary>
-    /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext> If(
-        Func<TNext, CancellationToken, ValueTask<bool>> condition
+        Func<TNext, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
+    ///     The condition receives the mapped parameter value from the previous that will be passed to the next state.
+    /// </summary>
+    /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IMappedTransitionConfiguration<TState, TTransition, TNext> If(
+        Func<TNext, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
+    ///     The condition receives the mapped parameter value from the previous that will be passed to the next state.
+    /// </summary>
+    /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IMappedTransitionConfiguration<TState, TTransition, TNext> If(
+        Func<TNext, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <summary>
@@ -91,17 +112,22 @@ public interface IMappedTransitionConfiguration<TState, TTransition, TNext1, TNe
     where TState : notnull
     where TTransition : notnull
 {
-    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,bool})"/>
-    IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(Func<TNext1, TNext2, bool> condition);
-
-    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,Task{bool}})"/>
+    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,bool}, string?)"/>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
-        Func<TNext1, TNext2, CancellationToken, Task<bool>> condition
+        Func<TNext1, TNext2, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,ValueTask{bool}})"/>
+    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,Task{bool}}, string?)"/>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
-        Func<TNext1, TNext2, CancellationToken, ValueTask<bool>> condition
+        Func<TNext1, TNext2, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
+
+    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,ValueTask{bool}}, string?)"/>
+    IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
+        Func<TNext1, TNext2, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.To"/>
@@ -129,19 +155,22 @@ public interface IMappedTransitionConfiguration<TState, TTransition, TNext1, TNe
     where TState : notnull
     where TTransition : notnull
 {
-    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,bool})"/>
+    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,bool}, string?)"/>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> If(
-        Func<TNext1, TNext2, TNext3, bool> condition
+        Func<TNext1, TNext2, TNext3, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,Task{bool}})"/>
+    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,Task{bool}}, string?)"/>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> If(
-        Func<TNext1, TNext2, TNext3, CancellationToken, Task<bool>> condition
+        Func<TNext1, TNext2, TNext3, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,ValueTask{bool}})"/>
+    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,ValueTask{bool}}, string?)"/>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> If(
-        Func<TNext1, TNext2, TNext3, CancellationToken, ValueTask<bool>> condition
+        Func<TNext1, TNext2, TNext3, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.To"/>
@@ -170,19 +199,22 @@ public interface IMappedTransitionConfiguration<TState, TTransition, TNext1, TNe
     where TState : notnull
     where TTransition : notnull
 {
-    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,bool})"/>
+    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,bool}, string?)"/>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, bool> condition
+        Func<TNext1, TNext2, TNext3, TNext4, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,Task{bool}})"/>
+    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,Task{bool}}, string?)"/>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, Task<bool>> condition
+        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,ValueTask{bool}})"/>
+    /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.If(Func{TNext,CancellationToken,ValueTask{bool}}, string?)"/>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, ValueTask<bool>> condition
+        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <inheritdoc cref="IMappedTransitionConfiguration{TState,TTransition,TNext}.To"/>

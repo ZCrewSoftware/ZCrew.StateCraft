@@ -11,7 +11,10 @@ namespace ZCrew.StateCraft.Async;
 ///     which allows additional metadata to be associated with conditions in the future without changing call sites.
 /// </remarks>
 /// <param name="Condition">The underlying asynchronous predicate that is evaluated when the condition runs.</param>
-internal readonly record struct AsyncCondition(IAsyncFunc<bool> Condition)
+/// <param name="Descriptor">
+///     An optional descriptor identifying the condition, captured from the caller's expression.
+/// </param>
+internal readonly record struct AsyncCondition(IAsyncFunc<bool> Condition, string? Descriptor)
 {
     /// <summary>
     ///     Evaluates the wrapped condition.
@@ -34,7 +37,10 @@ internal readonly record struct AsyncCondition(IAsyncFunc<bool> Condition)
 /// </remarks>
 /// <typeparam name="T">The type of the parameter passed to the condition.</typeparam>
 /// <param name="Condition">The underlying asynchronous predicate that is evaluated when the condition runs.</param>
-internal readonly record struct AsyncCondition<T>(IAsyncFunc<T, bool> Condition)
+/// <param name="Descriptor">
+///     An optional descriptor identifying the condition, captured from the caller's expression.
+/// </param>
+internal readonly record struct AsyncCondition<T>(IAsyncFunc<T, bool> Condition, string? Descriptor)
 {
     /// <summary>
     ///     Evaluates the wrapped condition with the provided parameter.
@@ -59,7 +65,10 @@ internal readonly record struct AsyncCondition<T>(IAsyncFunc<T, bool> Condition)
 /// <typeparam name="T1">The type of the first parameter passed to the condition.</typeparam>
 /// <typeparam name="T2">The type of the second parameter passed to the condition.</typeparam>
 /// <param name="Condition">The underlying asynchronous predicate that is evaluated when the condition runs.</param>
-internal readonly record struct AsyncCondition<T1, T2>(IAsyncFunc<T1, T2, bool> Condition)
+/// <param name="Descriptor">
+///     An optional descriptor identifying the condition, captured from the caller's expression.
+/// </param>
+internal readonly record struct AsyncCondition<T1, T2>(IAsyncFunc<T1, T2, bool> Condition, string? Descriptor)
 {
     /// <summary>
     ///     Evaluates the wrapped condition with the provided parameters.
@@ -86,7 +95,10 @@ internal readonly record struct AsyncCondition<T1, T2>(IAsyncFunc<T1, T2, bool> 
 /// <typeparam name="T2">The type of the second parameter passed to the condition.</typeparam>
 /// <typeparam name="T3">The type of the third parameter passed to the condition.</typeparam>
 /// <param name="Condition">The underlying asynchronous predicate that is evaluated when the condition runs.</param>
-internal readonly record struct AsyncCondition<T1, T2, T3>(IAsyncFunc<T1, T2, T3, bool> Condition)
+/// <param name="Descriptor">
+///     An optional descriptor identifying the condition, captured from the caller's expression.
+/// </param>
+internal readonly record struct AsyncCondition<T1, T2, T3>(IAsyncFunc<T1, T2, T3, bool> Condition, string? Descriptor)
 {
     /// <summary>
     ///     Evaluates the wrapped condition with the provided parameters.
@@ -115,7 +127,13 @@ internal readonly record struct AsyncCondition<T1, T2, T3>(IAsyncFunc<T1, T2, T3
 /// <typeparam name="T3">The type of the third parameter passed to the condition.</typeparam>
 /// <typeparam name="T4">The type of the fourth parameter passed to the condition.</typeparam>
 /// <param name="Condition">The underlying asynchronous predicate that is evaluated when the condition runs.</param>
-internal readonly record struct AsyncCondition<T1, T2, T3, T4>(IAsyncFunc<T1, T2, T3, T4, bool> Condition)
+/// <param name="Descriptor">
+///     An optional descriptor identifying the condition, captured from the caller's expression.
+/// </param>
+internal readonly record struct AsyncCondition<T1, T2, T3, T4>(
+    IAsyncFunc<T1, T2, T3, T4, bool> Condition,
+    string? Descriptor
+)
 {
     /// <summary>
     ///     Evaluates the wrapped condition with the provided parameters.

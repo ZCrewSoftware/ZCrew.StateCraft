@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -30,25 +32,44 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
     ///     with this state as the initial state. This is only called during activation, not during transitions.
     /// </summary>
     /// <param name="handler">The delegate to call when the state machine is activated.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnActivate(Action<TState> handler);
-
-    /// <summary>
-    ///     Configures a <paramref name="handler"/> delegate which will be called when the state machine is activated
-    ///     with this state as the initial state. This is only called during activation, not during transitions.
-    /// </summary>
-    /// <param name="handler">The delegate to call when the state machine is activated.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnActivate(Func<TState, CancellationToken, Task> handler);
-
-    /// <summary>
-    ///     Configures a <paramref name="handler"/> delegate which will be called when the state machine is activated
-    ///     with this state as the initial state. This is only called during activation, not during transitions.
-    /// </summary>
-    /// <param name="handler">The delegate to call when the state machine is activated.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> OnActivate(
-        Func<TState, CancellationToken, ValueTask> handler
+        Action<TState> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state machine is activated
+    ///     with this state as the initial state. This is only called during activation, not during transitions.
+    /// </summary>
+    /// <param name="handler">The delegate to call when the state machine is activated.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterlessStateConfiguration<TState, TTransition> OnActivate(
+        Func<TState, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state machine is activated
+    ///     with this state as the initial state. This is only called during activation, not during transitions.
+    /// </summary>
+    /// <param name="handler">The delegate to call when the state machine is activated.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterlessStateConfiguration<TState, TTransition> OnActivate(
+        Func<TState, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
     /// <summary>
@@ -56,25 +77,44 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
     ///     with this state as the current state. This is only called during deactivation, not during transitions.
     /// </summary>
     /// <param name="handler">The delegate to call when the state machine is deactivated.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnDeactivate(Action<TState> handler);
-
-    /// <summary>
-    ///     Configures a <paramref name="handler"/> delegate which will be called when the state machine is deactivated
-    ///     with this state as the current state. This is only called during deactivation, not during transitions.
-    /// </summary>
-    /// <param name="handler">The delegate to call when the state machine is deactivated.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnDeactivate(Func<TState, CancellationToken, Task> handler);
-
-    /// <summary>
-    ///     Configures a <paramref name="handler"/> delegate which will be called when the state machine is deactivated
-    ///     with this state as the current state. This is only called during deactivation, not during transitions.
-    /// </summary>
-    /// <param name="handler">The delegate to call when the state machine is deactivated.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> OnDeactivate(
-        Func<TState, CancellationToken, ValueTask> handler
+        Action<TState> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state machine is deactivated
+    ///     with this state as the current state. This is only called during deactivation, not during transitions.
+    /// </summary>
+    /// <param name="handler">The delegate to call when the state machine is deactivated.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterlessStateConfiguration<TState, TTransition> OnDeactivate(
+        Func<TState, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state machine is deactivated
+    ///     with this state as the current state. This is only called during deactivation, not during transitions.
+    /// </summary>
+    /// <param name="handler">The delegate to call when the state machine is deactivated.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterlessStateConfiguration<TState, TTransition> OnDeactivate(
+        Func<TState, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
     /// <summary>
@@ -87,23 +127,14 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
     ///     </para>
     /// </summary>
     /// <param name="handler">The delegate to call as a state is changed.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnStateChange(Action<TState, TTransition, TState> handler);
-
-    /// <summary>
-    ///     <para>
-    ///     Configures a <paramref name="handler"/> delegate which will be called when the state changes. The parameters
-    ///     to the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
-    ///     monitor for cancellation.
-    ///     </para>
-    ///     <para>
-    ///     Since this is configured for a specific state, the 'next state' will always be 'this state'.
-    ///     </para>
-    /// </summary>
-    /// <param name="handler">The delegate to call as a state is changed.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> OnStateChange(
-        Func<TState, TTransition, TState, CancellationToken, Task> handler
+        Action<TState, TTransition, TState> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
     /// <summary>
@@ -117,9 +148,35 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
     ///     </para>
     /// </summary>
     /// <param name="handler">The delegate to call as a state is changed.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IParameterlessStateConfiguration<TState, TTransition> OnStateChange(
-        Func<TState, TTransition, TState, CancellationToken, ValueTask> handler
+        Func<TState, TTransition, TState, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     <para>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when the state changes. The parameters
+    ///     to the <paramref name="handler"/> are: the previous state, the transition, the next state, and a token to
+    ///     monitor for cancellation.
+    ///     </para>
+    ///     <para>
+    ///     Since this is configured for a specific state, the 'next state' will always be 'this state'.
+    ///     </para>
+    /// </summary>
+    /// <param name="handler">The delegate to call as a state is changed.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IParameterlessStateConfiguration<TState, TTransition> OnStateChange(
+        Func<TState, TTransition, TState, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
     /// <summary>
@@ -127,48 +184,90 @@ public interface IParameterlessStateConfiguration<TState, TTransition> : IStateC
     ///     action can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is entered.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnEntry(Action handler);
+    IParameterlessStateConfiguration<TState, TTransition> OnEntry(
+        Action handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when this state is entered. This
     ///     action can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is entered.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnEntry(Func<CancellationToken, Task> handler);
+    IParameterlessStateConfiguration<TState, TTransition> OnEntry(
+        Func<CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when this state is entered. This
     ///     action can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is entered.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnEntry(Func<CancellationToken, ValueTask> handler);
+    IParameterlessStateConfiguration<TState, TTransition> OnEntry(
+        Func<CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when this state is exited. This action
     ///     can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is exited.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnExit(Action handler);
+    IParameterlessStateConfiguration<TState, TTransition> OnExit(
+        Action handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when this state is exited. This action
     ///     can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is exited.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnExit(Func<CancellationToken, Task> handler);
+    IParameterlessStateConfiguration<TState, TTransition> OnExit(
+        Func<CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when this state is exited. This action
     ///     can not be interrupted by other state changes and should not perform state changes.
     /// </summary>
     /// <param name="handler">The delegate to call as a state is exited.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IParameterlessStateConfiguration<TState, TTransition> OnExit(Func<CancellationToken, ValueTask> handler);
+    IParameterlessStateConfiguration<TState, TTransition> OnExit(
+        Func<CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a new action representing the main functionality of the state. This action can be interrupted by

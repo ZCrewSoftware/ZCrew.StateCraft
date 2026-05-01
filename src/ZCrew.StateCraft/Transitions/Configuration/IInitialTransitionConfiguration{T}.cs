@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft;
@@ -17,7 +18,7 @@ namespace ZCrew.StateCraft;
 /// <typeparam name="T">The type of the parameter for the previous state.</typeparam>
 /// <remarks>
 ///     <para>
-///     Conditions added via <see cref="If(Func{T, bool})"/> are evaluated in the order they are registered.
+///     Conditions added via <see cref="If(Func{T, bool}, string?)"/> are evaluated in the order they are registered.
 ///     All conditions must return <see langword="true"/> for the transition to proceed (logical AND).
 ///     Evaluation short-circuits on the first <see langword="false"/> result.
 ///     </para>
@@ -35,24 +36,45 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T>
     ///     The condition receives the previous state's parameter value.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IInitialTransitionConfiguration<TState, TTransition, T> If(Func<T, bool> condition);
+    IInitialTransitionConfiguration<TState, TTransition, T> If(
+        Func<T, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
     ///     The condition receives the previous state's parameter value.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IInitialTransitionConfiguration<TState, TTransition, T> If(Func<T, CancellationToken, Task<bool>> condition);
+    IInitialTransitionConfiguration<TState, TTransition, T> If(
+        Func<T, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
     ///     The condition receives the previous state's parameter value.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IInitialTransitionConfiguration<TState, TTransition, T> If(Func<T, CancellationToken, ValueTask<bool>> condition);
+    IInitialTransitionConfiguration<TState, TTransition, T> If(
+        Func<T, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures the transition to have no parameters. This is optional and is implied if no parameter

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.Async;
@@ -107,121 +108,152 @@ internal class StateConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public IParameterlessStateConfiguration<TState, TTransition> OnActivate(Action<TState> handler)
+    public IParameterlessStateConfiguration<TState, TTransition> OnActivate(
+        Action<TState> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterlessStateConfiguration<TState, TTransition> OnActivate(
-        Func<TState, CancellationToken, Task> handler
+        Func<TState, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterlessStateConfiguration<TState, TTransition> OnActivate(
-        Func<TState, CancellationToken, ValueTask> handler
+        Func<TState, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IParameterlessStateConfiguration<TState, TTransition> OnDeactivate(Action<TState> handler)
-    {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterlessStateConfiguration<TState, TTransition> OnDeactivate(
-        Func<TState, CancellationToken, Task> handler
+        Action<TState> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterlessStateConfiguration<TState, TTransition> OnDeactivate(
-        Func<TState, CancellationToken, ValueTask> handler
+        Func<TState, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IParameterlessStateConfiguration<TState, TTransition> OnDeactivate(
+        Func<TState, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
+    {
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterlessStateConfiguration<TState, TTransition> OnStateChange(
-        Action<TState, TTransition, TState> handler
+        Action<TState, TTransition, TState> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterlessStateConfiguration<TState, TTransition> OnStateChange(
-        Func<TState, TTransition, TState, CancellationToken, Task> handler
+        Func<TState, TTransition, TState, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterlessStateConfiguration<TState, TTransition> OnStateChange(
-        Func<TState, TTransition, TState, CancellationToken, ValueTask> handler
+        Func<TState, TTransition, TState, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterlessStateConfiguration<TState, TTransition> OnEntry(Action handler)
+    public IParameterlessStateConfiguration<TState, TTransition> OnEntry(
+        Action handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterlessStateConfiguration<TState, TTransition> OnEntry(Func<CancellationToken, Task> handler)
+    public IParameterlessStateConfiguration<TState, TTransition> OnEntry(
+        Func<CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterlessStateConfiguration<TState, TTransition> OnEntry(Func<CancellationToken, ValueTask> handler)
+    public IParameterlessStateConfiguration<TState, TTransition> OnEntry(
+        Func<CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterlessStateConfiguration<TState, TTransition> OnExit(Action handler)
+    public IParameterlessStateConfiguration<TState, TTransition> OnExit(
+        Action handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterlessStateConfiguration<TState, TTransition> OnExit(Func<CancellationToken, Task> handler)
+    public IParameterlessStateConfiguration<TState, TTransition> OnExit(
+        Func<CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterlessStateConfiguration<TState, TTransition> OnExit(Func<CancellationToken, ValueTask> handler)
+    public IParameterlessStateConfiguration<TState, TTransition> OnExit(
+        Func<CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 

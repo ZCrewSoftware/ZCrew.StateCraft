@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Mapping.Contracts;
@@ -54,27 +55,32 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext>
     }
 
     /// <inheritdoc />
-    public IMappedTransitionConfiguration<TState, TTransition, TNext> If(Func<TNext, bool> condition)
+    public IMappedTransitionConfiguration<TState, TTransition, TNext> If(
+        Func<TNext, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext> If(
-        Func<TNext, CancellationToken, Task<bool>> condition
+        Func<TNext, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext> If(
-        Func<TNext, CancellationToken, ValueTask<bool>> condition
+        Func<TNext, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
@@ -133,27 +139,32 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
     }
 
     /// <inheritdoc />
-    public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(Func<TNext1, TNext2, bool> condition)
+    public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
+        Func<TNext1, TNext2, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
-        Func<TNext1, TNext2, CancellationToken, Task<bool>> condition
+        Func<TNext1, TNext2, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
-        Func<TNext1, TNext2, CancellationToken, ValueTask<bool>> condition
+        Func<TNext1, TNext2, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
@@ -213,28 +224,31 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> If(
-        Func<TNext1, TNext2, TNext3, bool> condition
+        Func<TNext1, TNext2, TNext3, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> If(
-        Func<TNext1, TNext2, TNext3, CancellationToken, Task<bool>> condition
+        Func<TNext1, TNext2, TNext3, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> If(
-        Func<TNext1, TNext2, TNext3, CancellationToken, ValueTask<bool>> condition
+        Func<TNext1, TNext2, TNext3, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
@@ -302,28 +316,31 @@ internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1,
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, bool> condition
+        Func<TNext1, TNext2, TNext3, TNext4, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, Task<bool>> condition
+        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, ValueTask<bool>> condition
+        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
-        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 

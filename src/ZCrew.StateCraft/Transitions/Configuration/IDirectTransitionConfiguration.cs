@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -14,7 +16,7 @@ namespace ZCrew.StateCraft;
 /// </typeparam>
 /// <remarks>
 ///     <para>
-///     Conditions added via <see cref="If(Func{bool})"/> are evaluated in the order they are registered.
+///     Conditions added via <see cref="If(Func{bool}, string?)"/> are evaluated in the order they are registered.
 ///     All conditions must return <see langword="true"/> for the transition to proceed (logical AND).
 ///     Evaluation short-circuits on the first <see langword="false"/> result.
 ///     </para>
@@ -31,22 +33,43 @@ public interface IDirectTransitionConfiguration<TState, TTransition>
     ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IDirectTransitionConfiguration<TState, TTransition> If(Func<bool> condition);
+    IDirectTransitionConfiguration<TState, TTransition> If(
+        Func<bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IDirectTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, Task<bool>> condition);
+    IDirectTransitionConfiguration<TState, TTransition> If(
+        Func<CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IDirectTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, ValueTask<bool>> condition);
+    IDirectTransitionConfiguration<TState, TTransition> If(
+        Func<CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configure the state to transition to.

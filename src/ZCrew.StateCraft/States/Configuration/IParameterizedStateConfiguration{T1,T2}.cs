@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -18,69 +20,94 @@ public interface IParameterizedStateConfiguration<TState, TTransition, T1, T2>
     where TState : notnull
     where TTransition : notnull
 {
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnActivate(Action{TState})"/>
-    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnActivate(Action<TState, T1, T2> handler);
-
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnActivate(Func{TState,CancellationToken,Task})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnActivate(Action{TState}, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnActivate(
-        Func<TState, T1, T2, CancellationToken, Task> handler
+        Action<TState, T1, T2> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnActivate(Func{TState,CancellationToken,ValueTask})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnActivate(Func{TState,CancellationToken,Task}, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnActivate(
-        Func<TState, T1, T2, CancellationToken, ValueTask> handler
+        Func<TState, T1, T2, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnDeactivate(Action{TState})"/>
-    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnDeactivate(Action<TState, T1, T2> handler);
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnActivate(Func{TState,CancellationToken,ValueTask}, string?)"/>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnActivate(
+        Func<TState, T1, T2, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnDeactivate(Func{TState,CancellationToken,Task})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnDeactivate(Action{TState}, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnDeactivate(
-        Func<TState, T1, T2, CancellationToken, Task> handler
+        Action<TState, T1, T2> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnDeactivate(Func{TState,CancellationToken,ValueTask})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnDeactivate(Func{TState,CancellationToken,Task}, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnDeactivate(
-        Func<TState, T1, T2, CancellationToken, ValueTask> handler
+        Func<TState, T1, T2, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnStateChange(Action{TState,TTransition,TState})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnDeactivate(Func{TState,CancellationToken,ValueTask}, string?)"/>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnDeactivate(
+        Func<TState, T1, T2, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnStateChange(Action{TState,TTransition,TState}, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnStateChange(
-        Action<TState, TTransition, TState, T1, T2> handler
+        Action<TState, TTransition, TState, T1, T2> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnStateChange(Func{TState,TTransition,TState,CancellationToken,Task})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnStateChange(Func{TState,TTransition,TState,CancellationToken,Task}, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnStateChange(
-        Func<TState, TTransition, TState, T1, T2, CancellationToken, Task> handler
+        Func<TState, TTransition, TState, T1, T2, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnStateChange(Func{TState,TTransition,TState,CancellationToken,ValueTask})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnStateChange(Func{TState,TTransition,TState,CancellationToken,ValueTask}, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnStateChange(
-        Func<TState, TTransition, TState, T1, T2, CancellationToken, ValueTask> handler
+        Func<TState, TTransition, TState, T1, T2, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnEntry(Action)"/>
-    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnEntry(Action<T1, T2> handler);
-
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnEntry(Func{CancellationToken,Task})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnEntry(Action, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnEntry(
-        Func<T1, T2, CancellationToken, Task> handler
+        Action<T1, T2> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnEntry(Func{CancellationToken,ValueTask})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnEntry(Func{CancellationToken,Task}, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnEntry(
-        Func<T1, T2, CancellationToken, ValueTask> handler
+        Func<T1, T2, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnExit(Action)"/>
-    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnExit(Action<T1, T2> handler);
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnEntry(Func{CancellationToken,ValueTask}, string?)"/>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnEntry(
+        Func<T1, T2, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
 
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnExit(Func{CancellationToken,Task})"/>
-    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnExit(Func<T1, T2, CancellationToken, Task> handler);
-
-    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnExit(Func{CancellationToken,ValueTask})"/>
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnExit(Action, string?)"/>
     IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnExit(
-        Func<T1, T2, CancellationToken, ValueTask> handler
+        Action<T1, T2> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnExit(Func{CancellationToken,Task}, string?)"/>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnExit(
+        Func<T1, T2, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.OnExit(Func{CancellationToken,ValueTask}, string?)"/>
+    IParameterizedStateConfiguration<TState, TTransition, T1, T2> OnExit(
+        Func<T1, T2, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
     /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}.WithAction"/>

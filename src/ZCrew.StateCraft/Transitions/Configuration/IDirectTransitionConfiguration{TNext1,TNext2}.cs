@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -16,7 +18,7 @@ namespace ZCrew.StateCraft;
 /// <typeparam name="TNext2">The type of the second parameter for the next state.</typeparam>
 /// <remarks>
 ///     <para>
-///     Conditions added via <see cref="If(Func{TNext1, TNext2, bool})"/> are evaluated in the order they are registered.
+///     Conditions added via <see cref="If(Func{TNext1, TNext2, bool}, string?)"/> are evaluated in the order they are registered.
 ///     All conditions must return <see langword="true"/> for the transition to proceed (logical AND).
 ///     Evaluation short-circuits on the first <see langword="false"/> result.
 ///     </para>
@@ -34,17 +36,14 @@ public interface IDirectTransitionConfiguration<TState, TTransition, TNext1, TNe
     ///     The condition receives the transition parameter values that will be passed to the next state.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(Func<TNext1, TNext2, bool> condition);
-
-    /// <summary>
-    ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
-    ///     The condition receives the transition parameter values that will be passed to the next state.
-    /// </summary>
-    /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
-        Func<TNext1, TNext2, CancellationToken, Task<bool>> condition
+        Func<TNext1, TNext2, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <summary>
@@ -52,9 +51,29 @@ public interface IDirectTransitionConfiguration<TState, TTransition, TNext1, TNe
     ///     The condition receives the transition parameter values that will be passed to the next state.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
-        Func<TNext1, TNext2, CancellationToken, ValueTask<bool>> condition
+        Func<TNext1, TNext2, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="condition"/> which will be evaluated when resolving which transition to use.
+    ///     The condition receives the transition parameter values that will be passed to the next state.
+    /// </summary>
+    /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
+        Func<TNext1, TNext2, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <summary>
