@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.Async;
@@ -88,132 +89,151 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3, T4>
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnActivate(
-        Action<TState, T1, T2, T3, T4> handler
+        Action<TState, T1, T2, T3, T4> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnActivate(
-        Func<TState, T1, T2, T3, T4, CancellationToken, Task> handler
+        Func<TState, T1, T2, T3, T4, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnActivate(
-        Func<TState, T1, T2, T3, T4, CancellationToken, ValueTask> handler
+        Func<TState, T1, T2, T3, T4, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onActivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnDeactivate(
-        Action<TState, T1, T2, T3, T4> handler
+        Action<TState, T1, T2, T3, T4> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnDeactivate(
-        Func<TState, T1, T2, T3, T4, CancellationToken, Task> handler
+        Func<TState, T1, T2, T3, T4, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnDeactivate(
-        Func<TState, T1, T2, T3, T4, CancellationToken, ValueTask> handler
+        Func<TState, T1, T2, T3, T4, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onDeactivateHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnStateChange(
-        Action<TState, TTransition, TState, T1, T2, T3, T4> handler
+        Action<TState, TTransition, TState, T1, T2, T3, T4> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnStateChange(
-        Func<TState, TTransition, TState, T1, T2, T3, T4, CancellationToken, Task> handler
+        Func<TState, TTransition, TState, T1, T2, T3, T4, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnStateChange(
-        Func<TState, TTransition, TState, T1, T2, T3, T4, CancellationToken, ValueTask> handler
+        Func<TState, TTransition, TState, T1, T2, T3, T4, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnEntry(Action<T1, T2, T3, T4> handler)
-    {
-        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onStateChangeHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnEntry(
-        Func<T1, T2, T3, T4, CancellationToken, Task> handler
+        Action<T1, T2, T3, T4> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnEntry(
-        Func<T1, T2, T3, T4, CancellationToken, ValueTask> handler
+        Func<T1, T2, T3, T4, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
-    public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnExit(Action<T1, T2, T3, T4> handler)
-    {
-        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnExit(
-        Func<T1, T2, T3, T4, CancellationToken, Task> handler
+    public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnEntry(
+        Func<T1, T2, T3, T4, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onEntryHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 
     /// <inheritdoc />
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnExit(
-        Func<T1, T2, T3, T4, CancellationToken, ValueTask> handler
+        Action<T1, T2, T3, T4> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
-        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler());
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnExit(
+        Func<T1, T2, T3, T4, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
+    {
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> OnExit(
+        Func<T1, T2, T3, T4, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
+    {
+        this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
     }
 

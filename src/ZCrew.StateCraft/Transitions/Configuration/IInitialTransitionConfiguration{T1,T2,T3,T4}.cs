@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -20,17 +22,22 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     where TState : notnull
     where TTransition : notnull
 {
-    /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition,TPrevious}.If(Func{TPrevious,bool})"/>
-    IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> If(Func<T1, T2, T3, T4, bool> condition);
-
-    /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition,TPrevious}.If(Func{TPrevious,CancellationToken,Task{bool}})"/>
+    /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition,TPrevious}.If(Func{TPrevious,bool}, string?)"/>
     IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> If(
-        Func<T1, T2, T3, T4, CancellationToken, Task<bool>> condition
+        Func<T1, T2, T3, T4, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
-    /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition,TPrevious}.If(Func{TPrevious,CancellationToken,ValueTask{bool}})"/>
+    /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition,TPrevious}.If(Func{TPrevious,CancellationToken,Task{bool}}, string?)"/>
     IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> If(
-        Func<T1, T2, T3, T4, CancellationToken, ValueTask<bool>> condition
+        Func<T1, T2, T3, T4, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    );
+
+    /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition,TPrevious}.If(Func{TPrevious,CancellationToken,ValueTask{bool}}, string?)"/>
+    IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> If(
+        Func<T1, T2, T3, T4, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition,TPrevious}.WithNoParameters"/>

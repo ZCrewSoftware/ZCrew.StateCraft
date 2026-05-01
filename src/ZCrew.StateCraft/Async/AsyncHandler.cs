@@ -11,7 +11,8 @@ namespace ZCrew.StateCraft.Async;
 ///     which allows additional metadata to be associated with handlers in the future without changing call sites.
 /// </remarks>
 /// <param name="Handler">The underlying asynchronous action that is invoked when the handler runs.</param>
-internal readonly record struct AsyncHandler(IAsyncAction Handler)
+/// <param name="Descriptor">An optional descriptor identifying the handler, captured from the caller's expression.</param>
+internal readonly record struct AsyncHandler(IAsyncAction Handler, string? Descriptor)
 {
     /// <summary>
     ///     Invokes the wrapped handler.
@@ -34,7 +35,8 @@ internal readonly record struct AsyncHandler(IAsyncAction Handler)
 /// </remarks>
 /// <typeparam name="T">The type of the parameter passed to the handler.</typeparam>
 /// <param name="Handler">The underlying asynchronous action that is invoked when the handler runs.</param>
-internal readonly record struct AsyncHandler<T>(IAsyncAction<T> Handler)
+/// <param name="Descriptor">An optional descriptor identifying the handler, captured from the caller's expression.</param>
+internal readonly record struct AsyncHandler<T>(IAsyncAction<T> Handler, string? Descriptor)
 {
     /// <summary>
     ///     Invokes the wrapped handler with the provided parameter.
@@ -59,7 +61,8 @@ internal readonly record struct AsyncHandler<T>(IAsyncAction<T> Handler)
 /// <typeparam name="T1">The type of the first parameter passed to the handler.</typeparam>
 /// <typeparam name="T2">The type of the second parameter passed to the handler.</typeparam>
 /// <param name="Handler">The underlying asynchronous action that is invoked when the handler runs.</param>
-internal readonly record struct AsyncHandler<T1, T2>(IAsyncAction<T1, T2> Handler)
+/// <param name="Descriptor">An optional descriptor identifying the handler, captured from the caller's expression.</param>
+internal readonly record struct AsyncHandler<T1, T2>(IAsyncAction<T1, T2> Handler, string? Descriptor)
 {
     /// <summary>
     ///     Invokes the wrapped handler with the provided parameters.
@@ -86,7 +89,8 @@ internal readonly record struct AsyncHandler<T1, T2>(IAsyncAction<T1, T2> Handle
 /// <typeparam name="T2">The type of the second parameter passed to the handler.</typeparam>
 /// <typeparam name="T3">The type of the third parameter passed to the handler.</typeparam>
 /// <param name="Handler">The underlying asynchronous action that is invoked when the handler runs.</param>
-internal readonly record struct AsyncHandler<T1, T2, T3>(IAsyncAction<T1, T2, T3> Handler)
+/// <param name="Descriptor">An optional descriptor identifying the handler, captured from the caller's expression.</param>
+internal readonly record struct AsyncHandler<T1, T2, T3>(IAsyncAction<T1, T2, T3> Handler, string? Descriptor)
 {
     /// <summary>
     ///     Invokes the wrapped handler with the provided parameters.
@@ -115,7 +119,8 @@ internal readonly record struct AsyncHandler<T1, T2, T3>(IAsyncAction<T1, T2, T3
 /// <typeparam name="T3">The type of the third parameter passed to the handler.</typeparam>
 /// <typeparam name="T4">The type of the fourth parameter passed to the handler.</typeparam>
 /// <param name="Handler">The underlying asynchronous action that is invoked when the handler runs.</param>
-internal readonly record struct AsyncHandler<T1, T2, T3, T4>(IAsyncAction<T1, T2, T3, T4> Handler)
+/// <param name="Descriptor">An optional descriptor identifying the handler, captured from the caller's expression.</param>
+internal readonly record struct AsyncHandler<T1, T2, T3, T4>(IAsyncAction<T1, T2, T3, T4> Handler, string? Descriptor)
 {
     /// <summary>
     ///     Invokes the wrapped handler with the provided parameters.
@@ -146,7 +151,11 @@ internal readonly record struct AsyncHandler<T1, T2, T3, T4>(IAsyncAction<T1, T2
 /// <typeparam name="T4">The type of the fourth parameter passed to the handler.</typeparam>
 /// <typeparam name="T5">The type of the fifth parameter passed to the handler.</typeparam>
 /// <param name="Handler">The underlying asynchronous action that is invoked when the handler runs.</param>
-internal readonly record struct AsyncHandler<T1, T2, T3, T4, T5>(IAsyncAction<T1, T2, T3, T4, T5> Handler)
+/// <param name="Descriptor">An optional descriptor identifying the handler, captured from the caller's expression.</param>
+internal readonly record struct AsyncHandler<T1, T2, T3, T4, T5>(
+    IAsyncAction<T1, T2, T3, T4, T5> Handler,
+    string? Descriptor
+)
 {
     /// <summary>
     ///     Invokes the wrapped handler with the provided parameters.
@@ -186,7 +195,11 @@ internal readonly record struct AsyncHandler<T1, T2, T3, T4, T5>(IAsyncAction<T1
 /// <typeparam name="T5">The type of the fifth parameter passed to the handler.</typeparam>
 /// <typeparam name="T6">The type of the sixth parameter passed to the handler.</typeparam>
 /// <param name="Handler">The underlying asynchronous action that is invoked when the handler runs.</param>
-internal readonly record struct AsyncHandler<T1, T2, T3, T4, T5, T6>(IAsyncAction<T1, T2, T3, T4, T5, T6> Handler)
+/// <param name="Descriptor">An optional descriptor identifying the handler, captured from the caller's expression.</param>
+internal readonly record struct AsyncHandler<T1, T2, T3, T4, T5, T6>(
+    IAsyncAction<T1, T2, T3, T4, T5, T6> Handler,
+    string? Descriptor
+)
 {
     /// <summary>
     ///     Invokes the wrapped handler with the provided parameters.
@@ -229,8 +242,10 @@ internal readonly record struct AsyncHandler<T1, T2, T3, T4, T5, T6>(IAsyncActio
 /// <typeparam name="T6">The type of the sixth parameter passed to the handler.</typeparam>
 /// <typeparam name="T7">The type of the seventh parameter passed to the handler.</typeparam>
 /// <param name="Handler">The underlying asynchronous action that is invoked when the handler runs.</param>
+/// <param name="Descriptor">An optional descriptor identifying the handler, captured from the caller's expression.</param>
 internal readonly record struct AsyncHandler<T1, T2, T3, T4, T5, T6, T7>(
-    IAsyncAction<T1, T2, T3, T4, T5, T6, T7> Handler
+    IAsyncAction<T1, T2, T3, T4, T5, T6, T7> Handler,
+    string? Descriptor
 )
 {
     /// <summary>
@@ -286,8 +301,10 @@ internal readonly record struct AsyncHandler<T1, T2, T3, T4, T5, T6, T7>(
 /// <typeparam name="T7">The type of the seventh parameter passed to the handler.</typeparam>
 /// <typeparam name="T8">The type of the eighth parameter passed to the handler.</typeparam>
 /// <param name="Handler">The underlying asynchronous action that is invoked when the handler runs.</param>
+/// <param name="Descriptor">An optional descriptor identifying the handler, captured from the caller's expression.</param>
 internal readonly record struct AsyncHandler<T1, T2, T3, T4, T5, T6, T7, T8>(
-    IAsyncAction<T1, T2, T3, T4, T5, T6, T7, T8> Handler
+    IAsyncAction<T1, T2, T3, T4, T5, T6, T7, T8> Handler,
+    string? Descriptor
 )
 {
     /// <summary>

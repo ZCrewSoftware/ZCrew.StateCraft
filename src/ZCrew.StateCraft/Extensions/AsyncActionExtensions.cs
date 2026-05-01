@@ -17,10 +17,13 @@ internal static class AsyncActionExtensions
     ///     Wraps a parameterless asynchronous action as an <see cref="AsyncHandler"/>.
     /// </summary>
     /// <param name="action">The asynchronous action to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>An <see cref="AsyncHandler"/> that delegates invocation to <paramref name="action"/>.</returns>
-    public static AsyncHandler AsAsyncHandler(this IAsyncAction action)
+    public static AsyncHandler AsAsyncHandler(this IAsyncAction action, string? descriptor = null)
     {
-        return new AsyncHandler(action);
+        return new AsyncHandler(action, descriptor);
     }
 
     /// <summary>
@@ -28,10 +31,13 @@ internal static class AsyncActionExtensions
     /// </summary>
     /// <typeparam name="T">The type of the parameter passed to the action.</typeparam>
     /// <param name="action">The asynchronous action to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>An <see cref="AsyncHandler{T}"/> that delegates invocation to <paramref name="action"/>.</returns>
-    public static AsyncHandler<T> AsAsyncHandler<T>(this IAsyncAction<T> action)
+    public static AsyncHandler<T> AsAsyncHandler<T>(this IAsyncAction<T> action, string? descriptor = null)
     {
-        return new AsyncHandler<T>(action);
+        return new AsyncHandler<T>(action, descriptor);
     }
 
     /// <summary>
@@ -40,10 +46,16 @@ internal static class AsyncActionExtensions
     /// <typeparam name="T1">The type of the first parameter passed to the action.</typeparam>
     /// <typeparam name="T2">The type of the second parameter passed to the action.</typeparam>
     /// <param name="action">The asynchronous action to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>An <see cref="AsyncHandler{T1, T2}"/> that delegates invocation to <paramref name="action"/>.</returns>
-    public static AsyncHandler<T1, T2> AsAsyncHandler<T1, T2>(this IAsyncAction<T1, T2> action)
+    public static AsyncHandler<T1, T2> AsAsyncHandler<T1, T2>(
+        this IAsyncAction<T1, T2> action,
+        string? descriptor = null
+    )
     {
-        return new AsyncHandler<T1, T2>(action);
+        return new AsyncHandler<T1, T2>(action, descriptor);
     }
 
     /// <summary>
@@ -53,10 +65,16 @@ internal static class AsyncActionExtensions
     /// <typeparam name="T2">The type of the second parameter passed to the action.</typeparam>
     /// <typeparam name="T3">The type of the third parameter passed to the action.</typeparam>
     /// <param name="action">The asynchronous action to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>An <see cref="AsyncHandler{T1, T2, T3}"/> that delegates invocation to <paramref name="action"/>.</returns>
-    public static AsyncHandler<T1, T2, T3> AsAsyncHandler<T1, T2, T3>(this IAsyncAction<T1, T2, T3> action)
+    public static AsyncHandler<T1, T2, T3> AsAsyncHandler<T1, T2, T3>(
+        this IAsyncAction<T1, T2, T3> action,
+        string? descriptor = null
+    )
     {
-        return new AsyncHandler<T1, T2, T3>(action);
+        return new AsyncHandler<T1, T2, T3>(action, descriptor);
     }
 
     /// <summary>
@@ -67,12 +85,18 @@ internal static class AsyncActionExtensions
     /// <typeparam name="T3">The type of the third parameter passed to the action.</typeparam>
     /// <typeparam name="T4">The type of the fourth parameter passed to the action.</typeparam>
     /// <param name="action">The asynchronous action to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>
     ///     An <see cref="AsyncHandler{T1, T2, T3, T4}"/> that delegates invocation to <paramref name="action"/>.
     /// </returns>
-    public static AsyncHandler<T1, T2, T3, T4> AsAsyncHandler<T1, T2, T3, T4>(this IAsyncAction<T1, T2, T3, T4> action)
+    public static AsyncHandler<T1, T2, T3, T4> AsAsyncHandler<T1, T2, T3, T4>(
+        this IAsyncAction<T1, T2, T3, T4> action,
+        string? descriptor = null
+    )
     {
-        return new AsyncHandler<T1, T2, T3, T4>(action);
+        return new AsyncHandler<T1, T2, T3, T4>(action, descriptor);
     }
 
     /// <summary>
@@ -84,14 +108,18 @@ internal static class AsyncActionExtensions
     /// <typeparam name="T4">The type of the fourth parameter passed to the action.</typeparam>
     /// <typeparam name="T5">The type of the fifth parameter passed to the action.</typeparam>
     /// <param name="action">The asynchronous action to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>
     ///     An <see cref="AsyncHandler{T1, T2, T3, T4, T5}"/> that delegates invocation to <paramref name="action"/>.
     /// </returns>
     public static AsyncHandler<T1, T2, T3, T4, T5> AsAsyncHandler<T1, T2, T3, T4, T5>(
-        this IAsyncAction<T1, T2, T3, T4, T5> action
+        this IAsyncAction<T1, T2, T3, T4, T5> action,
+        string? descriptor = null
     )
     {
-        return new AsyncHandler<T1, T2, T3, T4, T5>(action);
+        return new AsyncHandler<T1, T2, T3, T4, T5>(action, descriptor);
     }
 
     /// <summary>
@@ -104,14 +132,18 @@ internal static class AsyncActionExtensions
     /// <typeparam name="T5">The type of the fifth parameter passed to the action.</typeparam>
     /// <typeparam name="T6">The type of the sixth parameter passed to the action.</typeparam>
     /// <param name="action">The asynchronous action to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>
     ///     An <see cref="AsyncHandler{T1, T2, T3, T4, T5, T6}"/> that delegates invocation to <paramref name="action"/>.
     /// </returns>
     public static AsyncHandler<T1, T2, T3, T4, T5, T6> AsAsyncHandler<T1, T2, T3, T4, T5, T6>(
-        this IAsyncAction<T1, T2, T3, T4, T5, T6> action
+        this IAsyncAction<T1, T2, T3, T4, T5, T6> action,
+        string? descriptor = null
     )
     {
-        return new AsyncHandler<T1, T2, T3, T4, T5, T6>(action);
+        return new AsyncHandler<T1, T2, T3, T4, T5, T6>(action, descriptor);
     }
 
     /// <summary>
@@ -125,15 +157,19 @@ internal static class AsyncActionExtensions
     /// <typeparam name="T6">The type of the sixth parameter passed to the action.</typeparam>
     /// <typeparam name="T7">The type of the seventh parameter passed to the action.</typeparam>
     /// <param name="action">The asynchronous action to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>
     ///     An <see cref="AsyncHandler{T1, T2, T3, T4, T5, T6, T7}"/> that delegates invocation to
     ///     <paramref name="action"/>.
     /// </returns>
     public static AsyncHandler<T1, T2, T3, T4, T5, T6, T7> AsAsyncHandler<T1, T2, T3, T4, T5, T6, T7>(
-        this IAsyncAction<T1, T2, T3, T4, T5, T6, T7> action
+        this IAsyncAction<T1, T2, T3, T4, T5, T6, T7> action,
+        string? descriptor = null
     )
     {
-        return new AsyncHandler<T1, T2, T3, T4, T5, T6, T7>(action);
+        return new AsyncHandler<T1, T2, T3, T4, T5, T6, T7>(action, descriptor);
     }
 
     /// <summary>
@@ -149,14 +185,18 @@ internal static class AsyncActionExtensions
     /// <typeparam name="T7">The type of the seventh parameter passed to the action.</typeparam>
     /// <typeparam name="T8">The type of the eighth parameter passed to the action.</typeparam>
     /// <param name="action">The asynchronous action to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>
     ///     An <see cref="AsyncHandler{T1, T2, T3, T4, T5, T6, T7, T8}"/> that delegates invocation to
     ///     <paramref name="action"/>.
     /// </returns>
     public static AsyncHandler<T1, T2, T3, T4, T5, T6, T7, T8> AsAsyncHandler<T1, T2, T3, T4, T5, T6, T7, T8>(
-        this IAsyncAction<T1, T2, T3, T4, T5, T6, T7, T8> action
+        this IAsyncAction<T1, T2, T3, T4, T5, T6, T7, T8> action,
+        string? descriptor = null
     )
     {
-        return new AsyncHandler<T1, T2, T3, T4, T5, T6, T7, T8>(action);
+        return new AsyncHandler<T1, T2, T3, T4, T5, T6, T7, T8>(action, descriptor);
     }
 }

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.States;
@@ -34,23 +35,32 @@ internal class InitialTransitionConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public IInitialTransitionConfiguration<TState, TTransition> If(Func<bool> condition)
+    public IInitialTransitionConfiguration<TState, TTransition> If(
+        Func<bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    )
     {
-        this.previousStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
-    public IInitialTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, Task<bool>> condition)
+    public IInitialTransitionConfiguration<TState, TTransition> If(
+        Func<CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    )
     {
-        this.previousStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 
     /// <inheritdoc />
-    public IInitialTransitionConfiguration<TState, TTransition> If(Func<CancellationToken, ValueTask<bool>> condition)
+    public IInitialTransitionConfiguration<TState, TTransition> If(
+        Func<CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
+    )
     {
-        this.previousStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition());
+        this.previousStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
         return this;
     }
 

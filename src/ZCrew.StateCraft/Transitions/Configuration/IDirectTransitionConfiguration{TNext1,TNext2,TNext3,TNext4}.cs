@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -18,8 +20,8 @@ namespace ZCrew.StateCraft;
 /// <typeparam name="TNext4">The type of the fourth parameter for the next state.</typeparam>
 /// <remarks>
 ///     <para>
-///     Conditions added via <see cref="If(Func{TNext1, TNext2, TNext3, TNext4, bool})"/> are evaluated in the order they are
-///     registered. All conditions must return <see langword="true"/> for the transition to proceed (logical AND).
+///     Conditions added via <see cref="If(Func{TNext1, TNext2, TNext3, TNext4, bool}, string?)"/> are evaluated in the order
+///     they are registered. All conditions must return <see langword="true"/> for the transition to proceed (logical AND).
 ///     Evaluation short-circuits on the first <see langword="false"/> result.
 ///     </para>
 ///     <para>
@@ -36,9 +38,14 @@ public interface IDirectTransitionConfiguration<TState, TTransition, TNext1, TNe
     ///     The condition receives the transition parameter values that will be passed to the next state.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, bool> condition
+        Func<TNext1, TNext2, TNext3, TNext4, bool> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <summary>
@@ -46,9 +53,14 @@ public interface IDirectTransitionConfiguration<TState, TTransition, TNext1, TNe
     ///     The condition receives the transition parameter values that will be passed to the next state.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, Task<bool>> condition
+        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, Task<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <summary>
@@ -56,9 +68,14 @@ public interface IDirectTransitionConfiguration<TState, TTransition, TNext1, TNe
     ///     The condition receives the transition parameter values that will be passed to the next state.
     /// </summary>
     /// <param name="condition">The delegate to check when resolving the transition.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, the caller's expression for
+    ///     <paramref name="condition"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, ValueTask<bool>> condition
+        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, ValueTask<bool>> condition,
+        [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     );
 
     /// <summary>

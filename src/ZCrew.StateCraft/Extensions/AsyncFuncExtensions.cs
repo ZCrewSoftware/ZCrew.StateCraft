@@ -17,10 +17,13 @@ internal static class AsyncFuncExtensions
     ///     Wraps a parameterless asynchronous predicate as an <see cref="AsyncCondition"/>.
     /// </summary>
     /// <param name="func">The asynchronous predicate to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>An <see cref="AsyncCondition"/> that delegates evaluation to <paramref name="func"/>.</returns>
-    public static AsyncCondition AsAsyncCondition(this IAsyncFunc<bool> func)
+    public static AsyncCondition AsAsyncCondition(this IAsyncFunc<bool> func, string? descriptor = null)
     {
-        return new AsyncCondition(func);
+        return new AsyncCondition(func, descriptor);
     }
 
     /// <summary>
@@ -28,10 +31,13 @@ internal static class AsyncFuncExtensions
     /// </summary>
     /// <typeparam name="T">The type of the parameter passed to the predicate.</typeparam>
     /// <param name="func">The asynchronous predicate to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>An <see cref="AsyncCondition{T}"/> that delegates evaluation to <paramref name="func"/>.</returns>
-    public static AsyncCondition<T> AsAsyncCondition<T>(this IAsyncFunc<T, bool> func)
+    public static AsyncCondition<T> AsAsyncCondition<T>(this IAsyncFunc<T, bool> func, string? descriptor = null)
     {
-        return new AsyncCondition<T>(func);
+        return new AsyncCondition<T>(func, descriptor);
     }
 
     /// <summary>
@@ -40,10 +46,16 @@ internal static class AsyncFuncExtensions
     /// <typeparam name="T1">The type of the first parameter passed to the predicate.</typeparam>
     /// <typeparam name="T2">The type of the second parameter passed to the predicate.</typeparam>
     /// <param name="func">The asynchronous predicate to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>An <see cref="AsyncCondition{T1, T2}"/> that delegates evaluation to <paramref name="func"/>.</returns>
-    public static AsyncCondition<T1, T2> AsAsyncCondition<T1, T2>(this IAsyncFunc<T1, T2, bool> func)
+    public static AsyncCondition<T1, T2> AsAsyncCondition<T1, T2>(
+        this IAsyncFunc<T1, T2, bool> func,
+        string? descriptor = null
+    )
     {
-        return new AsyncCondition<T1, T2>(func);
+        return new AsyncCondition<T1, T2>(func, descriptor);
     }
 
     /// <summary>
@@ -53,10 +65,16 @@ internal static class AsyncFuncExtensions
     /// <typeparam name="T2">The type of the second parameter passed to the predicate.</typeparam>
     /// <typeparam name="T3">The type of the third parameter passed to the predicate.</typeparam>
     /// <param name="func">The asynchronous predicate to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>An <see cref="AsyncCondition{T1, T2, T3}"/> that delegates evaluation to <paramref name="func"/>.</returns>
-    public static AsyncCondition<T1, T2, T3> AsAsyncCondition<T1, T2, T3>(this IAsyncFunc<T1, T2, T3, bool> func)
+    public static AsyncCondition<T1, T2, T3> AsAsyncCondition<T1, T2, T3>(
+        this IAsyncFunc<T1, T2, T3, bool> func,
+        string? descriptor = null
+    )
     {
-        return new AsyncCondition<T1, T2, T3>(func);
+        return new AsyncCondition<T1, T2, T3>(func, descriptor);
     }
 
     /// <summary>
@@ -67,13 +85,17 @@ internal static class AsyncFuncExtensions
     /// <typeparam name="T3">The type of the third parameter passed to the predicate.</typeparam>
     /// <typeparam name="T4">The type of the fourth parameter passed to the predicate.</typeparam>
     /// <param name="func">The asynchronous predicate to wrap.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the condition. When omitted, no descriptor is captured.
+    /// </param>
     /// <returns>
     ///     An <see cref="AsyncCondition{T1, T2, T3, T4}"/> that delegates evaluation to <paramref name="func"/>.
     /// </returns>
     public static AsyncCondition<T1, T2, T3, T4> AsAsyncCondition<T1, T2, T3, T4>(
-        this IAsyncFunc<T1, T2, T3, T4, bool> func
+        this IAsyncFunc<T1, T2, T3, T4, bool> func,
+        string? descriptor = null
     )
     {
-        return new AsyncCondition<T1, T2, T3, T4>(func);
+        return new AsyncCondition<T1, T2, T3, T4>(func, descriptor);
     }
 }
