@@ -1,3 +1,6 @@
+using ZCrew.StateCraft.Rendering;
+using ZCrew.StateCraft.Rendering.Contracts;
+using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.States.Configuration;
@@ -11,6 +14,7 @@ namespace ZCrew.StateCraft.Transitions;
 internal class FromTransitionConfiguration<TState, TTransition>
     : IFromTransitionConfiguration<TState, TTransition>,
         IFromAllStatesTransitionConfiguration<TState, TTransition>,
+        IRenderable<TState, TTransition>,
         IValidatable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
@@ -96,7 +100,7 @@ internal class FromTransitionConfiguration<TState, TTransition>
                 continue;
             }
 
-            // Use a dynamic previous state. There are no conditions and so we don't care about the type parameters
+            // Use a dynamic previous state. There are no conditions, so we don't care about the type parameters
             var previousState = new DynamicPreviousState<TState, TTransition>(state);
             var transition = new DirectTransition<TState, TTransition>(
                 previousState,
@@ -132,6 +136,28 @@ internal class FromTransitionConfiguration<TState, TTransition>
                 this.nextStateConfiguration.TypeParameters,
                 this.nextStateConfiguration.IsConditional
             );
+            context.Transitions.Add(transition);
+        }
+    }
+
+    /// <inheritdoc />
+    public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
+    {
+        var descriptor = $"{this.transitionValue}";
+        var conditions = this.nextStateConfiguration.RenderConditions().ToArray();
+
+        // This requires all states to be loaded ahead of time. We can just add all states and then all transitions
+        foreach (var state in context.States)
+        {
+            var excluded = this.excludedStates.Any(excludedState =>
+                excludedState.Matches(state.State, state.TypeParameters)
+            );
+            if (excluded)
+            {
+                continue;
+            }
+
+            var transition = new TransitionRenderingModel<TState, TTransition>(descriptor, conditions);
             context.Transitions.Add(transition);
         }
     }

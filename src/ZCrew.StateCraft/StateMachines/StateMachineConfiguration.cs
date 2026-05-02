@@ -1,4 +1,7 @@
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Rendering;
+using ZCrew.StateCraft.Rendering.Contracts;
+using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.Triggers;
@@ -7,8 +10,10 @@ using ZCrew.StateCraft.Validation;
 
 namespace ZCrew.StateCraft.StateMachines;
 
-/// <inheritdoc/>
-internal class StateMachineConfiguration<TState, TTransition> : IStateMachineConfiguration<TState, TTransition>
+/// <inheritdoc cref="IStateMachineConfiguration{TState,TTransition}" />
+internal class StateMachineConfiguration<TState, TTransition>
+    : IStateMachineConfiguration<TState, TTransition>,
+        IRenderable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -432,6 +437,13 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         var triggerConfiguration = configureTrigger(initialTriggerConfiguration);
         this.triggerConfigurations.Add(triggerConfiguration);
         return this;
+    }
+
+    /// <inheritdoc/>
+    public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
+    {
+        const string descriptor = "State Machine";
+        context.StateMachine = new StateMachineRenderingModel<TState, TTransition>(descriptor);
     }
 
     private IExceptionBehavior BuildExceptionBehavior()

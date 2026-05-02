@@ -3,6 +3,9 @@ using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.Rendering;
+using ZCrew.StateCraft.Rendering.Contracts;
+using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions;
 using ZCrew.StateCraft.Triggers;
@@ -15,6 +18,7 @@ namespace ZCrew.StateCraft.States;
 /// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}"/>
 internal class StateConfiguration<TState, TTransition>
     : IInitialStateConfiguration<TState, TTransition>,
+        IRenderable<TState, TTransition>,
         IValidatable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
@@ -291,6 +295,15 @@ internal class StateConfiguration<TState, TTransition>
     public void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context)
     {
         var state = new StateValidationModel<TState, TTransition>(State, TypeParameters);
+        context.States.Add(state);
+    }
+
+    /// <inheritdoc />
+    public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
+    {
+        var id = $"{State}";
+        var descriptor = ToString();
+        var state = new StateRenderingModel<TState, TTransition>(State, TypeParameters, id, descriptor);
         context.States.Add(state);
     }
 

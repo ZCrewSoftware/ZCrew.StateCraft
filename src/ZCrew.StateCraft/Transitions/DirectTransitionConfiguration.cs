@@ -1,3 +1,6 @@
+using ZCrew.StateCraft.Rendering;
+using ZCrew.StateCraft.Rendering.Contracts;
+using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Configuration;
 using ZCrew.StateCraft.Validation;
@@ -9,6 +12,7 @@ namespace ZCrew.StateCraft.Transitions;
 /// <inheritdoc cref="ITransitionConfiguration{TState,TTransition}"/>
 internal class DirectTransitionConfiguration<TState, TTransition>
     : ITransitionConfiguration<TState, TTransition>,
+        IRenderable<TState, TTransition>,
         IValidatable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
@@ -62,6 +66,19 @@ internal class DirectTransitionConfiguration<TState, TTransition>
             this.nextStateConfiguration.TypeParameters,
             this.previousStateConfiguration.IsConditional || this.nextStateConfiguration.IsConditional
         );
+        context.Transitions.Add(transition);
+    }
+
+    /// <inheritdoc />
+    public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
+    {
+        var descriptor = $"{this.transitionValue}";
+        var conditions = new List<string>();
+
+        conditions.AddRange(this.previousStateConfiguration.RenderConditions());
+        conditions.AddRange(this.nextStateConfiguration.RenderConditions());
+
+        var transition = new TransitionRenderingModel<TState, TTransition>(descriptor, conditions);
         context.Transitions.Add(transition);
     }
 

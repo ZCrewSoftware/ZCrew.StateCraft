@@ -50,6 +50,17 @@ internal class NextStateConfiguration<TState, TTransition> : INextStateConfigura
     }
 
     /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
+    }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return $"{StateValue}";
@@ -100,6 +111,17 @@ internal class NextStateConfiguration<TState, TTransition, T> : INextStateConfig
     {
         var state = stateTable.LookupState<T>(StateValue);
         return new NextState<TState, TTransition, T>(state, this.conditions);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
     }
 
     /// <inheritdoc />
@@ -155,6 +177,17 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2> : INextStateC
     {
         var state = stateTable.LookupState<T1, T2>(StateValue);
         return new NextState<TState, TTransition, T1, T2>(state, this.conditions);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
     }
 
     /// <inheritdoc />
@@ -214,6 +247,17 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3> : INextSt
     }
 
     /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
+    }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return $"{StateValue}<{typeof(T1).FriendlyName}, {typeof(T2).FriendlyName}, {typeof(T3).FriendlyName}>";
@@ -269,6 +313,17 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3, T4>
     {
         var state = stateTable.LookupState<T1, T2, T3, T4>(StateValue);
         return new NextState<TState, TTransition, T1, T2, T3, T4>(state, this.conditions);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
     }
 
     /// <inheritdoc />

@@ -60,6 +60,17 @@ internal class PreviousStateConfiguration<TState, TTransition> : IPartialPreviou
     }
 
     /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
+    }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return $"{StateValue}";
@@ -122,6 +133,17 @@ internal class PreviousStateConfiguration<TState, TTransition, T>
     public void Add(AsyncCondition<T> condition)
     {
         this.conditions.Add(condition);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
     }
 
     /// <inheritdoc />
@@ -188,6 +210,17 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2>
     public void Add(AsyncCondition<T1, T2> condition)
     {
         this.conditions.Add(condition);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
     }
 
     /// <inheritdoc />
@@ -258,6 +291,17 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3>
     }
 
     /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
+    }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return $"{StateValue}<{typeof(T1).FriendlyName}, {typeof(T2).FriendlyName}, {typeof(T3).FriendlyName}>";
@@ -323,6 +367,17 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3, T4>
     public void Add(AsyncCondition<T1, T2, T3, T4> condition)
     {
         this.conditions.Add(condition);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<string> RenderConditions()
+    {
+        if (!IsConditional)
+        {
+            return [];
+        }
+
+        return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
     }
 
     /// <inheritdoc />
