@@ -32,7 +32,7 @@ public class StateConfigurationT1T2T3Tests
 
         // Assert
         var state = Assert.Single(context.States);
-        Assert.Equal("S_System.Int32_System.String_System.Boolean", state.Name);
+        Assert.Equal("S_System.Int32_System.String_System.Boolean", state.Identifier);
     }
 
     [Fact]

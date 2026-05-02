@@ -32,7 +32,7 @@ public class StateConfigurationTTests
 
         // Assert
         var state = Assert.Single(context.States);
-        Assert.Equal("S_System.Int32", state.Name);
+        Assert.Equal("S_System.Int32", state.Identifier);
     }
 
     [Fact]
@@ -80,8 +80,8 @@ public class StateConfigurationTTests
         // Assert
         Assert.Collection(
             context.States,
-            first => Assert.Equal("S_System.Int32", first.Name),
-            second => Assert.Equal("S_System.String", second.Name)
+            first => Assert.Equal("S_System.Int32", first.Identifier),
+            second => Assert.Equal("S_System.String", second.Identifier)
         );
     }
 }

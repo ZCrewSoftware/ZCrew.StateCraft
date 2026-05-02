@@ -257,9 +257,9 @@ internal class StateConfiguration<TState, TTransition, T>
     /// <inheritdoc />
     public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
     {
-        var id = $"{State}_{typeof(T).RenderingId}";
+        var identifier = $"{State}_{typeof(T).RenderingIdentifier}";
         var descriptor = ToString();
-        var state = new StateRenderingModel<TState, TTransition>(State, TypeParameters, id, descriptor);
+        var state = new StateRenderingModel<TState, TTransition>(State, TypeParameters, identifier, descriptor);
         context.States.Add(state);
     }
 

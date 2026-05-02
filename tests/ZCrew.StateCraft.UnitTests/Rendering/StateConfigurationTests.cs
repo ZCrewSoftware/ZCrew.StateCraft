@@ -32,7 +32,7 @@ public class StateConfigurationTests
 
         // Assert
         var state = Assert.Single(context.States);
-        Assert.Equal("S", state.Name);
+        Assert.Equal("S", state.Identifier);
     }
 
     [Fact]
