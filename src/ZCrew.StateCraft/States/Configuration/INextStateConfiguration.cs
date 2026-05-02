@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Rendering.Contracts;
 using ZCrew.StateCraft.States.Contracts;
 
 namespace ZCrew.StateCraft.States.Configuration;
@@ -13,7 +14,7 @@ namespace ZCrew.StateCraft.States.Configuration;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-internal interface INextStateConfiguration<TState, TTransition>
+internal interface INextStateConfiguration<TState, TTransition> : IRenderableConditions
     where TState : notnull
     where TTransition : notnull
 {

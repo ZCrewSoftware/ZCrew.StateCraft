@@ -1,4 +1,7 @@
 using ZCrew.StateCraft.Mapping.Contracts;
+using ZCrew.StateCraft.Rendering;
+using ZCrew.StateCraft.Rendering.Contracts;
+using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Configuration;
 using ZCrew.StateCraft.Validation;
@@ -10,12 +13,14 @@ namespace ZCrew.StateCraft.Transitions;
 /// <inheritdoc cref="ITransitionConfiguration{TState,TTransition}"/>
 internal class MappedTransitionConfiguration<TState, TTransition>
     : ITransitionConfiguration<TState, TTransition>,
+        IRenderable<TState, TTransition>,
         IValidatable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly INextStateConfiguration<TState, TTransition> nextStateConfiguration;
+    private readonly TTransition transitionValue;
     private readonly IMappingFunction mappingFunction;
 
     /// <summary>
@@ -35,31 +40,9 @@ internal class MappedTransitionConfiguration<TState, TTransition>
     {
         this.previousStateConfiguration = previousStateConfiguration;
         this.nextStateConfiguration = nextStateConfiguration;
-        TransitionValue = transition;
+        this.transitionValue = transition;
         this.mappingFunction = mappingFunction;
     }
-
-    /// <inheritdoc />
-    public TState PreviousStateValue => this.previousStateConfiguration.StateValue;
-
-    /// <inheritdoc />
-    public TTransition TransitionValue { get; }
-
-    /// <inheritdoc />
-    public TState NextStateValue => this.nextStateConfiguration.StateValue;
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> PreviousStateTypeParameters => this.previousStateConfiguration.TypeParameters;
-
-    /// <inheritdoc/>
-    public IReadOnlyList<Type> TransitionTypeParameters { get; } = [];
-
-    /// <inheritdoc />
-    public IReadOnlyList<Type> NextStateTypeParameters => this.nextStateConfiguration.TypeParameters;
-
-    /// <inheritdoc />
-    public bool IsConditional =>
-        this.previousStateConfiguration.IsConditional || this.nextStateConfiguration.IsConditional;
 
     /// <inheritdoc />
     public void Build(IStateMachine<TState, TTransition> stateMachine)
@@ -69,7 +52,7 @@ internal class MappedTransitionConfiguration<TState, TTransition>
         var transition = new MappedTransition<TState, TTransition>(
             previousState,
             nextState,
-            TransitionValue,
+            this.transitionValue,
             this.mappingFunction,
             stateMachine
         );
@@ -81,14 +64,27 @@ internal class MappedTransitionConfiguration<TState, TTransition>
     public void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context)
     {
         var transition = new TransitionValidationModel<TState, TTransition>(
-            PreviousStateValue,
-            TransitionValue,
-            NextStateValue,
-            PreviousStateTypeParameters,
-            TransitionTypeParameters,
-            NextStateTypeParameters,
-            IsConditional
+            this.previousStateConfiguration.StateValue,
+            this.transitionValue,
+            this.nextStateConfiguration.StateValue,
+            this.previousStateConfiguration.TypeParameters,
+            [],
+            this.nextStateConfiguration.TypeParameters,
+            this.previousStateConfiguration.IsConditional || this.nextStateConfiguration.IsConditional
         );
+        context.Transitions.Add(transition);
+    }
+
+    /// <inheritdoc />
+    public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
+    {
+        var descriptor = $"{this.transitionValue}";
+        var conditions = new List<string>();
+
+        conditions.AddRange(this.previousStateConfiguration.RenderConditions());
+        conditions.AddRange(this.nextStateConfiguration.RenderConditions());
+
+        var transition = new TransitionRenderingModel<TState, TTransition>(descriptor, conditions);
         context.Transitions.Add(transition);
     }
 
@@ -96,13 +92,13 @@ internal class MappedTransitionConfiguration<TState, TTransition>
     public override string ToString()
     {
         if (
-            PreviousStateValue.Equals(NextStateValue)
-            && PreviousStateTypeParameters.SequenceEqual(NextStateTypeParameters)
+            this.previousStateConfiguration.StateValue.Equals(this.nextStateConfiguration.StateValue)
+            && this.previousStateConfiguration.TypeParameters.SequenceEqual(this.nextStateConfiguration.TypeParameters)
         )
         {
-            return $"{TransitionValue}({this.previousStateConfiguration}) ↩";
+            return $"{this.transitionValue}({this.previousStateConfiguration}) ↩";
         }
 
-        return $"{TransitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
+        return $"{this.transitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
     }
 }
