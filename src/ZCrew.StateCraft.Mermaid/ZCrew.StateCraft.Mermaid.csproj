@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- NuGet package metadata -->
+  <PropertyGroup>
+    <PackageTags>state-machine;mermaid</PackageTags>
+    <Description>Mermaid state machine diagram generator for ZCrew.StateCraft</Description>
+  </PropertyGroup>
+
+  <!-- NuGet package content -->
+  <ItemGroup>
+    <None Include="../../img/icon.png" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="README.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../ZCrew.StateCraft/ZCrew.StateCraft.csproj" />
+  </ItemGroup>
+
+</Project>

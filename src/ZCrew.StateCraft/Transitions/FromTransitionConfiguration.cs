@@ -1,5 +1,7 @@
+using System.Text;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
+using ZCrew.StateCraft.Rendering.Extensions;
 using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
@@ -143,7 +145,8 @@ internal class FromTransitionConfiguration<TState, TTransition>
     /// <inheritdoc />
     public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
     {
-        var descriptor = $"{this.transitionValue}";
+        var nextState = this.nextStateConfiguration.RenderStateIdentifier();
+        var descriptor = GetDescriptor();
         var conditions = this.nextStateConfiguration.RenderConditions().ToArray();
 
         // This requires all states to be loaded ahead of time. We can just add all states and then all transitions
@@ -157,7 +160,13 @@ internal class FromTransitionConfiguration<TState, TTransition>
                 continue;
             }
 
-            var transition = new TransitionRenderingModel<TState, TTransition>(descriptor, conditions);
+            var previousState = state.Identifier;
+            var transition = new TransitionRenderingModel<TState, TTransition>(
+                previousState,
+                nextState,
+                descriptor,
+                conditions
+            );
             context.Transitions.Add(transition);
         }
     }
@@ -166,6 +175,25 @@ internal class FromTransitionConfiguration<TState, TTransition>
     {
         this.excludedStates.Add(new ExcludedState(state, typeParameters));
         return this;
+    }
+
+    private string GetDescriptor()
+    {
+        if (this.nextStateConfiguration.TypeParameters.Count == 0)
+        {
+            return $"{this.transitionValue}";
+        }
+
+        var identifier = new StringBuilder($"{this.transitionValue}<");
+        for (var i = 0; i < this.nextStateConfiguration.TypeParameters.Count; i++)
+        {
+            if (i > 0)
+            {
+                identifier.Append(", ");
+            }
+            identifier.Append(this.nextStateConfiguration.TypeParameters[i].FriendlyName);
+        }
+        return identifier.Append('>').ToString();
     }
 
     private readonly record struct ExcludedState(TState State, Type[] TypeParameters)

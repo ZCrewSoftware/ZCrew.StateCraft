@@ -78,13 +78,20 @@ internal class MappedTransitionConfiguration<TState, TTransition>
     /// <inheritdoc />
     public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
     {
+        var previousState = this.previousStateConfiguration.RenderStateIdentifier();
+        var nextState = this.nextStateConfiguration.RenderStateIdentifier();
         var descriptor = $"{this.transitionValue}";
         var conditions = new List<string>();
 
         conditions.AddRange(this.previousStateConfiguration.RenderConditions());
         conditions.AddRange(this.nextStateConfiguration.RenderConditions());
 
-        var transition = new TransitionRenderingModel<TState, TTransition>(descriptor, conditions);
+        var transition = new TransitionRenderingModel<TState, TTransition>(
+            previousState,
+            nextState,
+            descriptor,
+            conditions
+        );
         context.Transitions.Add(transition);
     }
 

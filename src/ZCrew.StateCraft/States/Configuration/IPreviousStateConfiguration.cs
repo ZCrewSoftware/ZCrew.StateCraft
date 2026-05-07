@@ -14,7 +14,7 @@ namespace ZCrew.StateCraft.States.Configuration;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-internal interface IPreviousStateConfiguration<TState, TTransition> : IRenderableConditions
+internal interface IPreviousStateConfiguration<TState, TTransition> : IRenderableConditions, IRenderableState
     where TState : notnull
     where TTransition : notnull
 {

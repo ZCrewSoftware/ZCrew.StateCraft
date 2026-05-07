@@ -1,4 +1,5 @@
 using ZCrew.StateCraft.Async;
+using ZCrew.StateCraft.Rendering.Extensions;
 using ZCrew.StateCraft.States.Configuration;
 using ZCrew.StateCraft.States.Contracts;
 
@@ -58,6 +59,12 @@ internal class NextStateConfiguration<TState, TTransition> : INextStateConfigura
         }
 
         return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
+    }
+
+    /// <inheritdoc />
+    public string RenderStateIdentifier()
+    {
+        return $"{StateValue}";
     }
 
     /// <inheritdoc />
@@ -125,6 +132,12 @@ internal class NextStateConfiguration<TState, TTransition, T> : INextStateConfig
     }
 
     /// <inheritdoc />
+    public string RenderStateIdentifier()
+    {
+        return $"{StateValue}_{typeof(T).RenderingIdentifier}";
+    }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return $"{StateValue}<{typeof(T).FriendlyName}>";
@@ -188,6 +201,12 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2> : INextStateC
         }
 
         return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
+    }
+
+    /// <inheritdoc />
+    public string RenderStateIdentifier()
+    {
+        return $"{StateValue}_{typeof(T1).RenderingIdentifier}_{typeof(T2).RenderingIdentifier}";
     }
 
     /// <inheritdoc />
@@ -258,6 +277,15 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3> : INextSt
     }
 
     /// <inheritdoc />
+    public string RenderStateIdentifier()
+    {
+        return $"{StateValue}"
+            + $"_{typeof(T1).RenderingIdentifier}"
+            + $"_{typeof(T2).RenderingIdentifier}"
+            + $"_{typeof(T3).RenderingIdentifier}";
+    }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return $"{StateValue}<{typeof(T1).FriendlyName}, {typeof(T2).FriendlyName}, {typeof(T3).FriendlyName}>";
@@ -324,6 +352,16 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3, T4>
         }
 
         return this.conditions.Select(condition => condition.Descriptor).OfType<string>();
+    }
+
+    /// <inheritdoc />
+    public string RenderStateIdentifier()
+    {
+        return $"{StateValue}"
+            + $"_{typeof(T1).RenderingIdentifier}"
+            + $"_{typeof(T2).RenderingIdentifier}"
+            + $"_{typeof(T3).RenderingIdentifier}"
+            + $"_{typeof(T4).RenderingIdentifier}";
     }
 
     /// <inheritdoc />

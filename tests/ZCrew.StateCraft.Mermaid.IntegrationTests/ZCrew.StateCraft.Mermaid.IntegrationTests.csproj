@@ -1,0 +1,5 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../src/ZCrew.StateCraft.Mermaid/ZCrew.StateCraft.Mermaid.csproj" />
+  </ItemGroup>
+</Project>

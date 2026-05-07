@@ -21,4 +21,8 @@
       <DependentUpon>StateMachine.cs</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZCrew.StateCraft.Mermaid" />
+  </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@
     <File Path="docs/1-introduction.md" />
     <File Path="docs/12-exception-behavior.md" />
     <File Path="docs/13-inverted-transitions.md" />
+    <File Path="docs/14-mermaid-diagrams.md" />
     <File Path="docs/2-getting-started.md" />
     <File Path="docs/3-general-concepts.md" />
     <File Path="docs/4-state-machine-lifecycle.md" />
@@ -24,10 +25,12 @@
     <File Path="samples/OrderProcessorSample/README.md" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/ZCrew.StateCraft.Mermaid/ZCrew.StateCraft.Mermaid.csproj" />
     <Project Path="src/ZCrew.StateCraft/ZCrew.StateCraft.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ZCrew.StateCraft.IntegrationTests/ZCrew.StateCraft.IntegrationTests.csproj" />
+    <Project Path="tests/ZCrew.StateCraft.Mermaid.IntegrationTests/ZCrew.StateCraft.Mermaid.IntegrationTests.csproj" />
     <Project Path="tests/ZCrew.StateCraft.UnitTests/ZCrew.StateCraft.UnitTests.csproj" />
   </Folder>
 </Solution>

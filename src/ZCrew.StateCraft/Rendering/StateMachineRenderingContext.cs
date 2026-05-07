@@ -4,6 +4,31 @@ using ZCrew.StateCraft.Rendering.Models;
 namespace ZCrew.StateCraft.Rendering;
 
 /// <summary>
+///     Static helpers for constructing a populated
+///     <see cref="StateMachineRenderingContext{TState, TTransition}"/> from a configuration.
+/// </summary>
+internal static class StateMachineRenderingContext
+{
+    /// <summary>
+    ///     Walks <paramref name="stateMachineConfiguration"/> and returns a fully-populated rendering context.
+    /// </summary>
+    /// <typeparam name="TState">The type of the state.</typeparam>
+    /// <typeparam name="TTransition">The type of the transition.</typeparam>
+    /// <param name="stateMachineConfiguration">The configuration to render.</param>
+    /// <returns>The populated context describing the state machine, its states, and its transitions.</returns>
+    public static StateMachineRenderingContext<TState, TTransition> Render<TState, TTransition>(
+        IStateMachineConfiguration<TState, TTransition> stateMachineConfiguration
+    )
+        where TState : notnull
+        where TTransition : notnull
+    {
+        var context = new StateMachineRenderingContext<TState, TTransition>();
+        context.AddToRenderingContext(stateMachineConfiguration);
+        return context;
+    }
+}
+
+/// <summary>
 ///     A mutable accumulator that <see cref="IRenderable{TState, TTransition}"/> implementations write into while a state
 ///     machine configuration tree is walked. Once populated, the collected models describe the full structure that a
 ///     renderer needs to produce a diagram.
