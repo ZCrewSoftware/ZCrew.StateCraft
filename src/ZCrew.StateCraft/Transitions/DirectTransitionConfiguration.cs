@@ -1,5 +1,7 @@
+using System.Text;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
+using ZCrew.StateCraft.Rendering.Extensions;
 using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Configuration;
@@ -72,13 +74,20 @@ internal class DirectTransitionConfiguration<TState, TTransition>
     /// <inheritdoc />
     public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
     {
-        var descriptor = $"{this.transitionValue}";
+        var previousState = this.previousStateConfiguration.RenderStateIdentifier();
+        var nextState = this.nextStateConfiguration.RenderStateIdentifier();
+        var descriptor = GetDescriptor();
         var conditions = new List<string>();
 
         conditions.AddRange(this.previousStateConfiguration.RenderConditions());
         conditions.AddRange(this.nextStateConfiguration.RenderConditions());
 
-        var transition = new TransitionRenderingModel<TState, TTransition>(descriptor, conditions);
+        var transition = new TransitionRenderingModel<TState, TTransition>(
+            previousState,
+            nextState,
+            descriptor,
+            conditions
+        );
         context.Transitions.Add(transition);
     }
 
@@ -94,5 +103,24 @@ internal class DirectTransitionConfiguration<TState, TTransition>
         }
 
         return $"{this.transitionValue}({this.previousStateConfiguration}) → {this.nextStateConfiguration}";
+    }
+
+    private string GetDescriptor()
+    {
+        if (this.nextStateConfiguration.TypeParameters.Count == 0)
+        {
+            return $"{this.transitionValue}";
+        }
+
+        var identifier = new StringBuilder($"{this.transitionValue}<");
+        for (var i = 0; i < this.nextStateConfiguration.TypeParameters.Count; i++)
+        {
+            if (i > 0)
+            {
+                identifier.Append(", ");
+            }
+            identifier.Append(this.nextStateConfiguration.TypeParameters[i].FriendlyName);
+        }
+        return identifier.Append('>').ToString();
     }
 }

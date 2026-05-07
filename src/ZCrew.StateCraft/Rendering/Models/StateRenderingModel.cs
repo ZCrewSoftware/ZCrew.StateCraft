@@ -41,7 +41,7 @@ internal sealed class StateRenderingModel<TState, TTransition>
     /// <summary>
     ///     The stable identifier used to reference this state from transitions. Built from the state value plus its type
     ///     parameters so that two parameterized states sharing the same underlying value but different parameter types
-    ///     produce distinct ids.
+    ///     produce distinct identifiers.
     /// </summary>
     public required string Identifier { get; init; }
 

@@ -79,3 +79,4 @@ await machine.Deactivate(cancellationToken);
 - [Exception Handling](./11-exception-handling.md) - Error handling strategies
 - [Exception Behavior](./12-exception-behavior.md) - Custom exception handling implementations
 - [Inverted Transitions](./13-inverted-transitions.md) - Define transitions by destination instead of source
+- [Mermaid Diagrams](./14-mermaid-diagrams.md) - Render a configuration as a Mermaid `stateDiagram-v2`
