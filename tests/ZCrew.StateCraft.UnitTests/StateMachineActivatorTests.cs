@@ -1,6 +1,5 @@
 using NSubstitute;
 using ZCrew.Extensions.Tasks;
-using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.UnitTests.Stubs;
 
 namespace ZCrew.StateCraft.UnitTests;

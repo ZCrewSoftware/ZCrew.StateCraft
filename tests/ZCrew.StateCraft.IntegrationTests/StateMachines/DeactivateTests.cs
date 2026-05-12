@@ -1,5 +1,4 @@
 using NSubstitute;
-using ZCrew.StateCraft.Extensions;
 
 namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 

@@ -1,6 +1,4 @@
-using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Parameters;
-using ZCrew.StateCraft.Parameters.Contracts;
 
 namespace ZCrew.StateCraft.UnitTests.Parameters;
 
@@ -127,7 +125,7 @@ public class StateMachineParametersTests
     }
 
     [Fact]
-    public void SetNextParameters_T1_T2_WhenCalled_ShouldSetNextParametersSetFlag()
+    public void SetNextParameters_T1_T2_WhenCalled_ShouldSetIsNextSet()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -136,7 +134,7 @@ public class StateMachineParametersTests
         parameters.SetNextParameters("first", 42);
 
         // Assert
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.True(parameters.IsNextSet);
     }
 
     [Fact]
@@ -190,7 +188,7 @@ public class StateMachineParametersTests
     }
 
     [Fact]
-    public void SetNextParameters_T1_T2_T3_WhenCalled_ShouldSetNextParametersSetFlag()
+    public void SetNextParameters_T1_T2_T3_WhenCalled_ShouldSetIsNextSet()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -199,7 +197,7 @@ public class StateMachineParametersTests
         parameters.SetNextParameters("first", 42, true);
 
         // Assert
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.True(parameters.IsNextSet);
     }
 
     [Fact]
@@ -256,7 +254,7 @@ public class StateMachineParametersTests
     }
 
     [Fact]
-    public void SetNextParameters_T1_T2_T3_T4_WhenCalled_ShouldSetNextParametersSetFlag()
+    public void SetNextParameters_T1_T2_T3_T4_WhenCalled_ShouldSetIsNextSet()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -265,11 +263,11 @@ public class StateMachineParametersTests
         parameters.SetNextParameters("first", 42, true, 'x');
 
         // Assert
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.True(parameters.IsNextSet);
     }
 
     [Fact]
-    public void SetEmptyNextParameters_WhenCalled_ShouldSetNextParametersSetFlag()
+    public void SetEmptyNextParameters_WhenCalled_ShouldSetIsNextSet()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -278,7 +276,7 @@ public class StateMachineParametersTests
         parameters.SetEmptyNextParameters();
 
         // Assert
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.True(parameters.IsNextSet);
     }
 
     [Fact]
@@ -1044,9 +1042,9 @@ public class StateMachineParametersTests
         var (s, i) = parameters.GetCurrentParameters<string, int>();
         Assert.Equal("state-B", s);
         Assert.Equal(200, i);
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
+        Assert.True(parameters.IsCurrentSet);
+        Assert.False(parameters.IsNextSet);
+        Assert.False(parameters.IsPreviousSet);
     }
 
     [Fact]
@@ -1120,7 +1118,7 @@ public class StateMachineParametersTests
     }
 
     [Fact]
-    public void RollbackTransition_WhenCalled_ShouldClearNextParametersSetFlag()
+    public void RollbackTransition_WhenCalled_ShouldClearIsNextSet()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1133,7 +1131,7 @@ public class StateMachineParametersTests
         parameters.RollbackTransition();
 
         // Assert
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.False(parameters.IsNextSet);
     }
 
     [Fact]
@@ -1151,26 +1149,52 @@ public class StateMachineParametersTests
 
         // Assert
         Assert.Equal("original", parameters.GetCurrentParameter<string>());
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.True(parameters.IsCurrentSet);
+        Assert.False(parameters.IsPreviousSet);
+        Assert.False(parameters.IsNextSet);
     }
 
     [Fact]
-    public void Status_WhenInitialized_ShouldBeNone()
+    public void IsPreviousSet_WhenInitialized_ShouldBeFalse()
     {
         // Arrange
         var parameters = new StateMachineParameters();
 
         // Act
-        var result = parameters.Status;
+        var result = parameters.IsPreviousSet;
 
         // Assert
-        Assert.Equal(StateMachineParametersFlags.None, result);
+        Assert.False(result);
     }
 
     [Fact]
-    public void Status_AfterSetNextParameter_ShouldHaveNextParametersSet()
+    public void IsCurrentSet_WhenInitialized_ShouldBeFalse()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        var result = parameters.IsCurrentSet;
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void IsNextSet_WhenInitialized_ShouldBeFalse()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        var result = parameters.IsNextSet;
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void IsNextSet_AfterSetNextParameter_ShouldBeTrue()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1179,11 +1203,11 @@ public class StateMachineParametersTests
         parameters.SetNextParameter("value");
 
         // Assert
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.True(parameters.IsNextSet);
     }
 
     [Fact]
-    public void Status_AfterBeginTransition_ShouldHavePreviousParametersSet()
+    public void IsPreviousSet_AfterBeginTransition_ShouldBeTrue()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1194,11 +1218,11 @@ public class StateMachineParametersTests
         parameters.BeginTransition();
 
         // Assert
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
+        Assert.True(parameters.IsPreviousSet);
     }
 
     [Fact]
-    public void Status_AfterBeginTransition_ShouldNotHaveCurrentParametersSet()
+    public void IsCurrentSet_AfterBeginTransition_ShouldBeFalse()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1209,11 +1233,11 @@ public class StateMachineParametersTests
         parameters.BeginTransition();
 
         // Assert
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
+        Assert.False(parameters.IsCurrentSet);
     }
 
     [Fact]
-    public void Status_AfterCommitTransition_ShouldHaveCurrentParametersSet()
+    public void IsCurrentSet_AfterCommitTransition_ShouldBeTrue()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1223,11 +1247,11 @@ public class StateMachineParametersTests
         parameters.CommitTransition();
 
         // Assert
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
+        Assert.True(parameters.IsCurrentSet);
     }
 
     [Fact]
-    public void Status_AfterCommitTransition_ShouldNotHaveNextParametersSet()
+    public void IsNextSet_AfterCommitTransition_ShouldBeFalse()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1237,11 +1261,11 @@ public class StateMachineParametersTests
         parameters.CommitTransition();
 
         // Assert
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.False(parameters.IsNextSet);
     }
 
     [Fact]
-    public void Status_AfterRollbackTransition_ShouldHaveCurrentParametersSet()
+    public void IsCurrentSet_AfterRollbackTransition_ShouldBeTrue()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1253,11 +1277,11 @@ public class StateMachineParametersTests
         parameters.RollbackTransition();
 
         // Assert
-        Assert.True(parameters.Status.HasFlag(StateMachineParametersFlags.CurrentParametersSet));
+        Assert.True(parameters.IsCurrentSet);
     }
 
     [Fact]
-    public void Status_AfterRollbackTransition_ShouldNotHavePreviousParametersSet()
+    public void IsPreviousSet_AfterRollbackTransition_ShouldBeFalse()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1269,11 +1293,11 @@ public class StateMachineParametersTests
         parameters.RollbackTransition();
 
         // Assert
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
+        Assert.False(parameters.IsPreviousSet);
     }
 
     [Fact]
-    public void Status_AfterRollbackTransition_ShouldNotHaveNextParametersSet()
+    public void IsNextSet_AfterRollbackTransition_ShouldBeFalse()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1286,11 +1310,11 @@ public class StateMachineParametersTests
         parameters.RollbackTransition();
 
         // Assert
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.False(parameters.IsNextSet);
     }
 
     [Fact]
-    public void Status_AfterBeginTransition_ShouldNotHaveNextParametersSet()
+    public void IsNextSet_AfterBeginTransition_ShouldBeFalse()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1301,11 +1325,11 @@ public class StateMachineParametersTests
         parameters.BeginTransition();
 
         // Assert
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.NextParametersSet));
+        Assert.False(parameters.IsNextSet);
     }
 
     [Fact]
-    public void Status_AfterCommitTransition_ShouldNotHavePreviousParametersSet()
+    public void IsPreviousSet_AfterCommitTransition_ShouldBeFalse()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1318,11 +1342,11 @@ public class StateMachineParametersTests
         parameters.CommitTransition();
 
         // Assert
-        Assert.False(parameters.Status.HasFlag(StateMachineParametersFlags.PreviousParametersSet));
+        Assert.False(parameters.IsPreviousSet);
     }
 
     [Fact]
-    public void Status_AfterClear_ShouldBeNone()
+    public void IsPreviousSet_AfterClear_ShouldBeFalse()
     {
         // Arrange
         var parameters = new StateMachineParameters();
@@ -1334,7 +1358,36 @@ public class StateMachineParametersTests
         parameters.Clear();
 
         // Assert
-        Assert.Equal(StateMachineParametersFlags.None, parameters.Status);
+        Assert.False(parameters.IsPreviousSet);
+    }
+
+    [Fact]
+    public void IsCurrentSet_AfterClear_ShouldBeFalse()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter("value");
+        parameters.CommitTransition();
+
+        // Act
+        parameters.Clear();
+
+        // Assert
+        Assert.False(parameters.IsCurrentSet);
+    }
+
+    [Fact]
+    public void IsNextSet_AfterClear_ShouldBeFalse()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter("value");
+
+        // Act
+        parameters.Clear();
+
+        // Assert
+        Assert.False(parameters.IsNextSet);
     }
 
     [Fact]
