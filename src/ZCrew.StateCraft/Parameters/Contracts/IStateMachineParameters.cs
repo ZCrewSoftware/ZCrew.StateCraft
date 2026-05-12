@@ -20,16 +20,25 @@ namespace ZCrew.StateCraft.Parameters.Contracts;
 internal interface IStateMachineParameters
 {
     /// <summary>
-    ///     The status indicating which parameters have been set.
+    ///     Gets a value indicating whether the previous parameters slot is set.
     /// </summary>
-    StateMachineParametersFlags Status { get; }
+    bool IsPreviousSet { get; }
+
+    /// <summary>
+    ///     Gets a value indicating whether the current parameters slot is set.
+    /// </summary>
+    bool IsCurrentSet { get; }
+
+    /// <summary>
+    ///     Gets a value indicating whether the next parameters slot is set.
+    /// </summary>
+    bool IsNextSet { get; }
 
     /// <summary>
     ///     The previous type parameters, if set.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.PreviousParametersSet"/> status.
+    ///     If <see cref="IsPreviousSet"/> is not <see langword="true"/>.
     /// </exception>
     ReadOnlySpan<Type> PreviousParameterTypes { get; }
 
@@ -37,8 +46,7 @@ internal interface IStateMachineParameters
     ///     The current type parameters, if set.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.CurrentParametersSet"/> status.
+    ///     If <see cref="IsCurrentSet"/> is not <see langword="true"/>..
     /// </exception>
     ReadOnlySpan<Type> CurrentParameterTypes { get; }
 
@@ -46,8 +54,7 @@ internal interface IStateMachineParameters
     ///     The next type parameters, if set.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.NextParametersSet"/> status.
+    ///     If <see cref="IsNextSet"/> is not <see langword="true"/>.
     /// </exception>
     ReadOnlySpan<Type> NextParameterTypes { get; }
 
@@ -60,10 +67,10 @@ internal interface IStateMachineParameters
     ///     Stages a single parameter for the next state.
     /// </summary>
     /// <typeparam name="T">The type of the parameter.</typeparam>
-    /// <param name="nextParameter">
+    /// <param name="parameter">
     ///     The parameter to stage. This becomes current upon <see cref="CommitTransition"/>.
     /// </param>
-    void SetNextParameter<T>(T nextParameter);
+    void SetNextParameter<T>(T parameter);
 
     /// <summary>
     ///     Stages two parameters for the next state.
@@ -104,9 +111,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T">The expected type of the parameter.</typeparam>
     /// <returns>The parameter value cast to <typeparamref name="T"/>.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.PreviousParametersSet"/> status, or if the
-    ///     parameter count is less than 1.
+    ///     If <see cref="IsPreviousSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 1.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If the parameter cannot be cast to <typeparamref name="T"/>.
@@ -120,9 +126,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T2">The expected type of the second parameter.</typeparam>
     /// <returns>A tuple of the parameter values.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.PreviousParametersSet"/> status, or if the
-    ///     parameter count is less than 2.
+    ///     If <see cref="IsPreviousSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 2.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If any parameter cannot be cast to its expected type.
@@ -137,9 +142,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T3">The expected type of the third parameter.</typeparam>
     /// <returns>A tuple of the parameter values.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.PreviousParametersSet"/> status, or if the
-    ///     parameter count is less than 3.
+    ///     If <see cref="IsPreviousSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 3.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If any parameter cannot be cast to its expected type.
@@ -155,9 +159,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T4">The expected type of the fourth parameter.</typeparam>
     /// <returns>A tuple of the parameter values.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.PreviousParametersSet"/> status, or if the
-    ///     parameter count is less than 4.
+    ///     If <see cref="IsPreviousSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 4.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If any parameter cannot be cast to its expected type.
@@ -170,9 +173,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T">The expected type of the parameter.</typeparam>
     /// <returns>The parameter value cast to <typeparamref name="T"/>.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.CurrentParametersSet"/> status, or if the
-    ///     parameter count is less than 1.
+    ///     If <see cref="IsCurrentSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 1.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If the parameter cannot be cast to <typeparamref name="T"/>.
@@ -186,9 +188,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T2">The expected type of the second parameter.</typeparam>
     /// <returns>A tuple of the parameter values.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.CurrentParametersSet"/> status, or if the
-    ///     parameter count is less than 2.
+    ///     If <see cref="IsCurrentSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 2.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If any parameter cannot be cast to its expected type.
@@ -203,9 +204,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T3">The expected type of the third parameter.</typeparam>
     /// <returns>A tuple of the parameter values.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.CurrentParametersSet"/> status, or if the
-    ///     parameter count is less than 3.
+    ///     If <see cref="IsCurrentSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 3.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If any parameter cannot be cast to its expected type.
@@ -221,9 +221,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T4">The expected type of the fourth parameter.</typeparam>
     /// <returns>A tuple of the parameter values.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.CurrentParametersSet"/> status, or if the
-    ///     parameter count is less than 4.
+    ///     If <see cref="IsCurrentSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 4.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If any parameter cannot be cast to its expected type.
@@ -236,9 +235,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T">The expected type of the parameter.</typeparam>
     /// <returns>The parameter value cast to <typeparamref name="T"/>.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.NextParametersSet"/> status, or if the
-    ///     parameter count is less than 1.
+    ///     If <see cref="IsNextSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 1.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If the parameter cannot be cast to <typeparamref name="T"/>.
@@ -252,9 +250,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T2">The expected type of the second parameter.</typeparam>
     /// <returns>A tuple of the parameter values.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.NextParametersSet"/> status, or if the
-    ///     parameter count is less than 2.
+    ///     If <see cref="IsNextSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 2.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If any parameter cannot be cast to its expected type.
@@ -269,9 +266,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T3">The expected type of the third parameter.</typeparam>
     /// <returns>A tuple of the parameter values.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.NextParametersSet"/> status, or if the
-    ///     parameter count is less than 3.
+    ///     If <see cref="IsNextSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 3.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If any parameter cannot be cast to its expected type.
@@ -287,9 +283,8 @@ internal interface IStateMachineParameters
     /// <typeparam name="T4">The expected type of the fourth parameter.</typeparam>
     /// <returns>A tuple of the parameter values.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     If the <see cref="Status"/> does not indicate the
-    ///     <see cref="StateMachineParametersFlags.NextParametersSet"/> status, or if the
-    ///     parameter count is less than 4.
+    ///     If <see cref="IsNextSet"/> is not <see langword="true"/>, or if the
+    ///     parameter count is not 4.
     /// </exception>
     /// <exception cref="InvalidCastException">
     ///     If any parameter cannot be cast to its expected type.

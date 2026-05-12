@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using NSubstitute;
 using ZCrew.StateCraft.StateMachines.Contracts;
 
