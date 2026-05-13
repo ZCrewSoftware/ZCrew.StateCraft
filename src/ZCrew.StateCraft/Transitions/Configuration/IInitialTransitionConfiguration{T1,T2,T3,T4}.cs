@@ -72,9 +72,14 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// </summary>
     /// <typeparam name="TNext">The type of the parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext> WithMappedParameter<TNext>(
-        Func<T1, T2, T3, T4, TNext> map
+        Func<T1, T2, T3, T4, TNext> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     );
 
     /// <summary>
@@ -82,9 +87,14 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// </summary>
     /// <typeparam name="TNext">The type of the parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext> WithMappedParameter<TNext>(
-        Func<T1, T2, T3, T4, CancellationToken, Task<TNext>> map
+        Func<T1, T2, T3, T4, CancellationToken, Task<TNext>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     );
 
     /// <summary>
@@ -92,9 +102,14 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// </summary>
     /// <typeparam name="TNext">The type of the parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext> WithMappedParameter<TNext>(
-        Func<T1, T2, T3, T4, CancellationToken, ValueTask<TNext>> map
+        Func<T1, T2, T3, T4, CancellationToken, ValueTask<TNext>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     );
 
     /// <summary>
@@ -103,9 +118,14 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// <typeparam name="TNext1">The type of the first parameter for the next state.</typeparam>
     /// <typeparam name="TNext2">The type of the second parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> WithMappedParameters<TNext1, TNext2>(
-        Func<T1, T2, T3, T4, (TNext1, TNext2)> map
+        Func<T1, T2, T3, T4, (TNext1, TNext2)> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     );
 
     /// <summary>
@@ -114,9 +134,14 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// <typeparam name="TNext1">The type of the first parameter for the next state.</typeparam>
     /// <typeparam name="TNext2">The type of the second parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> WithMappedParameters<TNext1, TNext2>(
-        Func<T1, T2, T3, T4, CancellationToken, Task<(TNext1, TNext2)>> map
+        Func<T1, T2, T3, T4, CancellationToken, Task<(TNext1, TNext2)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     );
 
     /// <summary>
@@ -125,9 +150,14 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// <typeparam name="TNext1">The type of the first parameter for the next state.</typeparam>
     /// <typeparam name="TNext2">The type of the second parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> WithMappedParameters<TNext1, TNext2>(
-        Func<T1, T2, T3, T4, CancellationToken, ValueTask<(TNext1, TNext2)>> map
+        Func<T1, T2, T3, T4, CancellationToken, ValueTask<(TNext1, TNext2)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     );
 
     /// <summary>
@@ -137,12 +167,19 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// <typeparam name="TNext2">The type of the second parameter for the next state.</typeparam>
     /// <typeparam name="TNext3">The type of the third parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> WithMappedParameters<
         TNext1,
         TNext2,
         TNext3
-    >(Func<T1, T2, T3, T4, (TNext1, TNext2, TNext3)> map);
+    >(
+        Func<T1, T2, T3, T4, (TNext1, TNext2, TNext3)> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures the transition to map the previous four parameters to three next parameters.
@@ -151,12 +188,19 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// <typeparam name="TNext2">The type of the second parameter for the next state.</typeparam>
     /// <typeparam name="TNext3">The type of the third parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> WithMappedParameters<
         TNext1,
         TNext2,
         TNext3
-    >(Func<T1, T2, T3, T4, CancellationToken, Task<(TNext1, TNext2, TNext3)>> map);
+    >(
+        Func<T1, T2, T3, T4, CancellationToken, Task<(TNext1, TNext2, TNext3)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures the transition to map the previous four parameters to three next parameters.
@@ -165,12 +209,19 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// <typeparam name="TNext2">The type of the second parameter for the next state.</typeparam>
     /// <typeparam name="TNext3">The type of the third parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> WithMappedParameters<
         TNext1,
         TNext2,
         TNext3
-    >(Func<T1, T2, T3, T4, CancellationToken, ValueTask<(TNext1, TNext2, TNext3)>> map);
+    >(
+        Func<T1, T2, T3, T4, CancellationToken, ValueTask<(TNext1, TNext2, TNext3)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures the transition to map the previous four parameters to four next parameters.
@@ -180,13 +231,20 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// <typeparam name="TNext3">The type of the third parameter for the next state.</typeparam>
     /// <typeparam name="TNext4">The type of the fourth parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> WithMappedParameters<
         TNext1,
         TNext2,
         TNext3,
         TNext4
-    >(Func<T1, T2, T3, T4, (TNext1, TNext2, TNext3, TNext4)> map);
+    >(
+        Func<T1, T2, T3, T4, (TNext1, TNext2, TNext3, TNext4)> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures the transition to map the previous four parameters to four next parameters.
@@ -196,13 +254,20 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// <typeparam name="TNext3">The type of the third parameter for the next state.</typeparam>
     /// <typeparam name="TNext4">The type of the fourth parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> WithMappedParameters<
         TNext1,
         TNext2,
         TNext3,
         TNext4
-    >(Func<T1, T2, T3, T4, CancellationToken, Task<(TNext1, TNext2, TNext3, TNext4)>> map);
+    >(
+        Func<T1, T2, T3, T4, CancellationToken, Task<(TNext1, TNext2, TNext3, TNext4)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures the transition to map the previous four parameters to four next parameters.
@@ -212,13 +277,20 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     /// <typeparam name="TNext3">The type of the third parameter for the next state.</typeparam>
     /// <typeparam name="TNext4">The type of the fourth parameter for the next state.</typeparam>
     /// <param name="map">The mapping function.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the mapping. When omitted, the caller's expression for
+    ///     <paramref name="map"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> WithMappedParameters<
         TNext1,
         TNext2,
         TNext3,
         TNext4
-    >(Func<T1, T2, T3, T4, CancellationToken, ValueTask<(TNext1, TNext2, TNext3, TNext4)>> map);
+    >(
+        Func<T1, T2, T3, T4, CancellationToken, ValueTask<(TNext1, TNext2, TNext3, TNext4)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    );
 
     /// <summary>
     ///     Configures the transition to pass the parameters from the previous state to the next state, unchanged.

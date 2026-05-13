@@ -1,4 +1,6 @@
+using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
 using ZCrew.StateCraft.Rendering.Models;
@@ -110,27 +112,38 @@ internal class StateMachineConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState(Func<TState> stateProvider)
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState(
+        Func<TState> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
+    )
     {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(stateProvider.AsAsyncFunc());
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
+        );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState(
-        Func<CancellationToken, Task<TState>> stateProvider
+        Func<CancellationToken, Task<TState>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(stateProvider.AsAsyncFunc());
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
+        );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState(
-        Func<CancellationToken, ValueTask<TState>> stateProvider
+        Func<CancellationToken, ValueTask<TState>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(stateProvider.AsAsyncFunc());
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
+        );
         return this;
     }
 
@@ -142,27 +155,38 @@ internal class StateMachineConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(Func<(TState, T)> stateProvider)
+    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(
+        Func<(TState, T)> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
+    )
     {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(stateProvider.AsAsyncFunc());
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
+        );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(
-        Func<CancellationToken, Task<(TState, T)>> stateProvider
+        Func<CancellationToken, Task<(TState, T)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(stateProvider.AsAsyncFunc());
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
+        );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(
-        Func<CancellationToken, ValueTask<(TState, T)>> stateProvider
+        Func<CancellationToken, ValueTask<(TState, T)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(stateProvider.AsAsyncFunc());
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
+        );
         return this;
     }
 
@@ -183,28 +207,37 @@ internal class StateMachineConfiguration<TState, TTransition>
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
-        Func<(TState, T1, T2)> stateProvider
+        Func<(TState, T1, T2)> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(stateProvider.AsAsyncFunc());
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
+        );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
-        Func<CancellationToken, Task<(TState, T1, T2)>> stateProvider
+        Func<CancellationToken, Task<(TState, T1, T2)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(stateProvider.AsAsyncFunc());
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
+        );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
-        Func<CancellationToken, ValueTask<(TState, T1, T2)>> stateProvider
+        Func<CancellationToken, ValueTask<(TState, T1, T2)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(stateProvider.AsAsyncFunc());
+        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
+        );
         return this;
     }
 
@@ -227,33 +260,36 @@ internal class StateMachineConfiguration<TState, TTransition>
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        Func<(TState, T1, T2, T3)> stateProvider
+        Func<(TState, T1, T2, T3)> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
         this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
-            stateProvider.AsAsyncFunc()
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
         );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        Func<CancellationToken, Task<(TState, T1, T2, T3)>> stateProvider
+        Func<CancellationToken, Task<(TState, T1, T2, T3)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
         this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
-            stateProvider.AsAsyncFunc()
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
         );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        Func<CancellationToken, ValueTask<(TState, T1, T2, T3)>> stateProvider
+        Func<CancellationToken, ValueTask<(TState, T1, T2, T3)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
         this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
-            stateProvider.AsAsyncFunc()
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
         );
         return this;
     }
@@ -279,33 +315,36 @@ internal class StateMachineConfiguration<TState, TTransition>
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        Func<(TState, T1, T2, T3, T4)> stateProvider
+        Func<(TState, T1, T2, T3, T4)> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
         this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
-            stateProvider.AsAsyncFunc()
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
         );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        Func<CancellationToken, Task<(TState, T1, T2, T3, T4)>> stateProvider
+        Func<CancellationToken, Task<(TState, T1, T2, T3, T4)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
         this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
-            stateProvider.AsAsyncFunc()
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
         );
         return this;
     }
 
     /// <inheritdoc/>
     public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        Func<CancellationToken, ValueTask<(TState, T1, T2, T3, T4)>> stateProvider
+        Func<CancellationToken, ValueTask<(TState, T1, T2, T3, T4)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     )
     {
         this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
-            stateProvider.AsAsyncFunc()
+            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
         );
         return this;
     }

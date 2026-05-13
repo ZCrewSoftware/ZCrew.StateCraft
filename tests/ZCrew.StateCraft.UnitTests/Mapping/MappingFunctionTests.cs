@@ -1,6 +1,7 @@
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Mapping;
 using ZCrew.StateCraft.Parameters.Contracts;
 
@@ -18,7 +19,7 @@ public class MappingFunctionTests
         var function = Substitute.For<IAsyncFunc<int, string>>();
         function.InvokeAsync(42, Arg.Any<CancellationToken>()).Returns("result");
 
-        var mapper = new MappingFunction<int, string>(function);
+        var mapper = new MappingFunction<int, string>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -37,7 +38,7 @@ public class MappingFunctionTests
         var function = Substitute.For<IAsyncFunc<int, string>>();
         function.InvokeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns("result");
 
-        var mapper = new MappingFunction<int, string>(function);
+        var mapper = new MappingFunction<int, string>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -56,7 +57,7 @@ public class MappingFunctionTests
         var function = Substitute.For<IAsyncFunc<int, string>>();
         function.InvokeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()).ThrowsAsync(new InvalidOperationException());
 
-        var mapper = new MappingFunction<int, string>(function);
+        var mapper = new MappingFunction<int, string>(function.AsAsyncMap());
 
         // Act
         var act = () => mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -77,7 +78,7 @@ public class MappingFunctionTests
         function.InvokeAsync(1, Arg.Any<CancellationToken>()).Returns("first");
         function.InvokeAsync(2, Arg.Any<CancellationToken>()).Returns("second");
 
-        var mapper = new MappingFunction<int, string>(function);
+        var mapper = new MappingFunction<int, string>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -98,7 +99,7 @@ public class MappingFunctionTests
         var function = Substitute.For<IAsyncFunc<int, string, double>>();
         function.InvokeAsync(1, "input", Arg.Any<CancellationToken>()).Returns(3.14);
 
-        var mapper = new MappingFunction<int, string, double>(function);
+        var mapper = new MappingFunction<int, string, double>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -117,7 +118,7 @@ public class MappingFunctionTests
         var function = Substitute.For<IAsyncFunc<int, string, double>>();
         function.InvokeAsync(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(3.14);
 
-        var mapper = new MappingFunction<int, string, double>(function);
+        var mapper = new MappingFunction<int, string, double>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -138,7 +139,7 @@ public class MappingFunctionTests
             .InvokeAsync(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new InvalidOperationException());
 
-        var mapper = new MappingFunction<int, string, double>(function);
+        var mapper = new MappingFunction<int, string, double>(function.AsAsyncMap());
 
         // Act
         var act = () => mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -158,7 +159,7 @@ public class MappingFunctionTests
         var function = Substitute.For<IAsyncFunc<int, string, bool, double>>();
         function.InvokeAsync(1, "input", true, Arg.Any<CancellationToken>()).Returns(3.14);
 
-        var mapper = new MappingFunction<int, string, bool, double>(function);
+        var mapper = new MappingFunction<int, string, bool, double>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -179,7 +180,7 @@ public class MappingFunctionTests
             .InvokeAsync(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(3.14);
 
-        var mapper = new MappingFunction<int, string, bool, double>(function);
+        var mapper = new MappingFunction<int, string, bool, double>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -200,7 +201,7 @@ public class MappingFunctionTests
             .InvokeAsync(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new InvalidOperationException());
 
-        var mapper = new MappingFunction<int, string, bool, double>(function);
+        var mapper = new MappingFunction<int, string, bool, double>(function.AsAsyncMap());
 
         // Act
         var act = () => mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -220,7 +221,7 @@ public class MappingFunctionTests
         var function = Substitute.For<IAsyncFunc<int, string, bool, char, double>>();
         function.InvokeAsync(1, "input", true, 'x', Arg.Any<CancellationToken>()).Returns(3.14);
 
-        var mapper = new MappingFunction<int, string, bool, char, double>(function);
+        var mapper = new MappingFunction<int, string, bool, char, double>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -247,7 +248,7 @@ public class MappingFunctionTests
             )
             .Returns(3.14);
 
-        var mapper = new MappingFunction<int, string, bool, char, double>(function);
+        var mapper = new MappingFunction<int, string, bool, char, double>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -274,7 +275,7 @@ public class MappingFunctionTests
             )
             .ThrowsAsync(new InvalidOperationException());
 
-        var mapper = new MappingFunction<int, string, bool, char, double>(function);
+        var mapper = new MappingFunction<int, string, bool, char, double>(function.AsAsyncMap());
 
         // Act
         var act = () => mapper.Map(parameters, TestContext.Current.CancellationToken);

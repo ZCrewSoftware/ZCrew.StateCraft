@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.StateMachines.Contracts;
 
@@ -72,17 +73,14 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IStateMachineConfiguration<TState, TTransition> WithInitialState(Func<TState> stateProvider);
-
-    /// <summary>
-    ///     Configures the <paramref name="stateProvider"/> delegate which will be called to fetch the initial state as
-    ///     the state machine is initialized to.
-    /// </summary>
-    /// <param name="stateProvider">The delegate to fetch the initial state.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState(
-        Func<CancellationToken, Task<TState>> stateProvider
+        Func<TState> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -90,9 +88,29 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState(
-        Func<CancellationToken, ValueTask<TState>> stateProvider
+        Func<CancellationToken, Task<TState>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures the <paramref name="stateProvider"/> delegate which will be called to fetch the initial state as
+    ///     the state machine is initialized to.
+    /// </summary>
+    /// <param name="stateProvider">The delegate to fetch the initial state.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IStateMachineConfiguration<TState, TTransition> WithInitialState(
+        Func<CancellationToken, ValueTask<TState>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -109,19 +127,15 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state and parameter.</param>
-    /// <typeparam name="T">The type of the initial state parameter.</typeparam>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(Func<(TState, T)> stateProvider);
-
-    /// <summary>
-    ///     Configures the <paramref name="stateProvider"/> delegate which will be called to fetch the initial state as
-    ///     the state machine is initialized to.
-    /// </summary>
-    /// <param name="stateProvider">The delegate to fetch the initial state.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T">The type of the initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(
-        Func<CancellationToken, Task<(TState, T)>> stateProvider
+        Func<(TState, T)> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -129,10 +143,31 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T">The type of the initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(
-        Func<CancellationToken, ValueTask<(TState, T)>> stateProvider
+        Func<CancellationToken, Task<(TState, T)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures the <paramref name="stateProvider"/> delegate which will be called to fetch the initial state as
+    ///     the state machine is initialized to.
+    /// </summary>
+    /// <param name="stateProvider">The delegate to fetch the initial state.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
+    /// <typeparam name="T">The type of the initial state parameter.</typeparam>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(
+        Func<CancellationToken, ValueTask<(TState, T)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -155,21 +190,16 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     and two parameters as the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
-    /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
-    /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(Func<(TState, T1, T2)> stateProvider);
-
-    /// <summary>
-    ///     Configures the <paramref name="stateProvider"/> delegate which will be called to fetch the initial state
-    ///     and two parameters as the state machine is initialized to.
-    /// </summary>
-    /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
     /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
-        Func<CancellationToken, Task<(TState, T1, T2)>> stateProvider
+        Func<(TState, T1, T2)> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -177,11 +207,33 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     and two parameters as the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
     /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
-        Func<CancellationToken, ValueTask<(TState, T1, T2)>> stateProvider
+        Func<CancellationToken, Task<(TState, T1, T2)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures the <paramref name="stateProvider"/> delegate which will be called to fetch the initial state
+    ///     and two parameters as the state machine is initialized to.
+    /// </summary>
+    /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
+    /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
+    /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
+        Func<CancellationToken, ValueTask<(TState, T1, T2)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -207,12 +259,17 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     and three parameters as the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
     /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
     /// <typeparam name="T3">The type of the third initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        Func<(TState, T1, T2, T3)> stateProvider
+        Func<(TState, T1, T2, T3)> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -220,12 +277,17 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     and three parameters as the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
     /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
     /// <typeparam name="T3">The type of the third initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        Func<CancellationToken, Task<(TState, T1, T2, T3)>> stateProvider
+        Func<CancellationToken, Task<(TState, T1, T2, T3)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -233,12 +295,17 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     and three parameters as the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
     /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
     /// <typeparam name="T3">The type of the third initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        Func<CancellationToken, ValueTask<(TState, T1, T2, T3)>> stateProvider
+        Func<CancellationToken, ValueTask<(TState, T1, T2, T3)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -267,13 +334,18 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     and four parameters as the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
     /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
     /// <typeparam name="T3">The type of the third initial state parameter.</typeparam>
     /// <typeparam name="T4">The type of the fourth initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        Func<(TState, T1, T2, T3, T4)> stateProvider
+        Func<(TState, T1, T2, T3, T4)> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -281,13 +353,18 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     and four parameters as the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
     /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
     /// <typeparam name="T3">The type of the third initial state parameter.</typeparam>
     /// <typeparam name="T4">The type of the fourth initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        Func<CancellationToken, Task<(TState, T1, T2, T3, T4)>> stateProvider
+        Func<CancellationToken, Task<(TState, T1, T2, T3, T4)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
@@ -295,13 +372,18 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     and four parameters as the state machine is initialized to.
     /// </summary>
     /// <param name="stateProvider">The delegate to fetch the initial state and parameters.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the state provider. When omitted, the caller's expression for
+    ///     <paramref name="stateProvider"/> is captured automatically.
+    /// </param>
     /// <typeparam name="T1">The type of the first initial state parameter.</typeparam>
     /// <typeparam name="T2">The type of the second initial state parameter.</typeparam>
     /// <typeparam name="T3">The type of the third initial state parameter.</typeparam>
     /// <typeparam name="T4">The type of the fourth initial state parameter.</typeparam>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        Func<CancellationToken, ValueTask<(TState, T1, T2, T3, T4)>> stateProvider
+        Func<CancellationToken, ValueTask<(TState, T1, T2, T3, T4)>> stateProvider,
+        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
     );
 
     /// <summary>
