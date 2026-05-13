@@ -38,6 +38,12 @@ public interface IStateConfiguration<TState, TTransition>
     internal IEnumerable<ITransitionConfiguration<TState, TTransition>> Transitions { get; }
 
     /// <summary>
+    ///     Query information about this state.
+    /// </summary>
+    /// <returns>Information about this configuration.</returns>
+    internal IStateInfo<TState> GetInfo();
+
+    /// <summary>
     ///     Build the state based on the configuration.
     /// </summary>
     /// <param name="stateMachine">The parent state machine.</param>

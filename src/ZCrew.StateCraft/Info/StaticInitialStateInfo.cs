@@ -1,17 +1,18 @@
 namespace ZCrew.StateCraft.Info;
 
+/// <inheritdoc />
 internal sealed class StaticInitialStateInfo<TState> : IStaticInitialStateInfo<TState>
     where TState : notnull
 {
     public StaticInitialStateInfo(
-        IReadOnlyList<Type> initialParameterTypes,
         TState initialStateValue,
-        IReadOnlyList<object?> initialParameters
+        IReadOnlyList<object?> initialParameters,
+        IReadOnlyList<Type> initialParameterTypes
     )
     {
-        InitialParameterTypes = initialParameterTypes;
         InitialStateValue = initialStateValue;
         InitialParameters = initialParameters;
+        InitialParameterTypes = initialParameterTypes;
     }
 
     /// <inheritdoc />

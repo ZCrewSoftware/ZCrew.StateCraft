@@ -399,7 +399,7 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, T> WithSameParameter()
     {
-        return WithMappedParameter(previous => previous);
+        return WithMappedParameter(previous => previous, nameof(WithSameParameter));
     }
 
     /// <summary>

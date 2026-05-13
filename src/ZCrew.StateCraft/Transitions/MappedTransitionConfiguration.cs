@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
@@ -42,6 +43,22 @@ internal class MappedTransitionConfiguration<TState, TTransition>
         this.nextStateConfiguration = nextStateConfiguration;
         this.transitionValue = transition;
         this.mappingFunction = mappingFunction;
+    }
+
+    /// <inheritdoc />
+    public ITransitionInfo<TTransition> GetInfo()
+    {
+        var (previousStateInfo, previousConditionInfo) = this.previousStateConfiguration.GetInfo();
+        var (nextStateInfo, nextConditionInfo) = this.nextStateConfiguration.GetInfo();
+        var mappingFunctionInfo = this.mappingFunction.GetInfo();
+        return new MappedTransitionInfo<TState, TTransition>(
+            this.transitionValue,
+            previousStateInfo,
+            nextStateInfo,
+            previousConditionInfo,
+            nextConditionInfo,
+            mappingFunctionInfo
+        );
     }
 
     /// <inheritdoc />

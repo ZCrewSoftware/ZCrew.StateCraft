@@ -1,5 +1,6 @@
 namespace ZCrew.StateCraft.Info;
 
+/// <inheritdoc />
 internal sealed class MappingFunctionInfo : IMappingFunctionInfo
 {
     public MappingFunctionInfo(string? descriptor, IReadOnlyList<Type> typeParameters, IReadOnlyList<Type> resultTypes)

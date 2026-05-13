@@ -1,5 +1,6 @@
 namespace ZCrew.StateCraft.Info;
 
+/// <inheritdoc />
 internal sealed class FromTransitionInfo<TState, TTransition> : IFromTransitionInfo<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
@@ -9,7 +10,7 @@ internal sealed class FromTransitionInfo<TState, TTransition> : IFromTransitionI
         IReadOnlyList<Type> transitionParameterTypes,
         IStateInfo<TState> nextState,
         IReadOnlyList<IConditionInfo> nextParameterConditions,
-        IReadOnlyList<IExcludedStateInfo<TState>> excludedStates
+        IReadOnlyList<IStateInfo<TState>> excludedStates
     )
     {
         TransitionValue = transitionValue;
@@ -35,5 +36,5 @@ internal sealed class FromTransitionInfo<TState, TTransition> : IFromTransitionI
     public IReadOnlyList<IConditionInfo> NextParameterConditions { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<IExcludedStateInfo<TState>> ExcludedStates { get; }
+    public IReadOnlyList<IStateInfo<TState>> ExcludedStates { get; }
 }

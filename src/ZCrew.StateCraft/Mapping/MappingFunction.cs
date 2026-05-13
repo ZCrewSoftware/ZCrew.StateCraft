@@ -15,7 +15,7 @@ internal class MappingFunction<TIn, TOut> : IMappingFunction
     }
 
     /// <inheritdoc />
-    public string? Descriptor => this.map.Descriptor;
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
@@ -37,7 +37,7 @@ internal class MappingFunction<TIn1, TIn2, TOut> : IMappingFunction
     }
 
     /// <inheritdoc />
-    public string? Descriptor => this.map.Descriptor;
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
@@ -59,7 +59,7 @@ internal class MappingFunction<TIn1, TIn2, TIn3, TOut> : IMappingFunction
     }
 
     /// <inheritdoc />
-    public string? Descriptor => this.map.Descriptor;
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
@@ -81,7 +81,7 @@ internal class MappingFunction<TIn1, TIn2, TIn3, TIn4, TOut> : IMappingFunction
     }
 
     /// <inheritdoc />
-    public string? Descriptor => this.map.Descriptor;
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)

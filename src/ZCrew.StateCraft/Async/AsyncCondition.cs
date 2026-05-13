@@ -1,4 +1,5 @@
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Info;
 
 namespace ZCrew.StateCraft.Async;
 
@@ -24,6 +25,15 @@ internal readonly record struct AsyncCondition(IAsyncFunc<bool> Condition, strin
     public Task<bool> Evaluate(CancellationToken token)
     {
         return Condition.InvokeAsync(token);
+    }
+
+    /// <summary>
+    ///     Returns introspection metadata describing this condition.
+    /// </summary>
+    /// <returns>An <see cref="IConditionInfo"/> describing the condition's descriptor and type parameters.</returns>
+    public IConditionInfo GetInfo()
+    {
+        return new ConditionInfo(Descriptor, []);
     }
 }
 
@@ -51,6 +61,15 @@ internal readonly record struct AsyncCondition<T>(IAsyncFunc<T, bool> Condition,
     public Task<bool> Evaluate(T parameter, CancellationToken token)
     {
         return Condition.InvokeAsync(parameter, token);
+    }
+
+    /// <summary>
+    ///     Returns introspection metadata describing this condition.
+    /// </summary>
+    /// <returns>An <see cref="IConditionInfo"/> describing the condition's descriptor and type parameters.</returns>
+    public IConditionInfo GetInfo()
+    {
+        return new ConditionInfo(Descriptor, [typeof(T)]);
     }
 }
 
@@ -80,6 +99,15 @@ internal readonly record struct AsyncCondition<T1, T2>(IAsyncFunc<T1, T2, bool> 
     public Task<bool> Evaluate(T1 parameter1, T2 parameter2, CancellationToken token)
     {
         return Condition.InvokeAsync(parameter1, parameter2, token);
+    }
+
+    /// <summary>
+    ///     Returns introspection metadata describing this condition.
+    /// </summary>
+    /// <returns>An <see cref="IConditionInfo"/> describing the condition's descriptor and type parameters.</returns>
+    public IConditionInfo GetInfo()
+    {
+        return new ConditionInfo(Descriptor, [typeof(T1), typeof(T2)]);
     }
 }
 
@@ -111,6 +139,15 @@ internal readonly record struct AsyncCondition<T1, T2, T3>(IAsyncFunc<T1, T2, T3
     public Task<bool> Evaluate(T1 parameter1, T2 parameter2, T3 parameter3, CancellationToken token)
     {
         return Condition.InvokeAsync(parameter1, parameter2, parameter3, token);
+    }
+
+    /// <summary>
+    ///     Returns introspection metadata describing this condition.
+    /// </summary>
+    /// <returns>An <see cref="IConditionInfo"/> describing the condition's descriptor and type parameters.</returns>
+    public IConditionInfo GetInfo()
+    {
+        return new ConditionInfo(Descriptor, [typeof(T1), typeof(T2), typeof(T3)]);
     }
 }
 
@@ -147,5 +184,14 @@ internal readonly record struct AsyncCondition<T1, T2, T3, T4>(
     public Task<bool> Evaluate(T1 parameter1, T2 parameter2, T3 parameter3, T4 parameter4, CancellationToken token)
     {
         return Condition.InvokeAsync(parameter1, parameter2, parameter3, parameter4, token);
+    }
+
+    /// <summary>
+    ///     Returns introspection metadata describing this condition.
+    /// </summary>
+    /// <returns>An <see cref="IConditionInfo"/> describing the condition's descriptor and type parameters.</returns>
+    public IConditionInfo GetInfo()
+    {
+        return new ConditionInfo(Descriptor, [typeof(T1), typeof(T2), typeof(T3), typeof(T4)]);
     }
 }

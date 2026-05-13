@@ -566,6 +566,16 @@ public interface IStateMachineConfiguration<TState, TTransition>
     IStateMachine<TState, TTransition> Build(StateMachineBuildOptions options);
 
     /// <summary>
+    ///     Query information about this state machine, states, and transitions.
+    /// </summary>
+    /// <returns>Information about this configuration.</returns>
+    /// <remarks>
+    ///     Changes to this configuration will not update the information returned here previously.
+    ///     If you make changes to this configuration then requery the information.
+    /// </remarks>
+    IStateMachineInfo<TState, TTransition> GetInfo();
+
+    /// <summary>
     ///     The states in this configuration.
     /// </summary>
     internal IEnumerable<IStateConfiguration<TState, TTransition>> States { get; }

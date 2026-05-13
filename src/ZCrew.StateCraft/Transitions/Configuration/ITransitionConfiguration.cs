@@ -23,6 +23,12 @@ public interface ITransitionConfiguration<TState, TTransition>
     where TTransition : notnull
 {
     /// <summary>
+    ///     Query information about this transition.
+    /// </summary>
+    /// <returns>Information about this configuration.</returns>
+    internal ITransitionInfo<TTransition> GetInfo();
+
+    /// <summary>
     ///     Build the transition based on the configuration.
     /// </summary>
     /// <param name="stateMachine">The parent state machine.</param>

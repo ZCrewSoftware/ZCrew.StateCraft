@@ -1,4 +1,5 @@
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Info;
 
 namespace ZCrew.StateCraft.Async;
 
@@ -31,6 +32,18 @@ internal readonly record struct AsyncMapValueTuple2<TIn, TOut1, TOut2>(
     public Task<(TOut1, TOut2)> Invoke(TIn parameter, CancellationToken token)
     {
         return Map.InvokeAsync(parameter, token);
+    }
+
+    /// <summary>
+    ///     Returns introspection metadata describing this mapping function.
+    /// </summary>
+    /// <returns>
+    ///     An <see cref="IMappingFunctionInfo"/> describing the mapping function's descriptor, input type
+    ///     parameters, and result types.
+    /// </returns>
+    public IMappingFunctionInfo GetInfo()
+    {
+        return new MappingFunctionInfo(Descriptor, [typeof(TIn)], [typeof(TOut1), typeof(TOut2)]);
     }
 }
 
@@ -65,6 +78,18 @@ internal readonly record struct AsyncMapValueTuple2<TIn1, TIn2, TOut1, TOut2>(
     public Task<(TOut1, TOut2)> Invoke(TIn1 parameter1, TIn2 parameter2, CancellationToken token)
     {
         return Map.InvokeAsync(parameter1, parameter2, token);
+    }
+
+    /// <summary>
+    ///     Returns introspection metadata describing this mapping function.
+    /// </summary>
+    /// <returns>
+    ///     An <see cref="IMappingFunctionInfo"/> describing the mapping function's descriptor, input type
+    ///     parameters, and result types.
+    /// </returns>
+    public IMappingFunctionInfo GetInfo()
+    {
+        return new MappingFunctionInfo(Descriptor, [typeof(TIn1), typeof(TIn2)], [typeof(TOut1), typeof(TOut2)]);
     }
 }
 
@@ -101,6 +126,22 @@ internal readonly record struct AsyncMapValueTuple2<TIn1, TIn2, TIn3, TOut1, TOu
     public Task<(TOut1, TOut2)> Invoke(TIn1 parameter1, TIn2 parameter2, TIn3 parameter3, CancellationToken token)
     {
         return Map.InvokeAsync(parameter1, parameter2, parameter3, token);
+    }
+
+    /// <summary>
+    ///     Returns introspection metadata describing this mapping function.
+    /// </summary>
+    /// <returns>
+    ///     An <see cref="IMappingFunctionInfo"/> describing the mapping function's descriptor, input type
+    ///     parameters, and result types.
+    /// </returns>
+    public IMappingFunctionInfo GetInfo()
+    {
+        return new MappingFunctionInfo(
+            Descriptor,
+            [typeof(TIn1), typeof(TIn2), typeof(TIn3)],
+            [typeof(TOut1), typeof(TOut2)]
+        );
     }
 }
 
@@ -145,5 +186,21 @@ internal readonly record struct AsyncMapValueTuple2<TIn1, TIn2, TIn3, TIn4, TOut
     )
     {
         return Map.InvokeAsync(parameter1, parameter2, parameter3, parameter4, token);
+    }
+
+    /// <summary>
+    ///     Returns introspection metadata describing this mapping function.
+    /// </summary>
+    /// <returns>
+    ///     An <see cref="IMappingFunctionInfo"/> describing the mapping function's descriptor, input type
+    ///     parameters, and result types.
+    /// </returns>
+    public IMappingFunctionInfo GetInfo()
+    {
+        return new MappingFunctionInfo(
+            Descriptor,
+            [typeof(TIn1), typeof(TIn2), typeof(TIn3), typeof(TIn4)],
+            [typeof(TOut1), typeof(TOut2)]
+        );
     }
 }

@@ -293,7 +293,7 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IMappedTransitionConfiguration<TState, TTransition, T1, T2> WithSameParameters()
     {
-        return WithMappedParameters<T1, T2>((a, b) => (a, b));
+        return WithMappedParameters<T1, T2>((a, b) => (a, b), nameof(WithSameParameters));
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using ZCrew.StateCraft.Async;
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft;
@@ -55,6 +56,18 @@ internal sealed class StateMachineActivator<TState, TTransition> : IStateMachine
             stateMachine.Parameters.SetEmptyNextParameters();
             stateMachine.NextState = parameterlessState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(this.stateValue!, [], []);
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, []);
     }
 }
 
@@ -117,6 +130,18 @@ internal sealed class StateMachineActivator<TState, TTransition, T> : IStateMach
             stateMachine.Parameters.SetNextParameter(fetchedParameter);
             stateMachine.NextState = parameterizedState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(this.stateValue!, [this.parameter!], [typeof(T)]);
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T)]);
     }
 }
 
@@ -184,6 +209,22 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2> : IStat
             stateMachine.Parameters.SetNextParameters(fetchedP1, fetchedP2);
             stateMachine.NextState = parameterizedState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(
+                this.stateValue!,
+                [this.parameter1!, this.parameter2!],
+                [typeof(T1), typeof(T2)]
+            );
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T1), typeof(T2)]);
     }
 }
 
@@ -256,6 +297,22 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3>
             stateMachine.Parameters.SetNextParameters(fetchedP1, fetchedP2, fetchedP3);
             stateMachine.NextState = parameterizedState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(
+                this.stateValue!,
+                [this.parameter1!, this.parameter2!, this.parameter3!],
+                [typeof(T1), typeof(T2), typeof(T3)]
+            );
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T1), typeof(T2), typeof(T3)]);
     }
 }
 
@@ -339,5 +396,21 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3, T4>
             stateMachine.Parameters.SetNextParameters(fetchedP1, fetchedP2, fetchedP3, fetchedP4);
             stateMachine.NextState = parameterizedState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(
+                this.stateValue!,
+                [this.parameter1!, this.parameter2!, this.parameter3!, this.parameter4!],
+                [typeof(T1), typeof(T2), typeof(T3), typeof(T4)]
+            );
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T1), typeof(T2), typeof(T3), typeof(T4)]);
     }
 }

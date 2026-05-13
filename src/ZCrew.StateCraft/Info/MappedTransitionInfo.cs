@@ -1,12 +1,12 @@
 namespace ZCrew.StateCraft.Info;
 
+/// <inheritdoc />
 internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransitionInfo<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
     public MappedTransitionInfo(
         TTransition transitionValue,
-        IReadOnlyList<Type> transitionParameterTypes,
         IStateInfo<TState> previousState,
         IStateInfo<TState> nextState,
         IReadOnlyList<IConditionInfo> previousParameterConditions,
@@ -15,7 +15,6 @@ internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransit
     )
     {
         TransitionValue = transitionValue;
-        TransitionParameterTypes = transitionParameterTypes;
         PreviousState = previousState;
         NextState = nextState;
         PreviousParameterConditions = previousParameterConditions;
@@ -27,7 +26,7 @@ internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransit
     public TTransition TransitionValue { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> TransitionParameterTypes { get; }
+    public IReadOnlyList<Type> TransitionParameterTypes { get; } = [];
 
     /// <inheritdoc />
     public bool IsConditional => PreviousParameterConditions.Count > 0 || NextParameterConditions.Count > 0;

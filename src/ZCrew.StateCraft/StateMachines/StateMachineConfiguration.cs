@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
 using ZCrew.StateCraft.Rendering.Models;
@@ -476,6 +477,19 @@ internal class StateMachineConfiguration<TState, TTransition>
         var triggerConfiguration = configureTrigger(initialTriggerConfiguration);
         this.triggerConfigurations.Add(triggerConfiguration);
         return this;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineInfo<TState, TTransition> GetInfo()
+    {
+        var initialStateInfo = this.initialStateProducer?.GetInfo();
+        var stateInfo = this.stateConfigurations.Select(state => state.GetInfo()).ToArray();
+        var transitionInfo = this
+            .stateConfigurations.SelectMany(state => state.Transitions)
+            .Select(transition => transition.GetInfo())
+            .ToArray();
+
+        return new StateMachineInfo<TState, TTransition>(initialStateInfo, stateInfo, transitionInfo);
     }
 
     /// <inheritdoc/>

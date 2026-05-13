@@ -1,12 +1,13 @@
 namespace ZCrew.StateCraft.Info;
 
+/// <inheritdoc />
 internal sealed class DynamicInitialStateInfo<TState> : IDynamicInitialStateInfo<TState>
     where TState : notnull
 {
-    public DynamicInitialStateInfo(IReadOnlyList<Type> initialParameterTypes, string? descriptor)
+    public DynamicInitialStateInfo(string? descriptor, IReadOnlyList<Type> initialParameterTypes)
     {
-        InitialParameterTypes = initialParameterTypes;
         Descriptor = descriptor;
+        InitialParameterTypes = initialParameterTypes;
     }
 
     /// <inheritdoc />

@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.StateMachines.Contracts;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -33,7 +35,11 @@ public interface IStateMachineInfo<TState, TTransition>
     ///     The initial state configured on the machine. See <see cref="IStaticInitialStateInfo{TState}"/> and
     ///     <see cref="IDynamicInitialStateInfo{TState}"/> for the variants.
     /// </summary>
-    IInitialStateInfo<TState> InitialState { get; }
+    /// <remarks>
+    ///     This is only <see langword="null"/> if it has not been configured yet. If this information came from a
+    ///     <see cref="IStateMachine{TState,TTransition}"/> then this will never be <see langword="null"/>.
+    /// </remarks>
+    IInitialStateInfo<TState>? InitialState { get; }
 
     /// <summary>
     ///     Every state configured on the machine, in declaration order.

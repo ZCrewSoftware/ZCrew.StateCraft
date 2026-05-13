@@ -37,5 +37,5 @@ public interface IFromTransitionInfo<TState, TTransition> : ITransitionInfo<TTra
     ///     Source states explicitly excluded from this transition. Every configured state not listed here is a
     ///     valid source.
     /// </summary>
-    IReadOnlyList<IExcludedStateInfo<TState>> ExcludedStates { get; }
+    IReadOnlyList<IStateInfo<TState>> ExcludedStates { get; }
 }

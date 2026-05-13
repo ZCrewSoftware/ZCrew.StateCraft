@@ -1,4 +1,5 @@
 using System.Text;
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
 using ZCrew.StateCraft.Rendering.Extensions;
@@ -86,6 +87,20 @@ internal class FromTransitionConfiguration<TState, TTransition>
     >(TState state)
     {
         return Exclude(state, [typeof(TPrevious1), typeof(TPrevious2), typeof(TPrevious3), typeof(TPrevious4)]);
+    }
+
+    /// <inheritdoc />
+    public ITransitionInfo<TTransition> GetInfo()
+    {
+        var (nextStateInfo, nextConditionInfo) = this.nextStateConfiguration.GetInfo();
+        var excludedStateInfo = this.excludedStates.Select(excludedState => excludedState.GetInfo()).ToArray();
+        return new FromTransitionInfo<TState, TTransition>(
+            this.transitionValue,
+            this.nextStateConfiguration.TypeParameters,
+            nextStateInfo,
+            nextConditionInfo,
+            excludedStateInfo
+        );
     }
 
     /// <inheritdoc />
@@ -206,6 +221,11 @@ internal class FromTransitionConfiguration<TState, TTransition>
             }
 
             return typeParameters.SequenceEqual(TypeParameters);
+        }
+
+        public IStateInfo<TState> GetInfo()
+        {
+            return new StateInfo<TState>(State, TypeParameters);
         }
     }
 }

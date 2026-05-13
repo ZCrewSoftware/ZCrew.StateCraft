@@ -1,11 +1,7 @@
 namespace ZCrew.StateCraft;
 
 /// <summary>
-///     Common shape for introspection metadata describing a transition between states. Variants —
-///     <see cref="IDirectTransitionInfo{TState, TTransition}"/>,
-///     <see cref="IMappedTransitionInfo{TState, TTransition}"/>,
-///     <see cref="IFromTransitionInfo{TState, TTransition}"/>,
-///     <see cref="ISameParametersTransitionInfo{TState, TTransition}"/> — carry the variant-specific members.
+///     Common shape for introspection metadata describing a transition between states.
 /// </summary>
 /// <typeparam name="TTransition">
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
@@ -25,9 +21,7 @@ public interface ITransitionInfo<TTransition>
     /// </summary>
     /// <remarks>
     ///     Always empty for <see cref="IMappedTransitionInfo{TState, TTransition}"/> (parameters are produced by
-    ///     the mapping function, not the caller) and for
-    ///     <see cref="ISameParametersTransitionInfo{TState, TTransition}"/> (parameters are sourced from the
-    ///     current state's parameters).
+    ///     the mapping function, not the caller).
     /// </remarks>
     IReadOnlyList<Type> TransitionParameterTypes { get; }
 

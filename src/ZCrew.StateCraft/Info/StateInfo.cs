@@ -1,5 +1,6 @@
 namespace ZCrew.StateCraft.Info;
 
+/// <inheritdoc />
 internal sealed class StateInfo<TState> : IStateInfo<TState>
     where TState : notnull
 {

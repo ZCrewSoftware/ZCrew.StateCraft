@@ -1,5 +1,6 @@
 namespace ZCrew.StateCraft.Info;
 
+/// <inheritdoc />
 internal sealed class DirectTransitionInfo<TState, TTransition> : IDirectTransitionInfo<TState, TTransition>
     where TState : notnull
     where TTransition : notnull

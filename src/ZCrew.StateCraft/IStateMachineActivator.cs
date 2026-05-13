@@ -17,4 +17,10 @@ internal interface IStateMachineActivator<TState, TTransition>
     /// <param name="stateMachine">The state machine.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     Task Activate(IStateMachine<TState, TTransition> stateMachine, CancellationToken token);
+
+    /// <summary>
+    ///     Query information about the initial state.
+    /// </summary>
+    /// <returns>Information about the initial state.</returns>
+    IInitialStateInfo<TState> GetInfo();
 }

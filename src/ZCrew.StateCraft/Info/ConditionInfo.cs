@@ -1,5 +1,6 @@
 namespace ZCrew.StateCraft.Info;
 
+/// <inheritdoc />
 internal sealed class ConditionInfo : IConditionInfo
 {
     public ConditionInfo(string? descriptor, IReadOnlyList<Type> typeParameters)

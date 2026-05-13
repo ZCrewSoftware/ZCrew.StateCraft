@@ -15,7 +15,7 @@ internal class MappingFunctionValueTuple3<TIn, TOut1, TOut2, TOut3> : IMappingFu
     }
 
     /// <inheritdoc />
-    public string? Descriptor => this.map.Descriptor;
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
@@ -37,7 +37,7 @@ internal class MappingFunctionValueTuple3<TIn1, TIn2, TOut1, TOut2, TOut3> : IMa
     }
 
     /// <inheritdoc />
-    public string? Descriptor => this.map.Descriptor;
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
@@ -59,7 +59,7 @@ internal class MappingFunctionValueTuple3<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>
     }
 
     /// <inheritdoc />
-    public string? Descriptor => this.map.Descriptor;
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
@@ -81,7 +81,7 @@ internal class MappingFunctionValueTuple3<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, 
     }
 
     /// <inheritdoc />
-    public string? Descriptor => this.map.Descriptor;
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
