@@ -68,12 +68,14 @@ internal class StateMachineConfiguration<TState, TTransition>
 
         var triggers = new List<ITrigger>();
         var exceptionBehavior = BuildExceptionBehavior();
+        var stateMachineInfo = GetInfo();
         var stateMachine = new StateMachine<TState, TTransition>(
             this.initialStateProducer,
             this.onStateChanges.ToList(),
             triggers,
             this.stateMachineOptions,
-            exceptionBehavior
+            exceptionBehavior,
+            stateMachineInfo
         );
 
         foreach (var triggerConfiguration in this.triggerConfigurations)

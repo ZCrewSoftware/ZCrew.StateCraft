@@ -400,6 +400,12 @@ public interface IStateMachine<TState, TTransition>
     );
 
     /// <summary>
+    ///     Query information about this state machine, states, and transitions.
+    /// </summary>
+    /// <returns>Information about this configuration.</returns>
+    IStateMachineInfo<TState, TTransition> GetInfo();
+
+    /// <summary>
     ///     Invokes the state machine's state change handlers.
     /// </summary>
     /// <param name="previousState">The state being transitioned from.</param>
