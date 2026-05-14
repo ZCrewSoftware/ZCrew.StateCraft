@@ -1,5 +1,6 @@
 using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.Async.Contracts;
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
@@ -181,6 +182,11 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
     )
     {
         return Task.FromResult(false);
+    }
+
+    public IStateMachineInfo<TState, TTransition> GetInfo()
+    {
+        return new StateMachineInfo<TState, TTransition>(null, [], []);
     }
 
     public virtual Task StateChange(
