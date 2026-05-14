@@ -1,4 +1,5 @@
 using System.Text;
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
 using ZCrew.StateCraft.Rendering.Extensions;
@@ -39,6 +40,21 @@ internal class DirectTransitionConfiguration<TState, TTransition>
         this.previousStateConfiguration = previousStateConfiguration;
         this.nextStateConfiguration = nextStateConfiguration;
         this.transitionValue = transitionValue;
+    }
+
+    /// <inheritdoc />
+    public ITransitionInfo<TTransition> GetInfo()
+    {
+        var (previousStateInfo, previousConditionInfo) = this.previousStateConfiguration.GetInfo();
+        var (nextStateInfo, nextConditionInfo) = this.nextStateConfiguration.GetInfo();
+        return new DirectTransitionInfo<TState, TTransition>(
+            this.transitionValue,
+            this.nextStateConfiguration.TypeParameters,
+            previousStateInfo,
+            nextStateInfo,
+            previousConditionInfo,
+            nextConditionInfo
+        );
     }
 
     /// <inheritdoc />

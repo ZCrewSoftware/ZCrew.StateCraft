@@ -3,6 +3,7 @@ using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
 using ZCrew.StateCraft.Rendering.Extensions;
@@ -44,6 +45,12 @@ internal class StateConfiguration<TState, TTransition, T1, T2>
 
     /// <inheritdoc />
     public IEnumerable<ITransitionConfiguration<TState, TTransition>> Transitions => this.transitionConfigurations;
+
+    /// <inheritdoc />
+    public IStateInfo<TState> GetInfo()
+    {
+        return new StateInfo<TState>(State, TypeParameters);
+    }
 
     /// <inheritdoc />
     public void Build(IStateMachine<TState, TTransition> stateMachine)

@@ -25,6 +25,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges;
     private readonly StateMachineOptions options;
     private readonly IReadOnlyList<ITrigger> triggers;
+    private readonly IStateMachineInfo<TState, TTransition> stateMachineInfo;
     private InternalState internalState;
     private IBackgroundWorker? actionBackgroundWorker;
 
@@ -36,20 +37,22 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     /// <param name="triggers">The triggers that can control this state machine.</param>
     /// <param name="options">The options to enable certain features on this state machine.</param>
     /// <param name="exceptionBehavior">The exception behavior.</param>
+    /// <param name="stateMachineInfo">The state machine info, taken from the configuration.</param>
     public StateMachine(
         IStateMachineActivator<TState, TTransition> stateMachineActivator,
         IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges,
         IReadOnlyList<ITrigger> triggers,
         StateMachineOptions options,
-        IExceptionBehavior exceptionBehavior
+        IExceptionBehavior exceptionBehavior,
+        IStateMachineInfo<TState, TTransition> stateMachineInfo
     )
     {
         this.stateMachineActivator = stateMachineActivator;
         this.onStateChanges = onStateChanges;
         this.triggers = triggers;
         this.options = options;
-
         ExceptionBehavior = exceptionBehavior;
+        this.stateMachineInfo = stateMachineInfo;
 
         SetupTracking();
     }
@@ -178,6 +181,12 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             this.internalState = InternalState.Recovery;
             throw;
         }
+    }
+
+    /// <inheritdoc />
+    public IStateMachineInfo<TState, TTransition> GetInfo()
+    {
+        return this.stateMachineInfo;
     }
 
     /// <inheritdoc />

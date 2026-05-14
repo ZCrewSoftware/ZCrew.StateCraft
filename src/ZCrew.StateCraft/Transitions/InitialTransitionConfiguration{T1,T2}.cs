@@ -114,73 +114,79 @@ internal class InitialTransitionConfiguration<TState, TTransition, T1, T2>
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext> WithMappedParameter<TNext>(
-        Func<T1, T2, TNext> map
+        Func<T1, T2, TNext> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunction<T1, T2, TNext>(map.AsAsyncFunc())
+            new MappingFunction<T1, T2, TNext>(map.AsAsyncFunc().AsAsyncMap(descriptor))
         );
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext> WithMappedParameter<TNext>(
-        Func<T1, T2, CancellationToken, Task<TNext>> map
+        Func<T1, T2, CancellationToken, Task<TNext>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunction<T1, T2, TNext>(map.AsAsyncFunc())
+            new MappingFunction<T1, T2, TNext>(map.AsAsyncFunc().AsAsyncMap(descriptor))
         );
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext> WithMappedParameter<TNext>(
-        Func<T1, T2, CancellationToken, ValueTask<TNext>> map
+        Func<T1, T2, CancellationToken, ValueTask<TNext>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunction<T1, T2, TNext>(map.AsAsyncFunc())
+            new MappingFunction<T1, T2, TNext>(map.AsAsyncFunc().AsAsyncMap(descriptor))
         );
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> WithMappedParameters<TNext1, TNext2>(
-        Func<T1, T2, (TNext1, TNext2)> map
+        Func<T1, T2, (TNext1, TNext2)> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunctionValueTuple2<T1, T2, TNext1, TNext2>(map.AsAsyncFunc())
+            new MappingFunctionValueTuple2<T1, T2, TNext1, TNext2>(map.AsAsyncFunc().AsAsyncMap(descriptor))
         );
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> WithMappedParameters<TNext1, TNext2>(
-        Func<T1, T2, CancellationToken, Task<(TNext1, TNext2)>> map
+        Func<T1, T2, CancellationToken, Task<(TNext1, TNext2)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunctionValueTuple2<T1, T2, TNext1, TNext2>(map.AsAsyncFunc())
+            new MappingFunctionValueTuple2<T1, T2, TNext1, TNext2>(map.AsAsyncFunc().AsAsyncMap(descriptor))
         );
     }
 
     /// <inheritdoc />
     public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> WithMappedParameters<TNext1, TNext2>(
-        Func<T1, T2, CancellationToken, ValueTask<(TNext1, TNext2)>> map
+        Func<T1, T2, CancellationToken, ValueTask<(TNext1, TNext2)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
     )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunctionValueTuple2<T1, T2, TNext1, TNext2>(map.AsAsyncFunc())
+            new MappingFunctionValueTuple2<T1, T2, TNext1, TNext2>(map.AsAsyncFunc().AsAsyncMap(descriptor))
         );
     }
 
@@ -189,12 +195,12 @@ internal class InitialTransitionConfiguration<TState, TTransition, T1, T2>
         TNext1,
         TNext2,
         TNext3
-    >(Func<T1, T2, (TNext1, TNext2, TNext3)> map)
+    >(Func<T1, T2, (TNext1, TNext2, TNext3)> map, [CallerArgumentExpression(nameof(map))] string? descriptor = null)
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunctionValueTuple3<T1, T2, TNext1, TNext2, TNext3>(map.AsAsyncFunc())
+            new MappingFunctionValueTuple3<T1, T2, TNext1, TNext2, TNext3>(map.AsAsyncFunc().AsAsyncMap(descriptor))
         );
     }
 
@@ -203,12 +209,15 @@ internal class InitialTransitionConfiguration<TState, TTransition, T1, T2>
         TNext1,
         TNext2,
         TNext3
-    >(Func<T1, T2, CancellationToken, Task<(TNext1, TNext2, TNext3)>> map)
+    >(
+        Func<T1, T2, CancellationToken, Task<(TNext1, TNext2, TNext3)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunctionValueTuple3<T1, T2, TNext1, TNext2, TNext3>(map.AsAsyncFunc())
+            new MappingFunctionValueTuple3<T1, T2, TNext1, TNext2, TNext3>(map.AsAsyncFunc().AsAsyncMap(descriptor))
         );
     }
 
@@ -217,12 +226,15 @@ internal class InitialTransitionConfiguration<TState, TTransition, T1, T2>
         TNext1,
         TNext2,
         TNext3
-    >(Func<T1, T2, CancellationToken, ValueTask<(TNext1, TNext2, TNext3)>> map)
+    >(
+        Func<T1, T2, CancellationToken, ValueTask<(TNext1, TNext2, TNext3)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunctionValueTuple3<T1, T2, TNext1, TNext2, TNext3>(map.AsAsyncFunc())
+            new MappingFunctionValueTuple3<T1, T2, TNext1, TNext2, TNext3>(map.AsAsyncFunc().AsAsyncMap(descriptor))
         );
     }
 
@@ -232,12 +244,17 @@ internal class InitialTransitionConfiguration<TState, TTransition, T1, T2>
         TNext2,
         TNext3,
         TNext4
-    >(Func<T1, T2, (TNext1, TNext2, TNext3, TNext4)> map)
+    >(
+        Func<T1, T2, (TNext1, TNext2, TNext3, TNext4)> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunctionValueTuple4<T1, T2, TNext1, TNext2, TNext3, TNext4>(map.AsAsyncFunc())
+            new MappingFunctionValueTuple4<T1, T2, TNext1, TNext2, TNext3, TNext4>(
+                map.AsAsyncFunc().AsAsyncMap(descriptor)
+            )
         );
     }
 
@@ -247,12 +264,17 @@ internal class InitialTransitionConfiguration<TState, TTransition, T1, T2>
         TNext2,
         TNext3,
         TNext4
-    >(Func<T1, T2, CancellationToken, Task<(TNext1, TNext2, TNext3, TNext4)>> map)
+    >(
+        Func<T1, T2, CancellationToken, Task<(TNext1, TNext2, TNext3, TNext4)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunctionValueTuple4<T1, T2, TNext1, TNext2, TNext3, TNext4>(map.AsAsyncFunc())
+            new MappingFunctionValueTuple4<T1, T2, TNext1, TNext2, TNext3, TNext4>(
+                map.AsAsyncFunc().AsAsyncMap(descriptor)
+            )
         );
     }
 
@@ -262,12 +284,17 @@ internal class InitialTransitionConfiguration<TState, TTransition, T1, T2>
         TNext2,
         TNext3,
         TNext4
-    >(Func<T1, T2, CancellationToken, ValueTask<(TNext1, TNext2, TNext3, TNext4)>> map)
+    >(
+        Func<T1, T2, CancellationToken, ValueTask<(TNext1, TNext2, TNext3, TNext4)>> map,
+        [CallerArgumentExpression(nameof(map))] string? descriptor = null
+    )
     {
         return new PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4>(
             this.previousStateConfiguration,
             this.transitionValue,
-            new MappingFunctionValueTuple4<T1, T2, TNext1, TNext2, TNext3, TNext4>(map.AsAsyncFunc())
+            new MappingFunctionValueTuple4<T1, T2, TNext1, TNext2, TNext3, TNext4>(
+                map.AsAsyncFunc().AsAsyncMap(descriptor)
+            )
         );
     }
 

@@ -1,4 +1,5 @@
-using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async;
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.StateMachines.Contracts;
 
 namespace ZCrew.StateCraft;
@@ -15,7 +16,7 @@ internal sealed class StateMachineActivator<TState, TTransition> : IStateMachine
 
     // Only one of these two should be set - either it is already available or needs to be fetched
     private readonly TState? stateValue;
-    private readonly IAsyncFunc<TState>? func;
+    private readonly AsyncStateProvider<TState>? provider;
 
     /// <summary>
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition}"/> with a predetermined state.
@@ -31,11 +32,11 @@ internal sealed class StateMachineActivator<TState, TTransition> : IStateMachine
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition}"/> with a function to fetch the initial
     ///     state.
     /// </summary>
-    /// <param name="func">The initial state function.</param>
-    public StateMachineActivator(IAsyncFunc<TState> func)
+    /// <param name="provider">The initial state provider.</param>
+    public StateMachineActivator(AsyncStateProvider<TState> provider)
     {
         this.isValueSet = false;
-        this.func = func;
+        this.provider = provider;
     }
 
     /// <inheritdoc/>
@@ -50,11 +51,23 @@ internal sealed class StateMachineActivator<TState, TTransition> : IStateMachine
         }
         else
         {
-            var fetchedStateValue = await this.func!.InvokeAsync(token);
+            var fetchedStateValue = await this.provider!.Value.Evaluate(token);
             var parameterlessState = stateMachine.StateTable.LookupState(fetchedStateValue);
             stateMachine.Parameters.SetEmptyNextParameters();
             stateMachine.NextState = parameterlessState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(this.stateValue!, [], []);
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, []);
     }
 }
 
@@ -75,7 +88,7 @@ internal sealed class StateMachineActivator<TState, TTransition, T> : IStateMach
     private readonly TState? stateValue;
     private readonly T? parameter;
 
-    private readonly IAsyncFunc<(TState, T)>? func;
+    private readonly AsyncStateProvider<TState, T>? provider;
 
     /// <summary>
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition}"/> with a predetermined state and parameter.
@@ -93,11 +106,11 @@ internal sealed class StateMachineActivator<TState, TTransition, T> : IStateMach
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition}"/> with a function to fetch the initial
     ///     state.
     /// </summary>
-    /// <param name="func">The initial state function.</param>
-    public StateMachineActivator(IAsyncFunc<(TState, T)> func)
+    /// <param name="provider">The initial state provider.</param>
+    public StateMachineActivator(AsyncStateProvider<TState, T> provider)
     {
         this.isValueSet = false;
-        this.func = func;
+        this.provider = provider;
     }
 
     /// <inheritdoc/>
@@ -112,11 +125,23 @@ internal sealed class StateMachineActivator<TState, TTransition, T> : IStateMach
         }
         else
         {
-            var (fetchedStateValue, fetchedParameter) = await this.func!.InvokeAsync(token);
+            var (fetchedStateValue, fetchedParameter) = await this.provider!.Value.Evaluate(token);
             var parameterizedState = stateMachine.StateTable.LookupState<T>(fetchedStateValue);
             stateMachine.Parameters.SetNextParameter(fetchedParameter);
             stateMachine.NextState = parameterizedState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(this.stateValue!, [this.parameter!], [typeof(T)]);
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T)]);
     }
 }
 
@@ -139,7 +164,7 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2> : IStat
     private readonly T1? parameter1;
     private readonly T2? parameter2;
 
-    private readonly IAsyncFunc<(TState, T1, T2)>? func;
+    private readonly AsyncStateProvider<TState, T1, T2>? provider;
 
     /// <summary>
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition,T1,T2}"/> with a predetermined state
@@ -160,11 +185,11 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2> : IStat
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition,T1,T2}"/> with a function to fetch
     ///     the initial state.
     /// </summary>
-    /// <param name="func">The initial state function.</param>
-    public StateMachineActivator(IAsyncFunc<(TState, T1, T2)> func)
+    /// <param name="provider">The initial state provider.</param>
+    public StateMachineActivator(AsyncStateProvider<TState, T1, T2> provider)
     {
         this.isValueSet = false;
-        this.func = func;
+        this.provider = provider;
     }
 
     /// <inheritdoc/>
@@ -179,11 +204,27 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2> : IStat
         }
         else
         {
-            var (fetchedStateValue, fetchedP1, fetchedP2) = await this.func!.InvokeAsync(token);
+            var (fetchedStateValue, fetchedP1, fetchedP2) = await this.provider!.Value.Evaluate(token);
             var parameterizedState = stateMachine.StateTable.LookupState<T1, T2>(fetchedStateValue);
             stateMachine.Parameters.SetNextParameters(fetchedP1, fetchedP2);
             stateMachine.NextState = parameterizedState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(
+                this.stateValue!,
+                [this.parameter1!, this.parameter2!],
+                [typeof(T1), typeof(T2)]
+            );
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T1), typeof(T2)]);
     }
 }
 
@@ -209,7 +250,7 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3>
     private readonly T2? parameter2;
     private readonly T3? parameter3;
 
-    private readonly IAsyncFunc<(TState, T1, T2, T3)>? func;
+    private readonly AsyncStateProvider<TState, T1, T2, T3>? provider;
 
     /// <summary>
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition,T1,T2,T3}"/> with a predetermined
@@ -232,11 +273,11 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3>
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition,T1,T2,T3}"/> with a function to
     ///     fetch the initial state.
     /// </summary>
-    /// <param name="func">The initial state function.</param>
-    public StateMachineActivator(IAsyncFunc<(TState, T1, T2, T3)> func)
+    /// <param name="provider">The initial state provider.</param>
+    public StateMachineActivator(AsyncStateProvider<TState, T1, T2, T3> provider)
     {
         this.isValueSet = false;
-        this.func = func;
+        this.provider = provider;
     }
 
     /// <inheritdoc/>
@@ -251,11 +292,27 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3>
         }
         else
         {
-            var (fetchedStateValue, fetchedP1, fetchedP2, fetchedP3) = await this.func!.InvokeAsync(token);
+            var (fetchedStateValue, fetchedP1, fetchedP2, fetchedP3) = await this.provider!.Value.Evaluate(token);
             var parameterizedState = stateMachine.StateTable.LookupState<T1, T2, T3>(fetchedStateValue);
             stateMachine.Parameters.SetNextParameters(fetchedP1, fetchedP2, fetchedP3);
             stateMachine.NextState = parameterizedState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(
+                this.stateValue!,
+                [this.parameter1!, this.parameter2!, this.parameter3!],
+                [typeof(T1), typeof(T2), typeof(T3)]
+            );
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T1), typeof(T2), typeof(T3)]);
     }
 }
 
@@ -283,7 +340,7 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3, T4>
     private readonly T3? parameter3;
     private readonly T4? parameter4;
 
-    private readonly IAsyncFunc<(TState, T1, T2, T3, T4)>? func;
+    private readonly AsyncStateProvider<TState, T1, T2, T3, T4>? provider;
 
     /// <summary>
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition,T1,T2,T3,T4}"/> with a predetermined
@@ -308,11 +365,11 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3, T4>
     ///     Creates a <see cref="StateMachineActivator{TState,TTransition,T1,T2,T3,T4}"/> with a function to
     ///     fetch the initial state.
     /// </summary>
-    /// <param name="func">The initial state function.</param>
-    public StateMachineActivator(IAsyncFunc<(TState, T1, T2, T3, T4)> func)
+    /// <param name="provider">The initial state provider.</param>
+    public StateMachineActivator(AsyncStateProvider<TState, T1, T2, T3, T4> provider)
     {
         this.isValueSet = false;
-        this.func = func;
+        this.provider = provider;
     }
 
     /// <inheritdoc/>
@@ -332,10 +389,28 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3, T4>
         }
         else
         {
-            var (fetchedStateValue, fetchedP1, fetchedP2, fetchedP3, fetchedP4) = await this.func!.InvokeAsync(token);
+            var (fetchedStateValue, fetchedP1, fetchedP2, fetchedP3, fetchedP4) = await this.provider!.Value.Evaluate(
+                token
+            );
             var parameterizedState = stateMachine.StateTable.LookupState<T1, T2, T3, T4>(fetchedStateValue);
             stateMachine.Parameters.SetNextParameters(fetchedP1, fetchedP2, fetchedP3, fetchedP4);
             stateMachine.NextState = parameterizedState;
         }
+    }
+
+    /// <inheritdoc/>
+    public IInitialStateInfo<TState> GetInfo()
+    {
+        if (this.isValueSet)
+        {
+            return new StaticInitialStateInfo<TState>(
+                this.stateValue!,
+                [this.parameter1!, this.parameter2!, this.parameter3!, this.parameter4!],
+                [typeof(T1), typeof(T2), typeof(T3), typeof(T4)]
+            );
+        }
+
+        var providerInfo = this.provider!.Value.Descriptor;
+        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T1), typeof(T2), typeof(T3), typeof(T4)]);
     }
 }

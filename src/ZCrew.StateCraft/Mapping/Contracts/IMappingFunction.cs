@@ -9,6 +9,15 @@ namespace ZCrew.StateCraft.Mapping.Contracts;
 internal interface IMappingFunction
 {
     /// <summary>
+    ///     Returns introspection metadata describing this mapping function.
+    /// </summary>
+    /// <returns>
+    ///     An <see cref="IMappingFunctionInfo"/> describing the mapping function's descriptor, input type
+    ///     parameters, and result types.
+    /// </returns>
+    IMappingFunctionInfo GetInfo();
+
+    /// <summary>
     ///     Executes the mapping function by retrieving input parameters from the previous state, transforming them
     ///     through the configured mapping function, and setting the output parameters for the next state.
     /// </summary>

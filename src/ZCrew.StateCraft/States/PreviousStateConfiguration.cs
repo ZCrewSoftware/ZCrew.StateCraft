@@ -1,4 +1,5 @@
 using ZCrew.StateCraft.Async;
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Rendering.Extensions;
 using ZCrew.StateCraft.States.Configuration;
 using ZCrew.StateCraft.States.Contracts;
@@ -40,6 +41,14 @@ internal class PreviousStateConfiguration<TState, TTransition> : IPartialPreviou
 
     /// <inheritdoc />
     public IReadOnlyList<Type> TypeParameters { get; } = [];
+
+    /// <inheritdoc />
+    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    {
+        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
+        var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
+        return (stateInfo, conditionInfo);
+    }
 
     /// <inheritdoc />
     public IPreviousState<TState, TTransition> Build(StateTable<TState, TTransition> stateTable)
@@ -122,6 +131,14 @@ internal class PreviousStateConfiguration<TState, TTransition, T>
 
     /// <inheritdoc />
     public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T)];
+
+    /// <inheritdoc />
+    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    {
+        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
+        var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
+        return (stateInfo, conditionInfo);
+    }
 
     /// <inheritdoc />
     public IPreviousState<TState, TTransition> Build(StateTable<TState, TTransition> stateTable)
@@ -207,6 +224,14 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2>
     public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T1), typeof(T2)];
 
     /// <inheritdoc />
+    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    {
+        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
+        var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
+        return (stateInfo, conditionInfo);
+    }
+
+    /// <inheritdoc />
     public IPreviousState<TState, TTransition> Build(StateTable<TState, TTransition> stateTable)
     {
         var state = stateTable.LookupState<T1, T2>(StateValue);
@@ -289,6 +314,14 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3>
 
     /// <inheritdoc />
     public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T1), typeof(T2), typeof(T3)];
+
+    /// <inheritdoc />
+    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    {
+        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
+        var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
+        return (stateInfo, conditionInfo);
+    }
 
     /// <inheritdoc />
     public IPreviousState<TState, TTransition> Build(StateTable<TState, TTransition> stateTable)
@@ -377,6 +410,14 @@ internal class PreviousStateConfiguration<TState, TTransition, T1, T2, T3, T4>
 
     /// <inheritdoc />
     public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T1), typeof(T2), typeof(T3), typeof(T4)];
+
+    /// <inheritdoc />
+    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    {
+        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
+        var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
+        return (stateInfo, conditionInfo);
+    }
 
     /// <inheritdoc />
     public IPreviousState<TState, TTransition> Build(StateTable<TState, TTransition> stateTable)

@@ -1,4 +1,4 @@
-using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 
@@ -7,18 +7,21 @@ namespace ZCrew.StateCraft.Mapping;
 /// <inheritdoc />
 internal class MappingFunctionValueTuple2<TIn, TOut1, TOut2> : IMappingFunction
 {
-    private readonly IAsyncFunc<TIn, (TOut1, TOut2)> function;
+    private readonly AsyncMapValueTuple2<TIn, TOut1, TOut2> map;
 
-    public MappingFunctionValueTuple2(IAsyncFunc<TIn, (TOut1, TOut2)> function)
+    public MappingFunctionValueTuple2(AsyncMapValueTuple2<TIn, TOut1, TOut2> map)
     {
-        this.function = function;
+        this.map = map;
     }
+
+    /// <inheritdoc />
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
     {
         var parameter = parameters.GetPreviousParameter<TIn>();
-        var output = await this.function.InvokeAsync(parameter, token);
+        var output = await this.map.Invoke(parameter, token);
         parameters.SetNextParameters(output.Item1, output.Item2);
     }
 }
@@ -26,18 +29,21 @@ internal class MappingFunctionValueTuple2<TIn, TOut1, TOut2> : IMappingFunction
 /// <inheritdoc />
 internal class MappingFunctionValueTuple2<TIn1, TIn2, TOut1, TOut2> : IMappingFunction
 {
-    private readonly IAsyncFunc<TIn1, TIn2, (TOut1, TOut2)> function;
+    private readonly AsyncMapValueTuple2<TIn1, TIn2, TOut1, TOut2> map;
 
-    public MappingFunctionValueTuple2(IAsyncFunc<TIn1, TIn2, (TOut1, TOut2)> function)
+    public MappingFunctionValueTuple2(AsyncMapValueTuple2<TIn1, TIn2, TOut1, TOut2> map)
     {
-        this.function = function;
+        this.map = map;
     }
+
+    /// <inheritdoc />
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
     {
         var (parameter1, parameter2) = parameters.GetPreviousParameters<TIn1, TIn2>();
-        var output = await this.function.InvokeAsync(parameter1, parameter2, token);
+        var output = await this.map.Invoke(parameter1, parameter2, token);
         parameters.SetNextParameters(output.Item1, output.Item2);
     }
 }
@@ -45,18 +51,21 @@ internal class MappingFunctionValueTuple2<TIn1, TIn2, TOut1, TOut2> : IMappingFu
 /// <inheritdoc />
 internal class MappingFunctionValueTuple2<TIn1, TIn2, TIn3, TOut1, TOut2> : IMappingFunction
 {
-    private readonly IAsyncFunc<TIn1, TIn2, TIn3, (TOut1, TOut2)> function;
+    private readonly AsyncMapValueTuple2<TIn1, TIn2, TIn3, TOut1, TOut2> map;
 
-    public MappingFunctionValueTuple2(IAsyncFunc<TIn1, TIn2, TIn3, (TOut1, TOut2)> function)
+    public MappingFunctionValueTuple2(AsyncMapValueTuple2<TIn1, TIn2, TIn3, TOut1, TOut2> map)
     {
-        this.function = function;
+        this.map = map;
     }
+
+    /// <inheritdoc />
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
     {
         var (parameter1, parameter2, parameter3) = parameters.GetPreviousParameters<TIn1, TIn2, TIn3>();
-        var output = await this.function.InvokeAsync(parameter1, parameter2, parameter3, token);
+        var output = await this.map.Invoke(parameter1, parameter2, parameter3, token);
         parameters.SetNextParameters(output.Item1, output.Item2);
     }
 }
@@ -64,12 +73,15 @@ internal class MappingFunctionValueTuple2<TIn1, TIn2, TIn3, TOut1, TOut2> : IMap
 /// <inheritdoc />
 internal class MappingFunctionValueTuple2<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2> : IMappingFunction
 {
-    private readonly IAsyncFunc<TIn1, TIn2, TIn3, TIn4, (TOut1, TOut2)> function;
+    private readonly AsyncMapValueTuple2<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2> map;
 
-    public MappingFunctionValueTuple2(IAsyncFunc<TIn1, TIn2, TIn3, TIn4, (TOut1, TOut2)> function)
+    public MappingFunctionValueTuple2(AsyncMapValueTuple2<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2> map)
     {
-        this.function = function;
+        this.map = map;
     }
+
+    /// <inheritdoc />
+    public IMappingFunctionInfo GetInfo() => this.map.GetInfo();
 
     /// <inheritdoc />
     public async Task Map(IStateMachineParameters parameters, CancellationToken token)
@@ -80,7 +92,7 @@ internal class MappingFunctionValueTuple2<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2> 
             TIn3,
             TIn4
         >();
-        var output = await this.function.InvokeAsync(parameter1, parameter2, parameter3, parameter4, token);
+        var output = await this.map.Invoke(parameter1, parameter2, parameter3, parameter4, token);
         parameters.SetNextParameters(output.Item1, output.Item2);
     }
 }

@@ -1,6 +1,7 @@
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Mapping;
 using ZCrew.StateCraft.Parameters.Contracts;
 
@@ -18,7 +19,7 @@ public class MappingFunctionValueTuple3Tests
         var function = Substitute.For<IAsyncFunc<int, (string, double, bool)>>();
         function.InvokeAsync(42, Arg.Any<CancellationToken>()).Returns(("result", 3.14, true));
 
-        var mapper = new MappingFunctionValueTuple3<int, string, double, bool>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, double, bool>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -37,7 +38,7 @@ public class MappingFunctionValueTuple3Tests
         var function = Substitute.For<IAsyncFunc<int, (string, double, bool)>>();
         function.InvokeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()).Returns(("result", 3.14, true));
 
-        var mapper = new MappingFunctionValueTuple3<int, string, double, bool>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, double, bool>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -56,7 +57,7 @@ public class MappingFunctionValueTuple3Tests
         var function = Substitute.For<IAsyncFunc<int, (string, double, bool)>>();
         function.InvokeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()).ThrowsAsync(new InvalidOperationException());
 
-        var mapper = new MappingFunctionValueTuple3<int, string, double, bool>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, double, bool>(function.AsAsyncMap());
 
         // Act
         var act = () => mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -77,7 +78,7 @@ public class MappingFunctionValueTuple3Tests
         function.InvokeAsync(1, Arg.Any<CancellationToken>()).Returns(("first", 1.0, true));
         function.InvokeAsync(2, Arg.Any<CancellationToken>()).Returns(("second", 2.0, false));
 
-        var mapper = new MappingFunctionValueTuple3<int, string, double, bool>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, double, bool>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -98,7 +99,7 @@ public class MappingFunctionValueTuple3Tests
         var function = Substitute.For<IAsyncFunc<int, string, (double, bool, char)>>();
         function.InvokeAsync(1, "input", Arg.Any<CancellationToken>()).Returns((3.14, true, 'x'));
 
-        var mapper = new MappingFunctionValueTuple3<int, string, double, bool, char>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, double, bool, char>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -119,7 +120,7 @@ public class MappingFunctionValueTuple3Tests
             .InvokeAsync(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new InvalidOperationException());
 
-        var mapper = new MappingFunctionValueTuple3<int, string, double, bool, char>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, double, bool, char>(function.AsAsyncMap());
 
         // Act
         var act = () => mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -139,7 +140,7 @@ public class MappingFunctionValueTuple3Tests
         var function = Substitute.For<IAsyncFunc<int, string, bool, (double, char, long)>>();
         function.InvokeAsync(1, "input", true, Arg.Any<CancellationToken>()).Returns((3.14, 'x', 100L));
 
-        var mapper = new MappingFunctionValueTuple3<int, string, bool, double, char, long>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, bool, double, char, long>(function.AsAsyncMap());
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -160,7 +161,7 @@ public class MappingFunctionValueTuple3Tests
             .InvokeAsync(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .ThrowsAsync(new InvalidOperationException());
 
-        var mapper = new MappingFunctionValueTuple3<int, string, bool, double, char, long>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, bool, double, char, long>(function.AsAsyncMap());
 
         // Act
         var act = () => mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -180,7 +181,9 @@ public class MappingFunctionValueTuple3Tests
         var function = Substitute.For<IAsyncFunc<int, string, bool, char, (double, long, short)>>();
         function.InvokeAsync(1, "input", true, 'y', Arg.Any<CancellationToken>()).Returns((3.14, 100L, (short)50));
 
-        var mapper = new MappingFunctionValueTuple3<int, string, bool, char, double, long, short>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, bool, char, double, long, short>(
+            function.AsAsyncMap()
+        );
 
         // Act
         await mapper.Map(parameters, TestContext.Current.CancellationToken);
@@ -207,7 +210,9 @@ public class MappingFunctionValueTuple3Tests
             )
             .ThrowsAsync(new InvalidOperationException());
 
-        var mapper = new MappingFunctionValueTuple3<int, string, bool, char, double, long, short>(function);
+        var mapper = new MappingFunctionValueTuple3<int, string, bool, char, double, long, short>(
+            function.AsAsyncMap()
+        );
 
         // Act
         var act = () => mapper.Map(parameters, TestContext.Current.CancellationToken);

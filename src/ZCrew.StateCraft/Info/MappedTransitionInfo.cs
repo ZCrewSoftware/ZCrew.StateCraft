@@ -1,0 +1,48 @@
+namespace ZCrew.StateCraft.Info;
+
+/// <inheritdoc />
+internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransitionInfo<TState, TTransition>
+    where TState : notnull
+    where TTransition : notnull
+{
+    public MappedTransitionInfo(
+        TTransition transitionValue,
+        IStateInfo<TState> previousState,
+        IStateInfo<TState> nextState,
+        IReadOnlyList<IConditionInfo> previousParameterConditions,
+        IReadOnlyList<IConditionInfo> nextParameterConditions,
+        IMappingFunctionInfo mappingFunction
+    )
+    {
+        TransitionValue = transitionValue;
+        PreviousState = previousState;
+        NextState = nextState;
+        PreviousParameterConditions = previousParameterConditions;
+        NextParameterConditions = nextParameterConditions;
+        MappingFunction = mappingFunction;
+    }
+
+    /// <inheritdoc />
+    public TTransition TransitionValue { get; }
+
+    /// <inheritdoc />
+    public IReadOnlyList<Type> TransitionParameterTypes { get; } = [];
+
+    /// <inheritdoc />
+    public bool IsConditional => PreviousParameterConditions.Count > 0 || NextParameterConditions.Count > 0;
+
+    /// <inheritdoc />
+    public IStateInfo<TState> PreviousState { get; }
+
+    /// <inheritdoc />
+    public IStateInfo<TState> NextState { get; }
+
+    /// <inheritdoc />
+    public IReadOnlyList<IConditionInfo> PreviousParameterConditions { get; }
+
+    /// <inheritdoc />
+    public IReadOnlyList<IConditionInfo> NextParameterConditions { get; }
+
+    /// <inheritdoc />
+    public IMappingFunctionInfo MappingFunction { get; }
+}
