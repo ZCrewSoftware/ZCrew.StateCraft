@@ -1,15 +1,23 @@
 namespace ZCrew.StateCraft.Info;
 
 /// <inheritdoc />
-internal sealed class StateInfo<TState, TTransition> : IStateInfo<TState, TTransition>
+internal class StateInfo<TState, TTransition> : IStateInfo<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    public StateInfo(TState stateValue, IReadOnlyList<Type> stateParameterTypes)
+    public StateInfo(
+        IStateMachineInfo<TState, TTransition> stateMachine,
+        TState stateValue,
+        IReadOnlyList<Type> stateParameterTypes
+    )
     {
+        StateMachine = stateMachine;
         StateValue = stateValue;
         StateParameterTypes = stateParameterTypes;
     }
+
+    /// <inheritdoc />
+    public IStateMachineInfo<TState, TTransition> StateMachine { get; }
 
     /// <inheritdoc />
     public TState StateValue { get; }

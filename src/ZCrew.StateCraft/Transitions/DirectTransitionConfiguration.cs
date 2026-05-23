@@ -43,17 +43,15 @@ internal class DirectTransitionConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public ITransitionInfo<TState, TTransition> GetInfo()
+    public ITransitionInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine)
     {
-        var (previousStateInfo, previousConditionInfo) = this.previousStateConfiguration.GetInfo();
-        var (nextStateInfo, nextConditionInfo) = this.nextStateConfiguration.GetInfo();
+        var previousStateInfo = this.previousStateConfiguration.GetInfo(stateMachine);
+        var nextStateInfo = this.nextStateConfiguration.GetInfo(stateMachine);
         return new DirectTransitionInfo<TState, TTransition>(
             this.transitionValue,
             this.nextStateConfiguration.TypeParameters,
             previousStateInfo,
-            nextStateInfo,
-            previousConditionInfo,
-            nextConditionInfo
+            nextStateInfo
         );
     }
 

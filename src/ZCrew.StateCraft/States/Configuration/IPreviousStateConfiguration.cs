@@ -36,8 +36,9 @@ internal interface IPreviousStateConfiguration<TState, TTransition> : IRenderabl
     /// <summary>
     ///     Query information about this state reference.
     /// </summary>
+    /// <param name="stateMachine">The owning state machine info to attach as the back-reference.</param>
     /// <returns>Information about this configuration.</returns>
-    (IStateInfo<TState, TTransition>, IReadOnlyList<IConditionInfo>) GetInfo();
+    IConditionalStateInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine);
 
     /// <summary>
     ///     Builds the runtime <see cref="IPreviousState{TState, TTransition}"/> from this configuration by resolving

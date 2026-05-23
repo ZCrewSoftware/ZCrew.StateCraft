@@ -6,19 +6,22 @@ internal sealed class FromTransitionInfo<TState, TTransition> : IFromTransitionI
     where TTransition : notnull
 {
     public FromTransitionInfo(
+        IStateMachineInfo<TState, TTransition> stateMachine,
         TTransition transitionValue,
         IReadOnlyList<Type> transitionParameterTypes,
-        IStateInfo<TState, TTransition> nextState,
-        IReadOnlyList<IConditionInfo> nextParameterConditions,
+        IConditionalStateInfo<TState, TTransition> nextState,
         IReadOnlyList<IStateInfo<TState, TTransition>> excludedStates
     )
     {
+        StateMachine = stateMachine;
         TransitionValue = transitionValue;
         TransitionParameterTypes = transitionParameterTypes;
         NextState = nextState;
-        NextParameterConditions = nextParameterConditions;
         ExcludedStates = excludedStates;
     }
+
+    /// <inheritdoc />
+    public IStateMachineInfo<TState, TTransition> StateMachine { get; }
 
     /// <inheritdoc />
     public TTransition TransitionValue { get; }
@@ -27,13 +30,10 @@ internal sealed class FromTransitionInfo<TState, TTransition> : IFromTransitionI
     public IReadOnlyList<Type> TransitionParameterTypes { get; }
 
     /// <inheritdoc />
-    public bool IsConditional => NextParameterConditions.Count > 0;
+    public bool IsConditional => NextState.Conditions.Count > 0;
 
     /// <inheritdoc />
-    public IStateInfo<TState, TTransition> NextState { get; }
-
-    /// <inheritdoc />
-    public IReadOnlyList<IConditionInfo> NextParameterConditions { get; }
+    public IConditionalStateInfo<TState, TTransition> NextState { get; }
 
     /// <inheritdoc />
     public IReadOnlyList<IStateInfo<TState, TTransition>> ExcludedStates { get; }

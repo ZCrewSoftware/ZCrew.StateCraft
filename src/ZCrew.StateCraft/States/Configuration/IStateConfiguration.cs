@@ -40,8 +40,9 @@ public interface IStateConfiguration<TState, TTransition>
     /// <summary>
     ///     Query information about this state.
     /// </summary>
+    /// <param name="stateMachine">The owning state machine info to attach as the back-reference.</param>
     /// <returns>Information about this configuration.</returns>
-    internal IStateInfo<TState, TTransition> GetInfo();
+    internal IStateInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine);
 
     /// <summary>
     ///     Build the state based on the configuration.

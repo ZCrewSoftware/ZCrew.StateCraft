@@ -20,26 +20,12 @@ public interface IMappedTransitionInfo<TState, TTransition> : ITransitionInfo<TS
     /// <summary>
     ///     The state the transition is taken from.
     /// </summary>
-    IStateInfo<TState, TTransition> PreviousState { get; }
+    IConditionalStateInfo<TState, TTransition> PreviousState { get; }
 
     /// <summary>
     ///     The state the transition moves to.
     /// </summary>
-    IStateInfo<TState, TTransition> NextState { get; }
-
-    /// <summary>
-    ///     Conditions evaluated against the source state's current parameters before <see cref="MappingFunction"/>
-    ///     runs. Evaluated in registration order; all must return <see langword="true"/> for the transition to
-    ///     proceed. Empty when no source-side conditions are configured.
-    /// </summary>
-    IReadOnlyList<IConditionInfo> PreviousParameterConditions { get; }
-
-    /// <summary>
-    ///     Conditions evaluated against the mapped values produced by <see cref="MappingFunction"/> before the
-    ///     transition is taken. Evaluated in registration order; all must return <see langword="true"/> for the
-    ///     transition to proceed. Empty when no destination-side conditions are configured.
-    /// </summary>
-    IReadOnlyList<IConditionInfo> NextParameterConditions { get; }
+    IConditionalStateInfo<TState, TTransition> NextState { get; }
 
     /// <summary>
     ///     The mapping function that transforms the source state's parameters into the next state's parameters.

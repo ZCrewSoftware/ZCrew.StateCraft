@@ -20,7 +20,7 @@ public class ConditionInfoTests
 
         // Assert
         var direct = Assert.IsAssignableFrom<IDirectTransitionInfo<string, string>>(info.Transitions[0]);
-        var condition = Assert.Single(direct.NextParameterConditions);
+        var condition = Assert.Single(direct.NextState.Conditions);
         Assert.Equal("value => value > 0", condition.Descriptor);
     }
 
@@ -43,7 +43,7 @@ public class ConditionInfoTests
 
         // Assert
         var direct = Assert.IsAssignableFrom<IDirectTransitionInfo<string, string>>(info.Transitions[0]);
-        var condition = Assert.Single(direct.NextParameterConditions);
+        var condition = Assert.Single(direct.NextState.Conditions);
         Assert.Equal("value => value > 0", condition.Descriptor);
     }
 
@@ -65,7 +65,7 @@ public class ConditionInfoTests
 
         // Assert
         var direct = Assert.IsAssignableFrom<IDirectTransitionInfo<string, string>>(info.Transitions[0]);
-        var condition = Assert.Single(direct.NextParameterConditions);
+        var condition = Assert.Single(direct.NextState.Conditions);
         Assert.Equal([typeof(int)], condition.TypeParameters);
     }
 
@@ -88,7 +88,7 @@ public class ConditionInfoTests
 
         // Assert
         var direct = Assert.IsAssignableFrom<IDirectTransitionInfo<string, string>>(info.Transitions[0]);
-        var condition = Assert.Single(direct.NextParameterConditions);
+        var condition = Assert.Single(direct.NextState.Conditions);
         Assert.Equal([typeof(int)], condition.TypeParameters);
     }
 }

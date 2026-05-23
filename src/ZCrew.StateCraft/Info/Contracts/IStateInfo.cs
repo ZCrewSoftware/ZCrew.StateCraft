@@ -29,6 +29,13 @@ public interface IStateInfo<TState, TTransition>
     where TTransition : notnull
 {
     /// <summary>
+    ///     The owning state machine. The same <see cref="IStateMachineInfo{TState, TTransition}"/> instance that
+    ///     exposes this state via <see cref="IStateMachineInfo{TState, TTransition}.States"/>, providing a back
+    ///     reference for navigation from a state to its peers.
+    /// </summary>
+    IStateMachineInfo<TState, TTransition> StateMachine { get; }
+
+    /// <summary>
     ///     The state value.
     /// </summary>
     TState StateValue { get; }

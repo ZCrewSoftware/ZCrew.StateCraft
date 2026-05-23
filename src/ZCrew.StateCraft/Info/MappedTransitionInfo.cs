@@ -7,18 +7,14 @@ internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransit
 {
     public MappedTransitionInfo(
         TTransition transitionValue,
-        IStateInfo<TState, TTransition> previousState,
-        IStateInfo<TState, TTransition> nextState,
-        IReadOnlyList<IConditionInfo> previousParameterConditions,
-        IReadOnlyList<IConditionInfo> nextParameterConditions,
+        IConditionalStateInfo<TState, TTransition> previousState,
+        IConditionalStateInfo<TState, TTransition> nextState,
         IMappingFunctionInfo mappingFunction
     )
     {
         TransitionValue = transitionValue;
         PreviousState = previousState;
         NextState = nextState;
-        PreviousParameterConditions = previousParameterConditions;
-        NextParameterConditions = nextParameterConditions;
         MappingFunction = mappingFunction;
     }
 
@@ -29,19 +25,13 @@ internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransit
     public IReadOnlyList<Type> TransitionParameterTypes { get; } = [];
 
     /// <inheritdoc />
-    public bool IsConditional => PreviousParameterConditions.Count > 0 || NextParameterConditions.Count > 0;
+    public bool IsConditional => PreviousState.Conditions.Count > 0 || NextState.Conditions.Count > 0;
 
     /// <inheritdoc />
-    public IStateInfo<TState, TTransition> PreviousState { get; }
+    public IConditionalStateInfo<TState, TTransition> PreviousState { get; }
 
     /// <inheritdoc />
-    public IStateInfo<TState, TTransition> NextState { get; }
-
-    /// <inheritdoc />
-    public IReadOnlyList<IConditionInfo> PreviousParameterConditions { get; }
-
-    /// <inheritdoc />
-    public IReadOnlyList<IConditionInfo> NextParameterConditions { get; }
+    public IConditionalStateInfo<TState, TTransition> NextState { get; }
 
     /// <inheritdoc />
     public IMappingFunctionInfo MappingFunction { get; }

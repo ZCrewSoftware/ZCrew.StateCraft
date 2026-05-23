@@ -90,15 +90,17 @@ internal class FromTransitionConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public ITransitionInfo<TState, TTransition> GetInfo()
+    public ITransitionInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine)
     {
-        var (nextStateInfo, nextConditionInfo) = this.nextStateConfiguration.GetInfo();
-        var excludedStateInfo = this.excludedStates.Select(excludedState => excludedState.GetInfo()).ToArray();
+        var nextStateInfo = this.nextStateConfiguration.GetInfo(stateMachine);
+        var excludedStateInfo = this
+            .excludedStates.Select(excludedState => excludedState.GetInfo(stateMachine))
+            .ToArray();
         return new FromTransitionInfo<TState, TTransition>(
+            stateMachine,
             this.transitionValue,
             this.nextStateConfiguration.TypeParameters,
             nextStateInfo,
-            nextConditionInfo,
             excludedStateInfo
         );
     }
@@ -223,9 +225,9 @@ internal class FromTransitionConfiguration<TState, TTransition>
             return typeParameters.SequenceEqual(TypeParameters);
         }
 
-        public IStateInfo<TState, TTransition> GetInfo()
+        public IStateInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine)
         {
-            return new StateInfo<TState, TTransition>(State, TypeParameters);
+            return new StateInfo<TState, TTransition>(stateMachine, State, TypeParameters);
         }
     }
 }

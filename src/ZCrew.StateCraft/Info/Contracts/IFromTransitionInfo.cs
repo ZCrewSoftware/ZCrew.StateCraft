@@ -22,16 +22,15 @@ public interface IFromTransitionInfo<TState, TTransition> : ITransitionInfo<TSta
     where TTransition : notnull
 {
     /// <summary>
-    ///     The destination state for the transition.
+    ///     The owning state machine. Use <see cref="IStateMachineInfo{TState, TTransition}.States"/> together with
+    ///     <see cref="ExcludedStates"/> to enumerate the implicit source states for this inverted transition.
     /// </summary>
-    IStateInfo<TState, TTransition> NextState { get; }
+    IStateMachineInfo<TState, TTransition> StateMachine { get; }
 
     /// <summary>
-    ///     Conditions evaluated against the next-state parameters before the transition is taken. Evaluated in
-    ///     registration order; all must return <see langword="true"/> for the transition to proceed. Empty when no
-    ///     destination-side conditions are configured.
+    ///     The destination state for the transition.
     /// </summary>
-    IReadOnlyList<IConditionInfo> NextParameterConditions { get; }
+    IConditionalStateInfo<TState, TTransition> NextState { get; }
 
     /// <summary>
     ///     Source states explicitly excluded from this transition. Every configured state not listed here is a
