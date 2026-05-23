@@ -16,7 +16,7 @@ public class StaticInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IStaticInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IStaticInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal("A", initialState.InitialStateValue);
         Assert.Empty(initialState.InitialParameters);
         Assert.Empty(initialState.InitialParameterTypes);
@@ -37,7 +37,7 @@ public class StaticInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IStaticInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IStaticInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal("A", initialState.InitialStateValue);
         Assert.Empty(initialState.InitialParameters);
         Assert.Empty(initialState.InitialParameterTypes);
@@ -57,7 +57,7 @@ public class StaticInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IStaticInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IStaticInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal("A", initialState.InitialStateValue);
         Assert.Equal([1, "two", true, 4.0], initialState.InitialParameters);
         Assert.Equal([typeof(int), typeof(string), typeof(bool), typeof(double)], initialState.InitialParameterTypes);
@@ -78,7 +78,7 @@ public class StaticInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IStaticInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IStaticInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal("A", initialState.InitialStateValue);
         Assert.Equal([1, "two", true, 4.0], initialState.InitialParameters);
         Assert.Equal([typeof(int), typeof(string), typeof(bool), typeof(double)], initialState.InitialParameterTypes);

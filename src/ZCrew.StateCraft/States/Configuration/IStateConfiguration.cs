@@ -41,7 +41,7 @@ public interface IStateConfiguration<TState, TTransition>
     ///     Query information about this state.
     /// </summary>
     /// <returns>Information about this configuration.</returns>
-    internal IStateInfo<TState> GetInfo();
+    internal IStateInfo<TState, TTransition> GetInfo();
 
     /// <summary>
     ///     Build the state based on the configuration.

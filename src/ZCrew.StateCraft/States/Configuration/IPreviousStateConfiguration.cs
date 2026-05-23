@@ -37,7 +37,7 @@ internal interface IPreviousStateConfiguration<TState, TTransition> : IRenderabl
     ///     Query information about this state reference.
     /// </summary>
     /// <returns>Information about this configuration.</returns>
-    (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo();
+    (IStateInfo<TState, TTransition>, IReadOnlyList<IConditionInfo>) GetInfo();
 
     /// <summary>
     ///     Builds the runtime <see cref="IPreviousState{TState, TTransition}"/> from this configuration by resolving

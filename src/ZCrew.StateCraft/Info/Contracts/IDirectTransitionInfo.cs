@@ -12,19 +12,19 @@ namespace ZCrew.StateCraft;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-public interface IDirectTransitionInfo<TState, TTransition> : ITransitionInfo<TTransition>
+public interface IDirectTransitionInfo<TState, TTransition> : ITransitionInfo<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
     /// <summary>
     ///     The state the transition is taken from.
     /// </summary>
-    IStateInfo<TState> PreviousState { get; }
+    IStateInfo<TState, TTransition> PreviousState { get; }
 
     /// <summary>
     ///     The state the transition moves to.
     /// </summary>
-    IStateInfo<TState> NextState { get; }
+    IStateInfo<TState, TTransition> NextState { get; }
 
     /// <summary>
     ///     Conditions evaluated against the source state's current parameters before the transition is taken.

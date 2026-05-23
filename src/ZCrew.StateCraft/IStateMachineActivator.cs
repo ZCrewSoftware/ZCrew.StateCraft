@@ -22,5 +22,5 @@ internal interface IStateMachineActivator<TState, TTransition>
     ///     Query information about the initial state.
     /// </summary>
     /// <returns>Information about the initial state.</returns>
-    IInitialStateInfo<TState> GetInfo();
+    IInitialStateInfo<TState, TTransition> GetInfo();
 }

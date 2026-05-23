@@ -46,7 +46,7 @@ internal class MappedTransitionConfiguration<TState, TTransition>
     }
 
     /// <inheritdoc />
-    public ITransitionInfo<TTransition> GetInfo()
+    public ITransitionInfo<TState, TTransition> GetInfo()
     {
         var (previousStateInfo, previousConditionInfo) = this.previousStateConfiguration.GetInfo();
         var (nextStateInfo, nextConditionInfo) = this.nextStateConfiguration.GetInfo();

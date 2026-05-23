@@ -8,9 +8,9 @@ internal sealed class FromTransitionInfo<TState, TTransition> : IFromTransitionI
     public FromTransitionInfo(
         TTransition transitionValue,
         IReadOnlyList<Type> transitionParameterTypes,
-        IStateInfo<TState> nextState,
+        IStateInfo<TState, TTransition> nextState,
         IReadOnlyList<IConditionInfo> nextParameterConditions,
-        IReadOnlyList<IStateInfo<TState>> excludedStates
+        IReadOnlyList<IStateInfo<TState, TTransition>> excludedStates
     )
     {
         TransitionValue = transitionValue;
@@ -30,11 +30,11 @@ internal sealed class FromTransitionInfo<TState, TTransition> : IFromTransitionI
     public bool IsConditional => NextParameterConditions.Count > 0;
 
     /// <inheritdoc />
-    public IStateInfo<TState> NextState { get; }
+    public IStateInfo<TState, TTransition> NextState { get; }
 
     /// <inheritdoc />
     public IReadOnlyList<IConditionInfo> NextParameterConditions { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<IStateInfo<TState>> ExcludedStates { get; }
+    public IReadOnlyList<IStateInfo<TState, TTransition>> ExcludedStates { get; }
 }

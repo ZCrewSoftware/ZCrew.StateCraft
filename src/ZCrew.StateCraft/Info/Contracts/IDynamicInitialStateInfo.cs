@@ -13,8 +13,13 @@ namespace ZCrew.StateCraft;
 ///     The state type. This should be an <see langword="enum"/> type or it should be an equatable type so the state
 ///     machine behaves as expected.
 /// </typeparam>
-public interface IDynamicInitialStateInfo<TState> : IInitialStateInfo<TState>
+/// <typeparam name="TTransition">
+///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
+///     state machine behaves as expected.
+/// </typeparam>
+public interface IDynamicInitialStateInfo<TState, TTransition> : IInitialStateInfo<TState, TTransition>
     where TState : notnull
+    where TTransition : notnull
 {
     /// <summary>
     ///     A human-readable label for the state-provider delegate, typically the caller's expression captured at

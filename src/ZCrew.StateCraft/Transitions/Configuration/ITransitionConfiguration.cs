@@ -26,7 +26,7 @@ public interface ITransitionConfiguration<TState, TTransition>
     ///     Query information about this transition.
     /// </summary>
     /// <returns>Information about this configuration.</returns>
-    internal ITransitionInfo<TTransition> GetInfo();
+    internal ITransitionInfo<TState, TTransition> GetInfo();
 
     /// <summary>
     ///     Build the transition based on the configuration.

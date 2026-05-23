@@ -8,8 +8,8 @@ internal sealed class DirectTransitionInfo<TState, TTransition> : IDirectTransit
     public DirectTransitionInfo(
         TTransition transitionValue,
         IReadOnlyList<Type> transitionParameterTypes,
-        IStateInfo<TState> previousState,
-        IStateInfo<TState> nextState,
+        IStateInfo<TState, TTransition> previousState,
+        IStateInfo<TState, TTransition> nextState,
         IReadOnlyList<IConditionInfo> previousParameterConditions,
         IReadOnlyList<IConditionInfo> nextParameterConditions
     )
@@ -32,10 +32,10 @@ internal sealed class DirectTransitionInfo<TState, TTransition> : IDirectTransit
     public bool IsConditional => PreviousParameterConditions.Count > 0 || NextParameterConditions.Count > 0;
 
     /// <inheritdoc />
-    public IStateInfo<TState> PreviousState { get; }
+    public IStateInfo<TState, TTransition> PreviousState { get; }
 
     /// <inheritdoc />
-    public IStateInfo<TState> NextState { get; }
+    public IStateInfo<TState, TTransition> NextState { get; }
 
     /// <inheritdoc />
     public IReadOnlyList<IConditionInfo> PreviousParameterConditions { get; }

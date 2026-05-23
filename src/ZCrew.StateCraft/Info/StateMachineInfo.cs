@@ -6,9 +6,9 @@ internal sealed class StateMachineInfo<TState, TTransition> : IStateMachineInfo<
     where TTransition : notnull
 {
     public StateMachineInfo(
-        IInitialStateInfo<TState>? initialState,
-        IReadOnlyList<IStateInfo<TState>> states,
-        IReadOnlyList<ITransitionInfo<TTransition>> transitions
+        IInitialStateInfo<TState, TTransition>? initialState,
+        IReadOnlyList<IStateInfo<TState, TTransition>> states,
+        IReadOnlyList<ITransitionInfo<TState, TTransition>> transitions
     )
     {
         InitialState = initialState;
@@ -17,11 +17,11 @@ internal sealed class StateMachineInfo<TState, TTransition> : IStateMachineInfo<
     }
 
     /// <inheritdoc />
-    public IInitialStateInfo<TState>? InitialState { get; }
+    public IInitialStateInfo<TState, TTransition>? InitialState { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<IStateInfo<TState>> States { get; }
+    public IReadOnlyList<IStateInfo<TState, TTransition>> States { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<ITransitionInfo<TTransition>> Transitions { get; }
+    public IReadOnlyList<ITransitionInfo<TState, TTransition>> Transitions { get; }
 }

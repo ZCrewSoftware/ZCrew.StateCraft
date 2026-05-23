@@ -47,9 +47,9 @@ internal class StateConfiguration<TState, TTransition, T1, T2, T3>
     public IEnumerable<ITransitionConfiguration<TState, TTransition>> Transitions => this.transitionConfigurations;
 
     /// <inheritdoc />
-    public IStateInfo<TState> GetInfo()
+    public IStateInfo<TState, TTransition> GetInfo()
     {
-        return new StateInfo<TState>(State, TypeParameters);
+        return new StateInfo<TState, TTransition>(State, TypeParameters);
     }
 
     /// <inheritdoc />

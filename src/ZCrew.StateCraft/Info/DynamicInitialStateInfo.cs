@@ -1,8 +1,9 @@
 namespace ZCrew.StateCraft.Info;
 
 /// <inheritdoc />
-internal sealed class DynamicInitialStateInfo<TState> : IDynamicInitialStateInfo<TState>
+internal sealed class DynamicInitialStateInfo<TState, TTransition> : IDynamicInitialStateInfo<TState, TTransition>
     where TState : notnull
+    where TTransition : notnull
 {
     public DynamicInitialStateInfo(string? descriptor, IReadOnlyList<Type> initialParameterTypes)
     {
