@@ -48,6 +48,7 @@ internal class DirectTransitionConfiguration<TState, TTransition>
         var previousStateInfo = this.previousStateConfiguration.GetInfo(stateMachine);
         var nextStateInfo = this.nextStateConfiguration.GetInfo(stateMachine);
         return new DirectTransitionInfo<TState, TTransition>(
+            stateMachine,
             this.transitionValue,
             this.nextStateConfiguration.TypeParameters,
             previousStateInfo,

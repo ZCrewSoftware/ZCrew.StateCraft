@@ -52,6 +52,7 @@ internal class MappedTransitionConfiguration<TState, TTransition>
         var nextStateInfo = this.nextStateConfiguration.GetInfo(stateMachine);
         var mappingFunctionInfo = this.mappingFunction.GetInfo();
         return new MappedTransitionInfo<TState, TTransition>(
+            stateMachine,
             this.transitionValue,
             previousStateInfo,
             nextStateInfo,

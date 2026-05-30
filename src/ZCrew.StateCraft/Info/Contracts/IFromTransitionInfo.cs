@@ -22,12 +22,6 @@ public interface IFromTransitionInfo<TState, TTransition> : ITransitionInfo<TSta
     where TTransition : notnull
 {
     /// <summary>
-    ///     The owning state machine. Use <see cref="IStateMachineInfo{TState, TTransition}.States"/> together with
-    ///     <see cref="ExcludedStates"/> to enumerate the implicit source states for this inverted transition.
-    /// </summary>
-    IStateMachineInfo<TState, TTransition> StateMachine { get; }
-
-    /// <summary>
     ///     The destination state for the transition.
     /// </summary>
     IConditionalStateInfo<TState, TTransition> NextState { get; }

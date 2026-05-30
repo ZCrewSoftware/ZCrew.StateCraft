@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.States;
+
 namespace ZCrew.StateCraft.Info;
 
 /// <inheritdoc />
@@ -6,17 +8,22 @@ internal sealed class DirectTransitionInfo<TState, TTransition> : IDirectTransit
     where TTransition : notnull
 {
     public DirectTransitionInfo(
+        IStateMachineInfo<TState, TTransition> stateMachine,
         TTransition transitionValue,
         IReadOnlyList<Type> transitionParameterTypes,
         IConditionalStateInfo<TState, TTransition> previousState,
         IConditionalStateInfo<TState, TTransition> nextState
     )
     {
+        StateMachine = stateMachine;
         TransitionValue = transitionValue;
         TransitionParameterTypes = transitionParameterTypes;
         PreviousState = previousState;
         NextState = nextState;
     }
+
+    /// <inheritdoc />
+    public IStateMachineInfo<TState, TTransition> StateMachine { get; }
 
     /// <inheritdoc />
     public TTransition TransitionValue { get; }

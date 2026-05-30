@@ -12,8 +12,16 @@ namespace ZCrew.StateCraft;
 ///     state machine behaves as expected.
 /// </typeparam>
 public interface ITransitionInfo<TState, TTransition>
+    where TState : notnull
     where TTransition : notnull
 {
+    /// <summary>
+    ///     The owning state machine. The same <see cref="IStateMachineInfo{TState, TTransition}"/> instance that
+    ///     exposes this transition via <see cref="IStateMachineInfo{TState, TTransition}.Transitions"/>, providing a
+    ///     back reference for navigation from a transition to its peers.
+    /// </summary>
+    IStateMachineInfo<TState, TTransition> StateMachine { get; }
+
     /// <summary>
     ///     The transition value that triggers this transition.
     /// </summary>

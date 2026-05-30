@@ -6,17 +6,22 @@ internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransit
     where TTransition : notnull
 {
     public MappedTransitionInfo(
+        IStateMachineInfo<TState, TTransition> stateMachine,
         TTransition transitionValue,
         IConditionalStateInfo<TState, TTransition> previousState,
         IConditionalStateInfo<TState, TTransition> nextState,
         IMappingFunctionInfo mappingFunction
     )
     {
+        StateMachine = stateMachine;
         TransitionValue = transitionValue;
         PreviousState = previousState;
         NextState = nextState;
         MappingFunction = mappingFunction;
     }
+
+    /// <inheritdoc />
+    public IStateMachineInfo<TState, TTransition> StateMachine { get; }
 
     /// <inheritdoc />
     public TTransition TransitionValue { get; }
