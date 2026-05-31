@@ -186,7 +186,7 @@ internal class StubStateMachine<TState, TTransition> : IStateMachine<TState, TTr
 
     public IStateMachineInfo<TState, TTransition> GetInfo()
     {
-        return new StateMachineInfo<TState, TTransition>(null, [], []);
+        return new StateMachineInfo<TState, TTransition>(null);
     }
 
     public virtual Task StateChange(

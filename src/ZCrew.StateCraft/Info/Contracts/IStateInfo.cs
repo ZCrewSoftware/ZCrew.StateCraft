@@ -13,16 +13,28 @@ namespace ZCrew.StateCraft;
 ///     Transitions are not exposed per-state — <see cref="IStateMachineInfo{TState, TTransition}.Transitions"/> is
 ///     the canonical transition list. Consumers wanting the transitions whose source is a particular state filter
 ///     that collection and handle each variant's notion of previous state (see
-///     <see cref="ITransitionInfo{TTransition}"/> subtypes).
+///     <see cref="ITransitionInfo{TState, TTransition}"/> subtypes).
 ///     </para>
 /// </remarks>
 /// <typeparam name="TState">
 ///     The state type. This should be an <see langword="enum"/> type or it should be an equatable type so the state
 ///     machine behaves as expected.
 /// </typeparam>
-public interface IStateInfo<TState>
+/// <typeparam name="TTransition">
+///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
+///     state machine behaves as expected.
+/// </typeparam>
+public interface IStateInfo<TState, TTransition>
     where TState : notnull
+    where TTransition : notnull
 {
+    /// <summary>
+    ///     The owning state machine. The same <see cref="IStateMachineInfo{TState, TTransition}"/> instance that
+    ///     exposes this state via <see cref="IStateMachineInfo{TState, TTransition}.States"/>, providing a back
+    ///     reference for navigation from a state to its peers.
+    /// </summary>
+    IStateMachineInfo<TState, TTransition> StateMachine { get; }
+
     /// <summary>
     ///     The state value.
     /// </summary>

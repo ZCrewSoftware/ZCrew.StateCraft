@@ -6,21 +6,22 @@ internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransit
     where TTransition : notnull
 {
     public MappedTransitionInfo(
+        IStateMachineInfo<TState, TTransition> stateMachine,
         TTransition transitionValue,
-        IStateInfo<TState> previousState,
-        IStateInfo<TState> nextState,
-        IReadOnlyList<IConditionInfo> previousParameterConditions,
-        IReadOnlyList<IConditionInfo> nextParameterConditions,
+        IConditionalStateInfo<TState, TTransition> previousState,
+        IConditionalStateInfo<TState, TTransition> nextState,
         IMappingFunctionInfo mappingFunction
     )
     {
+        StateMachine = stateMachine;
         TransitionValue = transitionValue;
         PreviousState = previousState;
         NextState = nextState;
-        PreviousParameterConditions = previousParameterConditions;
-        NextParameterConditions = nextParameterConditions;
         MappingFunction = mappingFunction;
     }
+
+    /// <inheritdoc />
+    public IStateMachineInfo<TState, TTransition> StateMachine { get; }
 
     /// <inheritdoc />
     public TTransition TransitionValue { get; }
@@ -29,19 +30,13 @@ internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransit
     public IReadOnlyList<Type> TransitionParameterTypes { get; } = [];
 
     /// <inheritdoc />
-    public bool IsConditional => PreviousParameterConditions.Count > 0 || NextParameterConditions.Count > 0;
+    public bool IsConditional => PreviousState.Conditions.Count > 0 || NextState.Conditions.Count > 0;
 
     /// <inheritdoc />
-    public IStateInfo<TState> PreviousState { get; }
+    public IConditionalStateInfo<TState, TTransition> PreviousState { get; }
 
     /// <inheritdoc />
-    public IStateInfo<TState> NextState { get; }
-
-    /// <inheritdoc />
-    public IReadOnlyList<IConditionInfo> PreviousParameterConditions { get; }
-
-    /// <inheritdoc />
-    public IReadOnlyList<IConditionInfo> NextParameterConditions { get; }
+    public IConditionalStateInfo<TState, TTransition> NextState { get; }
 
     /// <inheritdoc />
     public IMappingFunctionInfo MappingFunction { get; }

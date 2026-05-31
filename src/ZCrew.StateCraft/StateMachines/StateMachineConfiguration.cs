@@ -485,13 +485,26 @@ internal class StateMachineConfiguration<TState, TTransition>
     public IStateMachineInfo<TState, TTransition> GetInfo()
     {
         var initialStateInfo = this.initialStateProducer?.GetInfo();
-        var stateInfo = this.stateConfigurations.Select(state => state.GetInfo()).ToArray();
+        var stateMachineInfo = new StateMachineInfo<TState, TTransition>(initialStateInfo);
+
+        // Add state after creating the machine info to avoid cyclical dependency
+        var stateInfo = this.stateConfigurations.Select(state => state.GetInfo(stateMachineInfo));
+        foreach (var info in stateInfo)
+        {
+            stateMachineInfo.Add(info);
+        }
+
+        // Add transition after creating the machine info to avoid cyclical dependency
         var transitionInfo = this
             .stateConfigurations.SelectMany(state => state.Transitions)
-            .Select(transition => transition.GetInfo())
+            .Select(transition => transition.GetInfo(stateMachineInfo))
             .ToArray();
+        foreach (var info in transitionInfo)
+        {
+            stateMachineInfo.Add(info);
+        }
 
-        return new StateMachineInfo<TState, TTransition>(initialStateInfo, stateInfo, transitionInfo);
+        return stateMachineInfo;
     }
 
     /// <inheritdoc/>

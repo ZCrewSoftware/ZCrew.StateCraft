@@ -83,8 +83,8 @@ public class MappedTransitionInfoTests
         // Assert
         var mapped = Assert.IsAssignableFrom<IMappedTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.False(mapped.IsConditional);
-        Assert.Empty(mapped.PreviousParameterConditions);
-        Assert.Empty(mapped.NextParameterConditions);
+        Assert.Empty(mapped.PreviousState.Conditions);
+        Assert.Empty(mapped.NextState.Conditions);
     }
 
     [Fact]
@@ -110,8 +110,8 @@ public class MappedTransitionInfoTests
         // Assert
         var mapped = Assert.IsAssignableFrom<IMappedTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.False(mapped.IsConditional);
-        Assert.Empty(mapped.PreviousParameterConditions);
-        Assert.Empty(mapped.NextParameterConditions);
+        Assert.Empty(mapped.PreviousState.Conditions);
+        Assert.Empty(mapped.NextState.Conditions);
     }
 
     [Fact]
@@ -142,8 +142,8 @@ public class MappedTransitionInfoTests
         // Assert
         var mapped = Assert.IsAssignableFrom<IMappedTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.True(mapped.IsConditional);
-        Assert.Empty(mapped.PreviousParameterConditions);
-        Assert.Single(mapped.NextParameterConditions);
+        Assert.Empty(mapped.PreviousState.Conditions);
+        Assert.Single(mapped.NextState.Conditions);
     }
 
     [Fact]
@@ -175,7 +175,7 @@ public class MappedTransitionInfoTests
         // Assert
         var mapped = Assert.IsAssignableFrom<IMappedTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.True(mapped.IsConditional);
-        Assert.Empty(mapped.PreviousParameterConditions);
-        Assert.Single(mapped.NextParameterConditions);
+        Assert.Empty(mapped.PreviousState.Conditions);
+        Assert.Single(mapped.NextState.Conditions);
     }
 }

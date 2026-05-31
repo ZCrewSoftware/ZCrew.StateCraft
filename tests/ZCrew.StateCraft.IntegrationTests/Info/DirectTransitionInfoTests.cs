@@ -61,8 +61,8 @@ public class DirectTransitionInfoTests
         // Assert
         var direct = Assert.IsAssignableFrom<IDirectTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.False(direct.IsConditional);
-        Assert.Empty(direct.PreviousParameterConditions);
-        Assert.Empty(direct.NextParameterConditions);
+        Assert.Empty(direct.PreviousState.Conditions);
+        Assert.Empty(direct.NextState.Conditions);
     }
 
     [Fact]
@@ -82,8 +82,8 @@ public class DirectTransitionInfoTests
         // Assert
         var direct = Assert.IsAssignableFrom<IDirectTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.False(direct.IsConditional);
-        Assert.Empty(direct.PreviousParameterConditions);
-        Assert.Empty(direct.NextParameterConditions);
+        Assert.Empty(direct.PreviousState.Conditions);
+        Assert.Empty(direct.NextState.Conditions);
     }
 
     [Fact]
@@ -105,8 +105,8 @@ public class DirectTransitionInfoTests
         // Assert
         var direct = Assert.IsAssignableFrom<IDirectTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.True(direct.IsConditional);
-        Assert.Empty(direct.PreviousParameterConditions);
-        Assert.Single(direct.NextParameterConditions);
+        Assert.Empty(direct.PreviousState.Conditions);
+        Assert.Single(direct.NextState.Conditions);
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class DirectTransitionInfoTests
         // Assert
         var direct = Assert.IsAssignableFrom<IDirectTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.True(direct.IsConditional);
-        Assert.Empty(direct.PreviousParameterConditions);
-        Assert.Single(direct.NextParameterConditions);
+        Assert.Empty(direct.PreviousState.Conditions);
+        Assert.Single(direct.NextState.Conditions);
     }
 }

@@ -155,7 +155,7 @@ public class FromTransitionInfoTests
         // Assert
         var from = Assert.IsAssignableFrom<IFromTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.False(from.IsConditional);
-        Assert.Empty(from.NextParameterConditions);
+        Assert.Empty(from.NextState.Conditions);
     }
 
     [Fact]
@@ -175,6 +175,6 @@ public class FromTransitionInfoTests
         // Assert
         var from = Assert.IsAssignableFrom<IFromTransitionInfo<string, string>>(info.Transitions[0]);
         Assert.False(from.IsConditional);
-        Assert.Empty(from.NextParameterConditions);
+        Assert.Empty(from.NextState.Conditions);
     }
 }

@@ -59,15 +59,15 @@ internal sealed class StateMachineActivator<TState, TTransition> : IStateMachine
     }
 
     /// <inheritdoc/>
-    public IInitialStateInfo<TState> GetInfo()
+    public IInitialStateInfo<TState, TTransition> GetInfo()
     {
         if (this.isValueSet)
         {
-            return new StaticInitialStateInfo<TState>(this.stateValue!, [], []);
+            return new StaticInitialStateInfo<TState, TTransition>(this.stateValue!, [], []);
         }
 
         var providerInfo = this.provider!.Value.Descriptor;
-        return new DynamicInitialStateInfo<TState>(providerInfo, []);
+        return new DynamicInitialStateInfo<TState, TTransition>(providerInfo, []);
     }
 }
 
@@ -133,15 +133,15 @@ internal sealed class StateMachineActivator<TState, TTransition, T> : IStateMach
     }
 
     /// <inheritdoc/>
-    public IInitialStateInfo<TState> GetInfo()
+    public IInitialStateInfo<TState, TTransition> GetInfo()
     {
         if (this.isValueSet)
         {
-            return new StaticInitialStateInfo<TState>(this.stateValue!, [this.parameter!], [typeof(T)]);
+            return new StaticInitialStateInfo<TState, TTransition>(this.stateValue!, [this.parameter!], [typeof(T)]);
         }
 
         var providerInfo = this.provider!.Value.Descriptor;
-        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T)]);
+        return new DynamicInitialStateInfo<TState, TTransition>(providerInfo, [typeof(T)]);
     }
 }
 
@@ -212,11 +212,11 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2> : IStat
     }
 
     /// <inheritdoc/>
-    public IInitialStateInfo<TState> GetInfo()
+    public IInitialStateInfo<TState, TTransition> GetInfo()
     {
         if (this.isValueSet)
         {
-            return new StaticInitialStateInfo<TState>(
+            return new StaticInitialStateInfo<TState, TTransition>(
                 this.stateValue!,
                 [this.parameter1!, this.parameter2!],
                 [typeof(T1), typeof(T2)]
@@ -224,7 +224,7 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2> : IStat
         }
 
         var providerInfo = this.provider!.Value.Descriptor;
-        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T1), typeof(T2)]);
+        return new DynamicInitialStateInfo<TState, TTransition>(providerInfo, [typeof(T1), typeof(T2)]);
     }
 }
 
@@ -300,11 +300,11 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3>
     }
 
     /// <inheritdoc/>
-    public IInitialStateInfo<TState> GetInfo()
+    public IInitialStateInfo<TState, TTransition> GetInfo()
     {
         if (this.isValueSet)
         {
-            return new StaticInitialStateInfo<TState>(
+            return new StaticInitialStateInfo<TState, TTransition>(
                 this.stateValue!,
                 [this.parameter1!, this.parameter2!, this.parameter3!],
                 [typeof(T1), typeof(T2), typeof(T3)]
@@ -312,7 +312,7 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3>
         }
 
         var providerInfo = this.provider!.Value.Descriptor;
-        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T1), typeof(T2), typeof(T3)]);
+        return new DynamicInitialStateInfo<TState, TTransition>(providerInfo, [typeof(T1), typeof(T2), typeof(T3)]);
     }
 }
 
@@ -399,11 +399,11 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3, T4>
     }
 
     /// <inheritdoc/>
-    public IInitialStateInfo<TState> GetInfo()
+    public IInitialStateInfo<TState, TTransition> GetInfo()
     {
         if (this.isValueSet)
         {
-            return new StaticInitialStateInfo<TState>(
+            return new StaticInitialStateInfo<TState, TTransition>(
                 this.stateValue!,
                 [this.parameter1!, this.parameter2!, this.parameter3!, this.parameter4!],
                 [typeof(T1), typeof(T2), typeof(T3), typeof(T4)]
@@ -411,6 +411,9 @@ internal sealed class StateMachineActivator<TState, TTransition, T1, T2, T3, T4>
         }
 
         var providerInfo = this.provider!.Value.Descriptor;
-        return new DynamicInitialStateInfo<TState>(providerInfo, [typeof(T1), typeof(T2), typeof(T3), typeof(T4)]);
+        return new DynamicInitialStateInfo<TState, TTransition>(
+            providerInfo,
+            [typeof(T1), typeof(T2), typeof(T3), typeof(T4)]
+        );
     }
 }

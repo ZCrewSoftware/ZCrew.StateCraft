@@ -1,8 +1,9 @@
 namespace ZCrew.StateCraft.Info;
 
 /// <inheritdoc />
-internal sealed class StaticInitialStateInfo<TState> : IStaticInitialStateInfo<TState>
+internal sealed class StaticInitialStateInfo<TState, TTransition> : IStaticInitialStateInfo<TState, TTransition>
     where TState : notnull
+    where TTransition : notnull
 {
     public StaticInitialStateInfo(
         TState initialStateValue,

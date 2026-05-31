@@ -16,7 +16,7 @@ public class DynamicInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal("() => \"A\"", initialState.Descriptor);
         Assert.Empty(initialState.InitialParameterTypes);
     }
@@ -36,7 +36,7 @@ public class DynamicInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal("() => \"A\"", initialState.Descriptor);
         Assert.Empty(initialState.InitialParameterTypes);
     }
@@ -55,7 +55,7 @@ public class DynamicInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal("explicit-descriptor", initialState.Descriptor);
     }
 
@@ -74,7 +74,7 @@ public class DynamicInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal("explicit-descriptor", initialState.Descriptor);
     }
 
@@ -92,7 +92,7 @@ public class DynamicInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal([typeof(int), typeof(string), typeof(bool), typeof(double)], initialState.InitialParameterTypes);
     }
 
@@ -111,7 +111,7 @@ public class DynamicInitialStateInfoTests
 
         // Assert
         Assert.NotNull(info.InitialState);
-        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string>>(info.InitialState);
+        var initialState = Assert.IsAssignableFrom<IDynamicInitialStateInfo<string, string>>(info.InitialState);
         Assert.Equal([typeof(int), typeof(string), typeof(bool), typeof(double)], initialState.InitialParameterTypes);
     }
 }

@@ -25,8 +25,9 @@ public interface ITransitionConfiguration<TState, TTransition>
     /// <summary>
     ///     Query information about this transition.
     /// </summary>
+    /// <param name="stateMachine">The owning state machine info to attach as the back-reference where applicable.</param>
     /// <returns>Information about this configuration.</returns>
-    internal ITransitionInfo<TTransition> GetInfo();
+    internal ITransitionInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine);
 
     /// <summary>
     ///     Build the transition based on the configuration.

@@ -45,11 +45,10 @@ internal class NextStateConfiguration<TState, TTransition> : INextStateConfigura
     public IReadOnlyList<Type> TypeParameters { get; } = [];
 
     /// <inheritdoc />
-    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    public IConditionalStateInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine)
     {
-        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
         var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
-        return (stateInfo, conditionInfo);
+        return new ConditionalStateInfo<TState, TTransition>(stateMachine, StateValue, TypeParameters, conditionInfo);
     }
 
     /// <inheritdoc />
@@ -123,11 +122,10 @@ internal class NextStateConfiguration<TState, TTransition, T> : INextStateConfig
     public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T)];
 
     /// <inheritdoc />
-    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    public IConditionalStateInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine)
     {
-        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
         var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
-        return (stateInfo, conditionInfo);
+        return new ConditionalStateInfo<TState, TTransition>(stateMachine, StateValue, TypeParameters, conditionInfo);
     }
 
     /// <inheritdoc />
@@ -203,11 +201,10 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2> : INextStateC
     public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T1), typeof(T2)];
 
     /// <inheritdoc />
-    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    public IConditionalStateInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine)
     {
-        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
         var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
-        return (stateInfo, conditionInfo);
+        return new ConditionalStateInfo<TState, TTransition>(stateMachine, StateValue, TypeParameters, conditionInfo);
     }
 
     /// <inheritdoc />
@@ -284,11 +281,10 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3> : INextSt
     public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T1), typeof(T2), typeof(T3)];
 
     /// <inheritdoc />
-    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    public IConditionalStateInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine)
     {
-        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
         var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
-        return (stateInfo, conditionInfo);
+        return new ConditionalStateInfo<TState, TTransition>(stateMachine, StateValue, TypeParameters, conditionInfo);
     }
 
     /// <inheritdoc />
@@ -370,11 +366,10 @@ internal class NextStateConfiguration<TState, TTransition, T1, T2, T3, T4>
     public IReadOnlyList<Type> TypeParameters { get; } = [typeof(T1), typeof(T2), typeof(T3), typeof(T4)];
 
     /// <inheritdoc />
-    public (IStateInfo<TState>, IReadOnlyList<IConditionInfo>) GetInfo()
+    public IConditionalStateInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine)
     {
-        var stateInfo = new StateInfo<TState>(StateValue, TypeParameters);
         var conditionInfo = this.conditions.Select(condition => condition.GetInfo()).ToArray();
-        return (stateInfo, conditionInfo);
+        return new ConditionalStateInfo<TState, TTransition>(stateMachine, StateValue, TypeParameters, conditionInfo);
     }
 
     /// <inheritdoc />
