@@ -1,4 +1,5 @@
 using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.Info.Extensions;
 
 namespace ZCrew.StateCraft.Validation;
 
@@ -18,27 +19,32 @@ internal static class UnreachableTransitionValidator
     {
         var nonConditionalTransitions = new List<Transition<TState, TTransition>>();
 
-        foreach (var transition in context.Transitions)
+        foreach (var transition in context.Info.Transitions)
         {
-            var currentTransition = new Transition<TState, TTransition>
-            {
-                StateValue = transition.PreviousStateValue,
-                StateTypeParameters = transition.PreviousStateTypeParameters,
-                TransitionValue = transition.TransitionValue,
-                TransitionTypeParameters = transition.TransitionTypeParameters,
-            };
+            var isConditional = transition.IsConditional;
 
-            if (nonConditionalTransitions.Any(prev => prev.Shadows(currentTransition)))
+            foreach (var previousState in transition.GetPreviousStates())
             {
-                context.ValidationErrors.Add(
-                    $"Transition: {transition} is unreachable because it is shadowed by a previous transition"
-                );
-                continue;
-            }
+                var currentTransition = new Transition<TState, TTransition>
+                {
+                    StateValue = previousState.StateValue,
+                    StateTypeParameters = previousState.StateParameterTypes,
+                    TransitionValue = transition.TransitionValue,
+                    TransitionTypeParameters = transition.TransitionParameterTypes,
+                };
 
-            if (!transition.IsConditional)
-            {
-                nonConditionalTransitions.Add(currentTransition);
+                if (nonConditionalTransitions.Any(prev => prev.Shadows(currentTransition)))
+                {
+                    context.ValidationErrors.Add(
+                        $"Transition: {transition} is unreachable because it is shadowed by a previous transition"
+                    );
+                    continue;
+                }
+
+                if (!isConditional)
+                {
+                    nonConditionalTransitions.Add(currentTransition);
+                }
             }
         }
     }

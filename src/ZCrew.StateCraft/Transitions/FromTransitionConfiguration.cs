@@ -2,14 +2,10 @@ using System.Text;
 using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
-using ZCrew.StateCraft.Rendering.Extensions;
 using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.States.Configuration;
-using ZCrew.StateCraft.Validation;
-using ZCrew.StateCraft.Validation.Contracts;
-using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.Transitions;
 
@@ -17,8 +13,7 @@ namespace ZCrew.StateCraft.Transitions;
 internal class FromTransitionConfiguration<TState, TTransition>
     : IFromTransitionConfiguration<TState, TTransition>,
         IFromAllStatesTransitionConfiguration<TState, TTransition>,
-        IRenderable<TState, TTransition>,
-        IValidatable<TState, TTransition>
+        IRenderable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -129,33 +124,6 @@ internal class FromTransitionConfiguration<TState, TTransition>
             );
 
             state.AddTransition(transition);
-        }
-    }
-
-    /// <inheritdoc />
-    public void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context)
-    {
-        // This requires all states to be loaded ahead of time. We can just add all states and then all transitions
-        foreach (var state in context.States)
-        {
-            var excluded = this.excludedStates.Any(excludedState =>
-                excludedState.Matches(state.State, state.TypeParameters)
-            );
-            if (excluded)
-            {
-                continue;
-            }
-
-            var transition = new TransitionValidationModel<TState, TTransition>(
-                state.State,
-                this.transitionValue,
-                this.nextStateConfiguration.StateValue,
-                state.TypeParameters,
-                this.nextStateConfiguration.TypeParameters,
-                this.nextStateConfiguration.TypeParameters,
-                this.nextStateConfiguration.IsConditional
-            );
-            context.Transitions.Add(transition);
         }
     }
 

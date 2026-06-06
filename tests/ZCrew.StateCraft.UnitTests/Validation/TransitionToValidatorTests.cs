@@ -182,7 +182,7 @@ public class TransitionToValidatorTests
 
         // Assert
         var error = Assert.Single(context.ValidationErrors);
-        Assert.Contains("To B(A) → B<int>", error);
+        Assert.Contains("To B<int>(A) → B<int>", error);
     }
 
     [Fact]
@@ -266,7 +266,7 @@ public class TransitionToValidatorTests
 
         // Assert
         var error = Assert.Single(context.ValidationErrors);
-        Assert.Contains("To B(A) → B<string>", error);
+        Assert.Contains("To B<string>(A) → B<string>", error);
     }
 
     [Fact]

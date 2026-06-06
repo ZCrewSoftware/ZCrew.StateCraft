@@ -10,17 +10,13 @@ using ZCrew.StateCraft.Rendering.Extensions;
 using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions;
-using ZCrew.StateCraft.Validation;
-using ZCrew.StateCraft.Validation.Contracts;
-using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.States;
 
 /// <inheritdoc cref="IParameterizedStateConfiguration{TState,TTransition,T1,T2}" />
 internal class StateConfiguration<TState, TTransition, T1, T2>
     : IParameterizedStateConfiguration<TState, TTransition, T1, T2>,
-        IRenderable<TState, TTransition>,
-        IValidatable<TState, TTransition>
+        IRenderable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -247,13 +243,6 @@ internal class StateConfiguration<TState, TTransition, T1, T2>
     {
         this.onExitHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor));
         return this;
-    }
-
-    /// <inheritdoc />
-    public void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context)
-    {
-        var state = new StateValidationModel<TState, TTransition>(State, TypeParameters);
-        context.States.Add(state);
     }
 
     /// <inheritdoc />

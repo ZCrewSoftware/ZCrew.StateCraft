@@ -170,7 +170,7 @@ public class TransitionFromValidatorTests
             new DirectTransitionInfo<string, string>(
                 info,
                 "To B",
-                [typeof(int)],
+                [],
                 new ConditionalStateInfo<string, string>(info, "A", [typeof(int)], []),
                 new ConditionalStateInfo<string, string>(info, "B", [], [])
             )
@@ -254,7 +254,7 @@ public class TransitionFromValidatorTests
             new DirectTransitionInfo<string, string>(
                 info,
                 "To B",
-                [typeof(string)],
+                [],
                 new ConditionalStateInfo<string, string>(info, "A", [typeof(string)], []),
                 new ConditionalStateInfo<string, string>(info, "B", [], [])
             )
@@ -280,7 +280,7 @@ public class TransitionFromValidatorTests
             new DirectTransitionInfo<string, string>(
                 info,
                 "To B",
-                [typeof(string)],
+                [],
                 new ConditionalStateInfo<string, string>(info, "A", [typeof(string)], []),
                 new ConditionalStateInfo<string, string>(info, "B", [], [])
             )

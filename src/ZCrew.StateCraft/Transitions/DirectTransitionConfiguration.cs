@@ -2,21 +2,16 @@ using System.Text;
 using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Rendering;
 using ZCrew.StateCraft.Rendering.Contracts;
-using ZCrew.StateCraft.Rendering.Extensions;
 using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Configuration;
-using ZCrew.StateCraft.Validation;
-using ZCrew.StateCraft.Validation.Contracts;
-using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.Transitions;
 
 /// <inheritdoc cref="ITransitionConfiguration{TState,TTransition}"/>
 internal class DirectTransitionConfiguration<TState, TTransition>
     : ITransitionConfiguration<TState, TTransition>,
-        IRenderable<TState, TTransition>,
-        IValidatable<TState, TTransition>
+        IRenderable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -69,21 +64,6 @@ internal class DirectTransitionConfiguration<TState, TTransition>
         );
 
         previousState.State.AddTransition(transition);
-    }
-
-    /// <inheritdoc />
-    public void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context)
-    {
-        var transition = new TransitionValidationModel<TState, TTransition>(
-            this.previousStateConfiguration.StateValue,
-            this.transitionValue,
-            this.nextStateConfiguration.StateValue,
-            this.previousStateConfiguration.TypeParameters,
-            this.nextStateConfiguration.TypeParameters,
-            this.nextStateConfiguration.TypeParameters,
-            this.previousStateConfiguration.IsConditional || this.nextStateConfiguration.IsConditional
-        );
-        context.Transitions.Add(transition);
     }
 
     /// <inheritdoc />
