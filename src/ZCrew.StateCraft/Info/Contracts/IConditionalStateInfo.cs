@@ -1,7 +1,8 @@
 namespace ZCrew.StateCraft;
 
 /// <summary>
-///
+///     A <see cref="IStateInfo{TState,TTransition}"/> with conditions. This represents either the next state or
+///     previous state of a transition.
 /// </summary>
 /// <typeparam name="TState">
 ///     The state type. This should be an <see langword="enum"/> type or it should be an equatable type so the state

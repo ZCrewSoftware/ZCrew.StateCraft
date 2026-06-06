@@ -5,6 +5,7 @@ namespace ZCrew.StateCraft.Validation.Contracts;
 /// </summary>
 /// <typeparam name="TState"></typeparam>
 /// <typeparam name="TTransition"></typeparam>
+[Obsolete("Use Info")]
 internal interface IValidatable<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
@@ -13,5 +14,6 @@ internal interface IValidatable<TState, TTransition>
     ///     Add information to the validation context to perform validation steps.
     /// </summary>
     /// <param name="context">The validation context to add to.</param>
+    [Obsolete("Use Info")]
     void AddToValidationContext(StateMachineValidationContext<TState, TTransition> context);
 }

@@ -1,4 +1,4 @@
-using ZCrew.StateCraft.Validation.Models;
+using ZCrew.StateCraft.Identities;
 
 namespace ZCrew.StateCraft.Validation;
 
@@ -14,9 +14,9 @@ internal static class DuplicateStateValidator
         where TState : notnull
         where TTransition : notnull
     {
-        var seenStates = new HashSet<StateValidationModel<TState, TTransition>>();
+        var seenStates = new HashSet<IStateInfo<TState, TTransition>>(StateIdentityEqualityComparer<TState>.Instance);
 
-        foreach (var state in context.States)
+        foreach (var state in context.Info.States)
         {
             if (!seenStates.Add(state))
             {
