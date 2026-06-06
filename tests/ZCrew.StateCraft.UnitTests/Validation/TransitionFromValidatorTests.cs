@@ -1,5 +1,5 @@
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Validation;
-using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.UnitTests.Validation;
 
@@ -9,7 +9,8 @@ public class TransitionFromValidatorTests
     public void Validate_WhenStateMachineHasNoStates_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>();
+        var info = new StateMachineInfo<string, string>(null);
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -22,10 +23,9 @@ public class TransitionFromValidatorTests
     public void Validate_WhenStateMachineHasNoTransitions_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States = { new StateValidationModel<string, string>("A", []) },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -38,26 +38,19 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionIsTuple_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof(Tuple<int, string>)]),
-                new StateValidationModel<string, string>("B", []),
-            },
-            Transitions =
-            {
-                new TransitionValidationModel<string, string>(
-                    "A",
-                    "To B",
-                    "B",
-                    [typeof(Tuple<int, string>)],
-                    [typeof(Tuple<int, string>)],
-                    [],
-                    false
-                ),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(Tuple<int, string>)]));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [typeof(Tuple<int, string>)],
+                new ConditionalStateInfo<string, string>(info, "A", [typeof(Tuple<int, string>)], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -70,26 +63,19 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionIsValueTuple_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof((int, string))]),
-                new StateValidationModel<string, string>("B", []),
-            },
-            Transitions =
-            {
-                new TransitionValidationModel<string, string>(
-                    "A",
-                    "To B",
-                    "B",
-                    [typeof((int, string))],
-                    [typeof((int, string))],
-                    [],
-                    false
-                ),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof((int, string))]));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [typeof((int, string))],
+                new ConditionalStateInfo<string, string>(info, "A", [typeof((int, string))], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -102,26 +88,19 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionIsGenericType_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof(List<string>)]),
-                new StateValidationModel<string, string>("B", []),
-            },
-            Transitions =
-            {
-                new TransitionValidationModel<string, string>(
-                    "A",
-                    "To B",
-                    "B",
-                    [typeof(List<string>)],
-                    [typeof(List<string>)],
-                    [],
-                    false
-                ),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(List<string>)]));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [typeof(List<string>)],
+                new ConditionalStateInfo<string, string>(info, "A", [typeof(List<string>)], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -134,26 +113,19 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionIsNullableValueType_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof(int?)]),
-                new StateValidationModel<string, string>("B", []),
-            },
-            Transitions =
-            {
-                new TransitionValidationModel<string, string>(
-                    "A",
-                    "To B",
-                    "B",
-                    [typeof(int?)],
-                    [typeof(int?)],
-                    [],
-                    false
-                ),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(int?)]));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [typeof(int?)],
+                new ConditionalStateInfo<string, string>(info, "A", [typeof(int?)], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -166,11 +138,18 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionFromNonExistentState_ShouldFail()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States = { new StateValidationModel<string, string>("B", []) },
-            Transitions = { new TransitionValidationModel<string, string>("A", "To B", "B", [], [], [], false) },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [],
+                new ConditionalStateInfo<string, string>(info, "A", [], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -184,26 +163,19 @@ public class TransitionFromValidatorTests
     public void Validate_WhenParameterizedTransitionFromParameterlessState_ShouldFail()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", []),
-            },
-            Transitions =
-            {
-                new TransitionValidationModel<string, string>(
-                    "A",
-                    "To B",
-                    "B",
-                    [typeof(int)],
-                    [typeof(int)],
-                    [],
-                    false
-                ),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [typeof(int)],
+                new ConditionalStateInfo<string, string>(info, "A", [typeof(int)], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -217,15 +189,19 @@ public class TransitionFromValidatorTests
     public void Validate_WhenParameterlessTransitionFromParameterizedState_ShouldSuggestExplicitForm()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof(int)]),
-                new StateValidationModel<string, string>("B", []),
-            },
-            Transitions = { new TransitionValidationModel<string, string>("A", "To B", "B", [], [], [], false) },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [],
+                new ConditionalStateInfo<string, string>(info, "A", [], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -241,16 +217,20 @@ public class TransitionFromValidatorTests
     public void Validate_WhenParameterlessTransitionFromMultipleParameterizedStates_ShouldListAllAlternatives()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof(int)]),
-                new StateValidationModel<string, string>("A", [typeof(string)]),
-                new StateValidationModel<string, string>("B", []),
-            },
-            Transitions = { new TransitionValidationModel<string, string>("A", "To B", "B", [], [], [], false) },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(string)]));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [],
+                new ConditionalStateInfo<string, string>(info, "A", [], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -267,26 +247,19 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionFromStateWithNonAssignableParameterType_ShouldFail()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof(int)]),
-                new StateValidationModel<string, string>("B", []),
-            },
-            Transitions =
-            {
-                new TransitionValidationModel<string, string>(
-                    "A",
-                    "To B",
-                    "B",
-                    [typeof(string)],
-                    [typeof(string)],
-                    [],
-                    false
-                ),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [typeof(string)],
+                new ConditionalStateInfo<string, string>(info, "A", [typeof(string)], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -300,26 +273,19 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionFromStateWithAssignableParameterType_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof(object)]),
-                new StateValidationModel<string, string>("B", []),
-            },
-            Transitions =
-            {
-                new TransitionValidationModel<string, string>(
-                    "A",
-                    "To B",
-                    "B",
-                    [typeof(string)],
-                    [typeof(string)],
-                    [],
-                    false
-                ),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(object)]));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To B",
+                [typeof(string)],
+                new ConditionalStateInfo<string, string>(info, "A", [typeof(string)], []),
+                new ConditionalStateInfo<string, string>(info, "B", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
@@ -332,15 +298,27 @@ public class TransitionFromValidatorTests
     public void Validate_WhenMultipleErrors_ShouldReportAllErrors()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States = { new StateValidationModel<string, string>("C", []) },
-            Transitions =
-            {
-                new TransitionValidationModel<string, string>("A", "To C", "C", [], [], [], false),
-                new TransitionValidationModel<string, string>("B", "To C", "C", [], [], [], false),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "C", []));
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To C",
+                [],
+                new ConditionalStateInfo<string, string>(info, "A", [], []),
+                new ConditionalStateInfo<string, string>(info, "C", [], [])
+            )
+        );
+        info.Add(
+            new DirectTransitionInfo<string, string>(
+                info,
+                "To C",
+                [],
+                new ConditionalStateInfo<string, string>(info, "B", [], []),
+                new ConditionalStateInfo<string, string>(info, "C", [], [])
+            )
+        );
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         TransitionFromValidator.Validate(context);
