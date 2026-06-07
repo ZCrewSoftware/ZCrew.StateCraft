@@ -25,7 +25,9 @@ internal static class StateMachineValidation
             Info = stateMachineConfiguration.GetInfo(),
         };
 
+        DuplicateExcludedStateValidator.Validate(context);
         DuplicateStateValidator.Validate(context);
+        MissingExcludedStateValidator.Validate(context);
         TransitionFromValidator.Validate(context);
         TransitionToValidator.Validate(context);
         UnreachableTransitionValidator.Validate(context);
