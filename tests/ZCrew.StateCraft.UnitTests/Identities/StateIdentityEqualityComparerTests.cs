@@ -11,7 +11,7 @@ public class StateIdentityEqualityComparerTests
         var comparer = StateIdentityEqualityComparer<string>.Instance;
 
         // Act
-        var equal = comparer.Equals(Identity.ForState("A", typeof(int)), Identity.ForState("A", typeof(int)));
+        var equal = comparer.Equals(StateIdentity.For("A", typeof(int)), StateIdentity.For("A", typeof(int)));
 
         // Assert
         Assert.True(equal);
@@ -24,7 +24,7 @@ public class StateIdentityEqualityComparerTests
         var comparer = StateIdentityEqualityComparer<string>.Instance;
 
         // Act
-        var equal = comparer.Equals(Identity.ForState("A", typeof(int)), Identity.ForState("B", typeof(int)));
+        var equal = comparer.Equals(StateIdentity.For("A", typeof(int)), StateIdentity.For("B", typeof(int)));
 
         // Assert
         Assert.False(equal);
@@ -37,7 +37,7 @@ public class StateIdentityEqualityComparerTests
         var comparer = StateIdentityEqualityComparer<string>.Instance;
 
         // Act
-        var equal = comparer.Equals(Identity.ForState("A", typeof(int)), Identity.ForState("A", typeof(string)));
+        var equal = comparer.Equals(StateIdentity.For("A", typeof(int)), StateIdentity.For("A", typeof(string)));
 
         // Assert
         Assert.False(equal);
@@ -51,8 +51,8 @@ public class StateIdentityEqualityComparerTests
 
         // Act
         var equal = comparer.Equals(
-            Identity.ForState("M", typeof(int), typeof(string)),
-            Identity.ForState("M", typeof(string), typeof(int))
+            StateIdentity.For("M", typeof(int), typeof(string)),
+            StateIdentity.For("M", typeof(string), typeof(int))
         );
 
         // Assert
@@ -79,7 +79,7 @@ public class StateIdentityEqualityComparerTests
         var comparer = StateIdentityEqualityComparer<string>.Instance;
 
         // Act
-        var equal = comparer.Equals(Identity.ForState("A"), null);
+        var equal = comparer.Equals(StateIdentity.For("A"), null);
 
         // Assert
         Assert.False(equal);
@@ -90,8 +90,8 @@ public class StateIdentityEqualityComparerTests
     {
         // Arrange
         var comparer = StateIdentityEqualityComparer<string>.Instance;
-        var first = Identity.ForState("A", typeof(int));
-        var second = Identity.ForState("A", typeof(int));
+        var first = StateIdentity.For("A", typeof(int));
+        var second = StateIdentity.For("A", typeof(int));
 
         // Act
         var firstHash = comparer.GetHashCode(first);
@@ -108,8 +108,8 @@ public class StateIdentityEqualityComparerTests
         var comparer = StateIdentityEqualityComparer<string>.Instance;
 
         // Act
-        var firstHash = comparer.GetHashCode(Identity.ForState("A"));
-        var secondHash = comparer.GetHashCode(Identity.ForState("A"));
+        var firstHash = comparer.GetHashCode(StateIdentity.For("A"));
+        var secondHash = comparer.GetHashCode(StateIdentity.For("A"));
 
         // Assert
         Assert.Equal(firstHash, secondHash);

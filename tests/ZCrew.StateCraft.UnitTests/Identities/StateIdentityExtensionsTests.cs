@@ -8,7 +8,7 @@ public class StateIdentityExtensionsTests
     public void ToDisplayString_WhenParameterless_ShouldRenderValue()
     {
         // Arrange
-        var state = Identity.ForState("A");
+        var state = StateIdentity.For("A");
 
         // Act
         var display = state.ToDisplayString();
@@ -21,7 +21,7 @@ public class StateIdentityExtensionsTests
     public void ToDisplayString_WhenSingleParameter_ShouldRenderValueWithType()
     {
         // Arrange
-        var state = Identity.ForState("A", typeof(int));
+        var state = StateIdentity.For("A", typeof(int));
 
         // Act
         var display = state.ToDisplayString();
@@ -34,7 +34,7 @@ public class StateIdentityExtensionsTests
     public void ToDisplayString_WhenMultipleParameters_ShouldRenderValueWithTypesInOrder()
     {
         // Arrange
-        var state = Identity.ForState("A", typeof(int), typeof(string));
+        var state = StateIdentity.For("A", typeof(int), typeof(string));
 
         // Act
         var display = state.ToDisplayString();
@@ -47,10 +47,10 @@ public class StateIdentityExtensionsTests
     public void Matches_WhenMatchingValueAndExactParameterTypes_ShouldReturnTrue()
     {
         // Arrange
-        var state = Identity.ForState("X", typeof(int));
+        var state = StateIdentity.For("X", typeof(int));
 
         // Act
-        var matches = state.Matches(Identity.ForState("X", typeof(int)));
+        var matches = state.Matches(StateIdentity.For("X", typeof(int)));
 
         // Assert
         Assert.True(matches);
@@ -60,7 +60,7 @@ public class StateIdentityExtensionsTests
     public void Matches_WhenValueMismatch_ShouldReturnFalse()
     {
         // Arrange
-        var state = Identity.ForState("X", typeof(int));
+        var state = StateIdentity.For("X", typeof(int));
 
         // Act
         var matches = state.Matches("Y", [typeof(int)]);
@@ -73,7 +73,7 @@ public class StateIdentityExtensionsTests
     public void Matches_WhenAssignableButNotIdenticalParameterType_ShouldReturnFalse()
     {
         // Arrange
-        var state = Identity.ForState("X", typeof(object));
+        var state = StateIdentity.For("X", typeof(object));
 
         // Act
         var matches = state.Matches("X", [typeof(string)]);
@@ -86,7 +86,7 @@ public class StateIdentityExtensionsTests
     public void Matches_WhenParameterTypeOrderDiffers_ShouldReturnFalse()
     {
         // Arrange
-        var state = Identity.ForState("M", typeof(int), typeof(string));
+        var state = StateIdentity.For("M", typeof(int), typeof(string));
 
         // Act
         var matches = state.Matches("M", [typeof(string), typeof(int)]);
@@ -99,7 +99,7 @@ public class StateIdentityExtensionsTests
     public void Matches_WhenParameterlessAndEmptyTypes_ShouldReturnTrue()
     {
         // Arrange
-        var state = Identity.ForState("A");
+        var state = StateIdentity.For("A");
 
         // Act
         var matches = state.Matches("A", []);
@@ -112,7 +112,7 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenSameReference_ShouldReturnTrue()
     {
         // Arrange
-        var state = Identity.ForState("A");
+        var state = StateIdentity.For("A");
 
         // Act
         var isAssignable = state.IsAssignableFrom(state);
@@ -125,7 +125,7 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenOtherIsNull_ShouldReturnFalse()
     {
         // Arrange
-        var state = Identity.ForState("A");
+        var state = StateIdentity.For("A");
 
         // Act
         var isAssignable = state.IsAssignableFrom(null);
@@ -138,10 +138,10 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenDifferentInstanceSameIdentity_ShouldReturnTrue()
     {
         // Arrange
-        var state = Identity.ForState("A");
+        var state = StateIdentity.For("A");
 
         // Act
-        var isAssignable = state.IsAssignableFrom(Identity.ForState("A"));
+        var isAssignable = state.IsAssignableFrom(StateIdentity.For("A"));
 
         // Assert
         Assert.True(isAssignable);
@@ -151,10 +151,10 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenDifferentStateValue_ShouldReturnFalse()
     {
         // Arrange
-        var state = Identity.ForState("A");
+        var state = StateIdentity.For("A");
 
         // Act
-        var isAssignable = state.IsAssignableFrom(Identity.ForState("B"));
+        var isAssignable = state.IsAssignableFrom(StateIdentity.For("B"));
 
         // Assert
         Assert.False(isAssignable);
@@ -164,10 +164,10 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenSuppliedParameterIsMoreDerived_ShouldReturnTrue()
     {
         // Arrange
-        var state = Identity.ForState("X", typeof(object));
+        var state = StateIdentity.For("X", typeof(object));
 
         // Act
-        var isAssignable = state.IsAssignableFrom(Identity.ForState("X", typeof(string)));
+        var isAssignable = state.IsAssignableFrom(StateIdentity.For("X", typeof(string)));
 
         // Assert
         Assert.True(isAssignable);
@@ -177,10 +177,10 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenSuppliedParameterIsLessDerived_ShouldReturnFalse()
     {
         // Arrange
-        var state = Identity.ForState("X", typeof(string));
+        var state = StateIdentity.For("X", typeof(string));
 
         // Act
-        var isAssignable = state.IsAssignableFrom(Identity.ForState("X", typeof(object)));
+        var isAssignable = state.IsAssignableFrom(StateIdentity.For("X", typeof(object)));
 
         // Assert
         Assert.False(isAssignable);
@@ -190,7 +190,7 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenValueMismatch_ShouldReturnFalse()
     {
         // Arrange
-        var state = Identity.ForState("X", typeof(object));
+        var state = StateIdentity.For("X", typeof(object));
 
         // Act
         var isAssignable = state.IsAssignableFrom("Start", [typeof(string)]);
@@ -203,7 +203,7 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenCovariantParameterType_ShouldReturnTrue()
     {
         // Arrange
-        var state = Identity.ForState("X", typeof(object));
+        var state = StateIdentity.For("X", typeof(object));
 
         // Act
         var isAssignable = state.IsAssignableFrom("X", [typeof(string)]);
@@ -216,7 +216,7 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenContravariantParameterType_ShouldReturnFalse()
     {
         // Arrange
-        var state = Identity.ForState("X", typeof(string));
+        var state = StateIdentity.For("X", typeof(string));
 
         // Act
         var isAssignable = state.IsAssignableFrom("X", [typeof(object)]);
@@ -229,7 +229,7 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenParameterCountMismatch_ShouldReturnFalse()
     {
         // Arrange
-        var state = Identity.ForState("X", typeof(object));
+        var state = StateIdentity.For("X", typeof(object));
 
         // Act
         var isAssignable = state.IsAssignableFrom("X", [typeof(string), typeof(int)]);
@@ -242,7 +242,7 @@ public class StateIdentityExtensionsTests
     public void IsAssignableFrom_WhenParameterlessAndEmptyTypes_ShouldReturnTrue()
     {
         // Arrange
-        var state = Identity.ForState("A");
+        var state = StateIdentity.For("A");
 
         // Act
         var isAssignable = state.IsAssignableFrom("A", []);

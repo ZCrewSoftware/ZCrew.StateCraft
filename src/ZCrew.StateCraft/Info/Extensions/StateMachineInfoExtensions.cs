@@ -24,7 +24,7 @@ public static class StateMachineInfoExtensions
         /// <exception cref="InvalidOperationException">No configured state matches the given value and parameters.</exception>
         public IStateInfo<TState, TTransition> GetState(TState stateValue, params Type[] stateParameterTypes)
         {
-            return stateMachineInfo.GetState(Identity.ForState(stateValue, stateParameterTypes));
+            return stateMachineInfo.GetState(StateIdentity.For(stateValue, stateParameterTypes));
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ public static class StateMachineInfoExtensions
         /// <returns>The matching state, or <see langword="null"/> if none matches.</returns>
         public IStateInfo<TState, TTransition>? GetStateOrDefault(TState stateValue, params Type[] stateParameterTypes)
         {
-            return stateMachineInfo.GetStateOrDefault(Identity.ForState(stateValue, stateParameterTypes));
+            return stateMachineInfo.GetStateOrDefault(StateIdentity.For(stateValue, stateParameterTypes));
         }
 
         /// <summary>

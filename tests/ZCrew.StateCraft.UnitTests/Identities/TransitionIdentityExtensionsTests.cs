@@ -8,7 +8,7 @@ public class TransitionIdentityExtensionsTests
     public void ToDisplayString_WhenParameterless_ShouldRenderValue()
     {
         // Arrange
-        var transition = Identity.ForTransition("Go");
+        var transition = TransitionIdentity.For("Go");
 
         // Act
         var display = transition.ToDisplayString();
@@ -21,7 +21,7 @@ public class TransitionIdentityExtensionsTests
     public void ToDisplayString_WhenParameterized_ShouldRenderValueWithType()
     {
         // Arrange
-        var transition = Identity.ForTransition("Go", typeof(int));
+        var transition = TransitionIdentity.For("Go", typeof(int));
 
         // Act
         var display = transition.ToDisplayString();
@@ -34,10 +34,10 @@ public class TransitionIdentityExtensionsTests
     public void RenderFromOneToOne_WhenDistinctStates_ShouldRenderArrow()
     {
         // Arrange
-        var transition = Identity.ForTransition("Go");
+        var transition = TransitionIdentity.For("Go");
 
         // Act
-        var rendered = transition.RenderFromOneToOne(Identity.ForState("A"), Identity.ForState("B"));
+        var rendered = transition.RenderFromOneToOne(StateIdentity.For("A"), StateIdentity.For("B"));
 
         // Assert
         Assert.Equal("Go(A) → B", rendered);
@@ -47,10 +47,10 @@ public class TransitionIdentityExtensionsTests
     public void RenderFromOneToOne_WhenSourceMatchesTarget_ShouldRenderReentrantGlyph()
     {
         // Arrange
-        var transition = Identity.ForTransition("Loop");
+        var transition = TransitionIdentity.For("Loop");
 
         // Act
-        var rendered = transition.RenderFromOneToOne(Identity.ForState("A"), Identity.ForState("A"));
+        var rendered = transition.RenderFromOneToOne(StateIdentity.For("A"), StateIdentity.For("A"));
 
         // Assert
         Assert.Equal("Loop(A) ↩", rendered);
@@ -60,12 +60,12 @@ public class TransitionIdentityExtensionsTests
     public void RenderFromOneToOne_WhenParameterizedStates_ShouldRenderTypeParameters()
     {
         // Arrange
-        var transition = Identity.ForTransition("To B");
+        var transition = TransitionIdentity.For("To B");
 
         // Act
         var rendered = transition.RenderFromOneToOne(
-            Identity.ForState("A", typeof(int)),
-            Identity.ForState("B", typeof(string))
+            StateIdentity.For("A", typeof(int)),
+            StateIdentity.For("B", typeof(string))
         );
 
         // Assert
@@ -76,10 +76,10 @@ public class TransitionIdentityExtensionsTests
     public void RenderFromAnyToOne_WhenNoExcludedStates_ShouldRenderAnyState()
     {
         // Arrange
-        var transition = Identity.ForTransition("To D");
+        var transition = TransitionIdentity.For("To D");
 
         // Act
-        var rendered = transition.RenderFromAnyToOne([], Identity.ForState("D"));
+        var rendered = transition.RenderFromAnyToOne([], StateIdentity.For("D"));
 
         // Assert
         Assert.Equal("To D(Any State) → D", rendered);
@@ -89,10 +89,10 @@ public class TransitionIdentityExtensionsTests
     public void RenderFromAnyToOne_WhenSingleExcludedState_ShouldRenderAnyStateExcept()
     {
         // Arrange
-        var transition = Identity.ForTransition("To D");
+        var transition = TransitionIdentity.For("To D");
 
         // Act
-        var rendered = transition.RenderFromAnyToOne([Identity.ForState("D")], Identity.ForState("D"));
+        var rendered = transition.RenderFromAnyToOne([StateIdentity.For("D")], StateIdentity.For("D"));
 
         // Assert
         Assert.Equal("To D(Any State Except: D) → D", rendered);
@@ -102,12 +102,12 @@ public class TransitionIdentityExtensionsTests
     public void RenderFromAnyToOne_WhenMultipleExcludedStates_ShouldListAllInOrder()
     {
         // Arrange
-        var transition = Identity.ForTransition("To D");
+        var transition = TransitionIdentity.For("To D");
 
         // Act
         var rendered = transition.RenderFromAnyToOne(
-            [Identity.ForState("A"), Identity.ForState("B")],
-            Identity.ForState("D")
+            [StateIdentity.For("A"), StateIdentity.For("B")],
+            StateIdentity.For("D")
         );
 
         // Assert

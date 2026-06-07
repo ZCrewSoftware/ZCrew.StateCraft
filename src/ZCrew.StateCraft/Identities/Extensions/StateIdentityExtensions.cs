@@ -66,7 +66,7 @@ internal static class StateIdentityExtensions
         /// </returns>
         public bool Matches(TState stateValue, IReadOnlyList<Type> stateParameterTypes)
         {
-            return state.Matches(Identity.ForState(stateValue, stateParameterTypes));
+            return state.Matches(StateIdentity.For(stateValue, stateParameterTypes));
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ internal static class StateIdentityExtensions
         /// </returns>
         public bool IsAssignableFrom(TState stateValue, IReadOnlyList<Type> stateParameterTypes)
         {
-            return state.IsAssignableFrom(Identity.ForState(stateValue, stateParameterTypes));
+            return state.IsAssignableFrom(StateIdentity.For(stateValue, stateParameterTypes));
         }
     }
 }
