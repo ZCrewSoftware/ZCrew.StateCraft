@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.Identities.Extensions;
+
 namespace ZCrew.StateCraft.Info;
 
 /// <inheritdoc />
@@ -37,4 +39,10 @@ internal sealed class FromTransitionInfo<TState, TTransition> : IFromTransitionI
 
     /// <inheritdoc />
     public IReadOnlyList<IStateInfo<TState, TTransition>> ExcludedStates { get; }
+
+    /// <inheritdoc cref="IIdentity.ToString" />
+    public override string ToString()
+    {
+        return this.ToDisplayStringFromAnyToOne(ExcludedStates, NextState);
+    }
 }

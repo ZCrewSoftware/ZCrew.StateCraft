@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.Identities.Extensions;
+
 namespace ZCrew.StateCraft.Info.Extensions;
 
 /// <summary>
@@ -20,7 +22,7 @@ public static class TransitionInfoExtensions
         /// </returns>
         public bool IsTransitionFrom(IStateInfo<TState, TTransition> stateInfo)
         {
-            return transitionInfo.GetPreviousStates().Contains(stateInfo);
+            return transitionInfo.GetPreviousStates().Any(previousState => previousState.Matches(stateInfo));
         }
 
         /// <summary>
@@ -35,7 +37,7 @@ public static class TransitionInfoExtensions
         public bool IsTransitionFrom(TState stateValue, IReadOnlyList<Type> stateParameterTypes)
         {
             var previousStates = transitionInfo.GetPreviousStates();
-            return previousStates.Any(previousState => previousState.Equals(stateValue, stateParameterTypes));
+            return previousStates.Any(previousState => previousState.Matches(stateValue, stateParameterTypes));
         }
 
         /// <summary>
@@ -48,7 +50,7 @@ public static class TransitionInfoExtensions
         /// </returns>
         public bool IsTransitionTo(IStateInfo<TState, TTransition> stateInfo)
         {
-            return transitionInfo.GetNextStates().Contains(stateInfo);
+            return transitionInfo.GetNextStates().Any(nextState => nextState.Matches(stateInfo));
         }
 
         /// <summary>
@@ -65,7 +67,7 @@ public static class TransitionInfoExtensions
         public bool IsTransitionTo(TState stateValue, IReadOnlyList<Type> stateParameterTypes)
         {
             var nextStates = transitionInfo.GetNextStates();
-            return nextStates.Any(nextState => nextState.Equals(stateValue, stateParameterTypes));
+            return nextStates.Any(nextState => nextState.Matches(stateValue, stateParameterTypes));
         }
 
         /// <summary>
@@ -90,7 +92,7 @@ public static class TransitionInfoExtensions
                 case IFromTransitionInfo<TState, TTransition> fromTransition:
                     var allStates = transitionInfo.StateMachine.States;
                     return allStates.Where(state =>
-                        !fromTransition.ExcludedStates.Any(excludedState => excludedState.Equals(state))
+                        !fromTransition.ExcludedStates.Any(excludedState => excludedState.Matches(state))
                     );
 
                 default:

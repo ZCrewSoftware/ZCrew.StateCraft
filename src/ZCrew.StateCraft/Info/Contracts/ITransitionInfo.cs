@@ -11,7 +11,7 @@ namespace ZCrew.StateCraft;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-public interface ITransitionInfo<TState, TTransition>
+public interface ITransitionInfo<TState, TTransition> : ITransitionIdentity<TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -21,21 +21,6 @@ public interface ITransitionInfo<TState, TTransition>
     ///     back reference for navigation from a transition to its peers.
     /// </summary>
     IStateMachineInfo<TState, TTransition> StateMachine { get; }
-
-    /// <summary>
-    ///     The transition value that triggers this transition.
-    /// </summary>
-    TTransition TransitionValue { get; }
-
-    /// <summary>
-    ///     The types of the parameters the caller must supply when invoking this transition. Empty when the
-    ///     transition is parameterless.
-    /// </summary>
-    /// <remarks>
-    ///     Always empty for <see cref="IMappedTransitionInfo{TState, TTransition}"/> (parameters are produced by
-    ///     the mapping function, not the caller).
-    /// </remarks>
-    IReadOnlyList<Type> TransitionParameterTypes { get; }
 
     /// <summary>
     ///     Whether this transition has any conditions gating it. A conditional transition has at least one

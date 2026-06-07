@@ -1,5 +1,5 @@
+using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Validation;
-using ZCrew.StateCraft.Validation.Models;
 
 namespace ZCrew.StateCraft.UnitTests.Validation;
 
@@ -9,7 +9,8 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenStateMachineHasNoStates_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>();
+        var info = new StateMachineInfo<string, string>(null);
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         DuplicateStateValidator.Validate(context);
@@ -22,10 +23,9 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenStateMachineHasSingleState_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States = { new StateValidationModel<string, string>("A", []) },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         DuplicateStateValidator.Validate(context);
@@ -38,15 +38,11 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenStateMachineHasMultipleUniqueStates_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", []),
-                new StateValidationModel<string, string>("C", []),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(new StateInfo<string, string>(info, "C", []));
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         DuplicateStateValidator.Validate(context);
@@ -59,14 +55,10 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenSameStateNameWithDifferentTypeParameters_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("A", [typeof(int)]),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         DuplicateStateValidator.Validate(context);
@@ -79,14 +71,10 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenSameStateNameWithDifferentTypeParameterTypes_ShouldPass()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof(int)]),
-                new StateValidationModel<string, string>("A", [typeof(string)]),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(string)]));
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         DuplicateStateValidator.Validate(context);
@@ -99,14 +87,10 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenDuplicateParameterlessState_ShouldFail()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("A", []),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         DuplicateStateValidator.Validate(context);
@@ -120,14 +104,10 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenDuplicateParameterizedState_ShouldFail()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", [typeof(int)]),
-                new StateValidationModel<string, string>("A", [typeof(int)]),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
+        info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         DuplicateStateValidator.Validate(context);
@@ -141,16 +121,12 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenMultipleDuplicateStates_ShouldReportAllErrors()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("B", []),
-                new StateValidationModel<string, string>("B", []),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        info.Add(new StateInfo<string, string>(info, "B", []));
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         DuplicateStateValidator.Validate(context);
@@ -167,15 +143,11 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenTripleDuplicateState_ShouldReportTwoErrors()
     {
         // Arrange
-        var context = new StateMachineValidationContext<string, string>
-        {
-            States =
-            {
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("A", []),
-                new StateValidationModel<string, string>("A", []),
-            },
-        };
+        var info = new StateMachineInfo<string, string>(null);
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        info.Add(new StateInfo<string, string>(info, "A", []));
+        var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
         DuplicateStateValidator.Validate(context);

@@ -1,3 +1,6 @@
+using ZCrew.StateCraft.Identities;
+using ZCrew.StateCraft.Identities.Extensions;
+
 namespace ZCrew.StateCraft.Info;
 
 /// <inheritdoc />
@@ -40,4 +43,10 @@ internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransit
 
     /// <inheritdoc />
     public IMappingFunctionInfo MappingFunction { get; }
+
+    /// <inheritdoc cref="IIdentity.ToString" />
+    public override string ToString()
+    {
+        return this.ToDisplayStringFromOneToOne(PreviousState, NextState);
+    }
 }

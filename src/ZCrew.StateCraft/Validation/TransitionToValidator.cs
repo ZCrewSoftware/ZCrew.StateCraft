@@ -1,3 +1,6 @@
+using ZCrew.StateCraft.Identities.Extensions;
+using ZCrew.StateCraft.Info.Extensions;
+
 namespace ZCrew.StateCraft.Validation;
 
 internal static class TransitionToValidator
@@ -13,46 +16,52 @@ internal static class TransitionToValidator
         where TTransition : notnull
     {
         // Match each transition to a state or add an error if there is no matching state
-        foreach (var transition in context.Transitions)
+        foreach (var transition in context.Info.Transitions)
         {
-            var isValid = context.States.Any(state => state.IsAssignableFromNextState(transition));
-            if (isValid)
+            foreach (var nextState in transition.GetNextStates())
             {
-                continue;
-            }
-
-            // Check if there's a state with the right value but wrong parameter arity —
-            // common when using the WithTransition(transition, state) shortcut which
-            // always creates a parameterless transition regardless of target state arity.
-            var matchByValueOnly = context
-                .States.Where(s => EqualityComparer<TState>.Default.Equals(s.State, transition.NextStateValue))
-                .ToList();
-
-            if (transition.NextStateTypeParameters.Count == 0 && matchByValueOnly.Any(s => s.TypeParameters.Count > 0))
-            {
-                var alternatives = matchByValueOnly.Select(s => s.ToString()).ToList();
-
-                if (alternatives.Count == 1)
+                var isValid = context.Info.States.Any(state => state.IsAssignableFrom(nextState));
+                if (isValid)
                 {
-                    context.ValidationErrors.Add(
-                        $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
-                            + $"but it is registered as {alternatives[0]}. "
-                            + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
-                    );
+                    continue;
+                }
+
+                // Check if there's a state with the right value but wrong parameter arity —
+                // common when using the WithTransition(transition, state) shortcut which
+                // always creates a parameterless transition regardless of target state arity.
+                var matchByValueOnly = context
+                    .Info.States.Where(s => EqualityComparer<TState>.Default.Equals(s.StateValue, nextState.StateValue))
+                    .ToList();
+
+                if (
+                    nextState.StateParameterTypes.Count == 0
+                    && matchByValueOnly.Any(s => s.StateParameterTypes.Count > 0)
+                )
+                {
+                    var alternatives = matchByValueOnly.Select(s => s.ToString()).ToList();
+
+                    if (alternatives.Count == 1)
+                    {
+                        context.ValidationErrors.Add(
+                            $"Transition: {transition} targets state '{nextState.StateValue}' as parameterless, "
+                                + $"but it is registered as {alternatives[0]}. "
+                                + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
+                        );
+                    }
+                    else
+                    {
+                        var stateList = string.Join(", ", alternatives);
+                        context.ValidationErrors.Add(
+                            $"Transition: {transition} targets state '{nextState.StateValue}' as parameterless, "
+                                + $"but it is registered with parameters: {stateList}. "
+                                + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
+                        );
+                    }
                 }
                 else
                 {
-                    var stateList = string.Join(", ", alternatives);
-                    context.ValidationErrors.Add(
-                        $"Transition: {transition} targets state '{transition.NextStateValue}' as parameterless, "
-                            + $"but it is registered with parameters: {stateList}. "
-                            + "Use the explicit WithTransition(transition, t => t.WithParameter<T>().To(state)) form instead."
-                    );
+                    context.ValidationErrors.Add($"Transition: {transition} has no matching next state");
                 }
-            }
-            else
-            {
-                context.ValidationErrors.Add($"Transition: {transition} has no matching next state");
             }
         }
     }

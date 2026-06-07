@@ -1,3 +1,5 @@
+using ZCrew.StateCraft.Identities.Extensions;
+
 namespace ZCrew.StateCraft.Info.Extensions;
 
 /// <summary>
@@ -22,9 +24,7 @@ public static class StateMachineInfoExtensions
         /// <exception cref="InvalidOperationException">No configured state matches the given value and parameters.</exception>
         public IStateInfo<TState, TTransition> GetState(TState stateValue, params Type[] stateParameterTypes)
         {
-            // TODO: clarify exception when it isn't tedious to ToString() the stateInfo
-            return stateMachineInfo.GetStateOrDefault(stateValue, stateParameterTypes)
-                ?? throw new InvalidOperationException("The state machine does not contain a matching state.");
+            return stateMachineInfo.GetState(StateIdentity.For(stateValue, stateParameterTypes));
         }
 
         /// <summary>
@@ -38,7 +38,32 @@ public static class StateMachineInfoExtensions
         /// <returns>The matching state, or <see langword="null"/> if none matches.</returns>
         public IStateInfo<TState, TTransition>? GetStateOrDefault(TState stateValue, params Type[] stateParameterTypes)
         {
-            return stateMachineInfo.States.FirstOrDefault(state => state.Equals(stateValue, stateParameterTypes));
+            return stateMachineInfo.GetStateOrDefault(StateIdentity.For(stateValue, stateParameterTypes));
+        }
+
+        /// <summary>
+        ///     Gets the configured state matching <paramref name="state"/>, or <see langword="null"/> if no such state
+        ///     exists.
+        /// </summary>
+        /// <param name="state">The state identity to look up.</param>
+        /// <returns>The matching state, or <see langword="null"/> if none matches.</returns>
+        public IStateInfo<TState, TTransition> GetState(IStateIdentity<TState> state)
+        {
+            return stateMachineInfo.GetStateOrDefault(state)
+                ?? throw new InvalidOperationException(
+                    $"The state machine does not contain any state matching: " + $"{state.ToDisplayString()}"
+                );
+        }
+
+        /// <summary>
+        ///     Gets the configured state matching <paramref name="state"/>, or <see langword="null"/> if no such state
+        ///     exists.
+        /// </summary>
+        /// <param name="state">The state identity to look up.</param>
+        /// <returns>The matching state, or <see langword="null"/> if none matches.</returns>
+        public IStateInfo<TState, TTransition>? GetStateOrDefault(IStateIdentity<TState> state)
+        {
+            return stateMachineInfo.States.FirstOrDefault(stateInfo => stateInfo.Matches(state));
         }
     }
 }

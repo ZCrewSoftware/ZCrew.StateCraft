@@ -1,25 +1,16 @@
 using ZCrew.StateCraft.Identities.Extensions;
 
-namespace ZCrew.StateCraft.Info;
+namespace ZCrew.StateCraft.Identities;
 
 /// <inheritdoc />
-internal class StateInfo<TState, TTransition> : IStateInfo<TState, TTransition>
+internal class StateIdentity<TState> : IStateIdentity<TState>
     where TState : notnull
-    where TTransition : notnull
 {
-    public StateInfo(
-        IStateMachineInfo<TState, TTransition> stateMachine,
-        TState stateValue,
-        IReadOnlyList<Type> stateParameterTypes
-    )
+    public StateIdentity(TState stateValue, IReadOnlyList<Type> stateParameterTypes)
     {
-        StateMachine = stateMachine;
         StateValue = stateValue;
         StateParameterTypes = stateParameterTypes;
     }
-
-    /// <inheritdoc />
-    public IStateMachineInfo<TState, TTransition> StateMachine { get; }
 
     /// <inheritdoc />
     public TState StateValue { get; }

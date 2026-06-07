@@ -1,4 +1,4 @@
-using ZCrew.StateCraft.States;
+using ZCrew.StateCraft.Identities.Extensions;
 
 namespace ZCrew.StateCraft.Info;
 
@@ -39,4 +39,10 @@ internal sealed class DirectTransitionInfo<TState, TTransition> : IDirectTransit
 
     /// <inheritdoc />
     public IConditionalStateInfo<TState, TTransition> NextState { get; }
+
+    /// <inheritdoc cref="IIdentity.ToString" />
+    public override string ToString()
+    {
+        return this.ToDisplayStringFromOneToOne(PreviousState, NextState);
+    }
 }

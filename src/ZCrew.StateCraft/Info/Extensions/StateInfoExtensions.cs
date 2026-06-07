@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.Identities;
+using ZCrew.StateCraft.Identities.Extensions;
 
 namespace ZCrew.StateCraft.Info.Extensions;
 
@@ -14,73 +15,6 @@ public static class StateInfoExtensions
         where TState : notnull
         where TTransition : notnull
     {
-        /// <summary>
-        ///     Determines whether this state has the given identity — the same state value and the same parameter
-        ///     types in the same order.
-        /// </summary>
-        /// <param name="stateValue">The state value to compare against.</param>
-        /// <param name="stateParameterTypes">The parameter types to compare against, in declaration order.</param>
-        /// <returns>
-        ///     <see langword="true"/> if this state's value and parameter types match; otherwise
-        ///     <see langword="false"/>.
-        /// </returns>
-        public bool Equals(TState stateValue, IReadOnlyList<Type> stateParameterTypes)
-        {
-            if (!EqualityComparer<TState>.Default.Equals(stateInfo.StateValue, stateValue))
-            {
-                return false;
-            }
-
-            return stateInfo.StateParameterTypes.SequenceEqual(stateParameterTypes);
-        }
-
-        /// <summary>
-        ///     Determines whether a value matching this state could be supplied where <paramref name="other"/> is
-        ///     expected — the state values are equal and each of this state's parameter types is assignable from the
-        ///     corresponding parameter type of <paramref name="other"/>.
-        /// </summary>
-        /// <param name="other">The state whose parameter types are treated as the supplied arguments.</param>
-        /// <returns>
-        ///     <see langword="true"/> if the states are the same instance, or the values match and this state's
-        ///     parameter types are assignable from <paramref name="other"/>'s; otherwise <see langword="false"/>
-        ///     (including when <paramref name="other"/> is <see langword="null"/>).
-        /// </returns>
-        public bool IsAssignableFrom(IStateInfo<TState, TTransition>? other)
-        {
-            if (ReferenceEquals(stateInfo, other))
-            {
-                return true;
-            }
-
-            if (other == null)
-            {
-                return false;
-            }
-
-            return stateInfo.IsAssignableFrom(other.StateValue, other.StateParameterTypes);
-        }
-
-        /// <summary>
-        ///     Determines whether a value with the given identity could be supplied where this state is expected — the
-        ///     state values are equal and each of this state's parameter types is assignable from the corresponding
-        ///     supplied parameter type.
-        /// </summary>
-        /// <param name="stateValue">The state value to compare against.</param>
-        /// <param name="stateParameterTypes">The supplied parameter types, in declaration order.</param>
-        /// <returns>
-        ///     <see langword="true"/> if the values match and this state's parameter types are assignable from
-        ///     <paramref name="stateParameterTypes"/>; otherwise <see langword="false"/>.
-        /// </returns>
-        public bool IsAssignableFrom(TState stateValue, IReadOnlyList<Type> stateParameterTypes)
-        {
-            if (!EqualityComparer<TState>.Default.Equals(stateInfo.StateValue, stateValue))
-            {
-                return false;
-            }
-
-            return stateInfo.StateParameterTypes.IsAssignableFrom(stateParameterTypes);
-        }
-
         /// <summary>
         ///     Gets the transitions whose source is this state, drawn from
         ///     <see cref="IStateMachineInfo{TState, TTransition}.Transitions"/>. Inverted (<c>From</c>) transitions
@@ -128,7 +62,7 @@ public static class StateInfoExtensions
         /// <returns>The distinct states reachable from this state via at least one transition.</returns>
         public IEnumerable<IStateInfo<TState, TTransition>> ReachableStates()
         {
-            var visited = new HashSet<IStateInfo<TState, TTransition>>();
+            var visited = new HashSet<IStateInfo<TState, TTransition>>(StateIdentityEqualityComparer<TState>.Instance);
             var result = new List<IStateInfo<TState, TTransition>>();
             var queue = new Queue<IStateInfo<TState, TTransition>>();
 
@@ -175,7 +109,7 @@ public static class StateInfoExtensions
             ArgumentNullException.ThrowIfNull(target);
 
             // TODO: this can be improved by just breaking out early instead of querying all reachable states
-            return stateInfo.ReachableStates().Contains(target);
+            return stateInfo.ReachableStates().Contains(target, StateIdentityEqualityComparer<TState>.Instance);
         }
 
         /// <summary>
@@ -223,12 +157,14 @@ public static class StateInfoExtensions
         {
             ArgumentNullException.ThrowIfNull(target);
 
-            var visited = new HashSet<IStateInfo<TState, TTransition>> { stateInfo };
-            var parents =
-                new Dictionary<
-                    IStateInfo<TState, TTransition>,
-                    (ITransitionInfo<TState, TTransition> Transition, IStateInfo<TState, TTransition> Previous)
-                >();
+            var visited = new HashSet<IStateInfo<TState, TTransition>>(StateIdentityEqualityComparer<TState>.Instance)
+            {
+                stateInfo,
+            };
+            var parents = new Dictionary<
+                IStateInfo<TState, TTransition>,
+                (ITransitionInfo<TState, TTransition> Transition, IStateInfo<TState, TTransition> Previous)
+            >(StateIdentityEqualityComparer<TState>.Instance);
             var queue = new Queue<IStateInfo<TState, TTransition>>();
             queue.Enqueue(stateInfo);
 
@@ -242,7 +178,7 @@ public static class StateInfoExtensions
                     {
                         // Test the target before the visited check so a return path to this state (which is seeded as
                         // visited) is still found.
-                        if (target.Equals(next))
+                        if (target.Matches(next))
                         {
                             path = BuildPath(current, transition, next);
                             return true;
