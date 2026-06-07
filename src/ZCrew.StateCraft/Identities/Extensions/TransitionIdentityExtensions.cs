@@ -48,7 +48,7 @@ internal static class TransitionIdentityExtensions
     /// <typeparam name="TState">The state type.</typeparam>
     /// <typeparam name="TTransition">The transition type.</typeparam>
     /// <returns>A non-<see langword="null"/> display string for the edge.</returns>
-    public static string RenderFromOneToOne<TState, TTransition>(
+    public static string ToDisplayStringFromOneToOne<TState, TTransition>(
         this ITransitionIdentity<TTransition> transition,
         IStateIdentity<TState> source,
         IStateIdentity<TState> target
@@ -71,7 +71,7 @@ internal static class TransitionIdentityExtensions
     /// <typeparam name="TState">The state type.</typeparam>
     /// <typeparam name="TTransition">The transition type.</typeparam>
     /// <returns>A non-<see langword="null"/> display string for the edge.</returns>
-    public static string RenderFromAnyToOne<TState, TTransition>(
+    public static string ToDisplayStringFromAnyToOne<TState, TTransition>(
         this ITransitionIdentity<TTransition> transition,
         IReadOnlyList<IStateIdentity<TState>> excluded,
         IStateIdentity<TState> target

@@ -31,39 +31,39 @@ public class TransitionIdentityExtensionsTests
     }
 
     [Fact]
-    public void RenderFromOneToOne_WhenDistinctStates_ShouldRenderArrow()
+    public void ToDisplayStringFromOneToOne_WhenDistinctStates_ShouldRenderArrow()
     {
         // Arrange
         var transition = TransitionIdentity.For("Go");
 
         // Act
-        var rendered = transition.RenderFromOneToOne(StateIdentity.For("A"), StateIdentity.For("B"));
+        var rendered = transition.ToDisplayStringFromOneToOne(StateIdentity.For("A"), StateIdentity.For("B"));
 
         // Assert
         Assert.Equal("Go(A) → B", rendered);
     }
 
     [Fact]
-    public void RenderFromOneToOne_WhenSourceMatchesTarget_ShouldRenderReentrantGlyph()
+    public void ToDisplayStringFromOneToOne_WhenSourceMatchesTarget_ShouldRenderReentrantGlyph()
     {
         // Arrange
         var transition = TransitionIdentity.For("Loop");
 
         // Act
-        var rendered = transition.RenderFromOneToOne(StateIdentity.For("A"), StateIdentity.For("A"));
+        var rendered = transition.ToDisplayStringFromOneToOne(StateIdentity.For("A"), StateIdentity.For("A"));
 
         // Assert
         Assert.Equal("Loop(A) ↩", rendered);
     }
 
     [Fact]
-    public void RenderFromOneToOne_WhenParameterizedStates_ShouldRenderTypeParameters()
+    public void ToDisplayStringFromOneToOne_WhenParameterizedStates_ShouldRenderTypeParameters()
     {
         // Arrange
         var transition = TransitionIdentity.For("To B");
 
         // Act
-        var rendered = transition.RenderFromOneToOne(
+        var rendered = transition.ToDisplayStringFromOneToOne(
             StateIdentity.For("A", typeof(int)),
             StateIdentity.For("B", typeof(string))
         );
@@ -73,39 +73,39 @@ public class TransitionIdentityExtensionsTests
     }
 
     [Fact]
-    public void RenderFromAnyToOne_WhenNoExcludedStates_ShouldRenderAnyState()
+    public void ToDisplayStringFromAnyToOne_WhenNoExcludedStates_ShouldRenderAnyState()
     {
         // Arrange
         var transition = TransitionIdentity.For("To D");
 
         // Act
-        var rendered = transition.RenderFromAnyToOne([], StateIdentity.For("D"));
+        var rendered = transition.ToDisplayStringFromAnyToOne([], StateIdentity.For("D"));
 
         // Assert
         Assert.Equal("To D(Any State) → D", rendered);
     }
 
     [Fact]
-    public void RenderFromAnyToOne_WhenSingleExcludedState_ShouldRenderAnyStateExcept()
+    public void ToDisplayStringFromAnyToOne_WhenSingleExcludedState_ShouldRenderAnyStateExcept()
     {
         // Arrange
         var transition = TransitionIdentity.For("To D");
 
         // Act
-        var rendered = transition.RenderFromAnyToOne([StateIdentity.For("D")], StateIdentity.For("D"));
+        var rendered = transition.ToDisplayStringFromAnyToOne([StateIdentity.For("D")], StateIdentity.For("D"));
 
         // Assert
         Assert.Equal("To D(Any State Except: D) → D", rendered);
     }
 
     [Fact]
-    public void RenderFromAnyToOne_WhenMultipleExcludedStates_ShouldListAllInOrder()
+    public void ToDisplayStringFromAnyToOne_WhenMultipleExcludedStates_ShouldListAllInOrder()
     {
         // Arrange
         var transition = TransitionIdentity.For("To D");
 
         // Act
-        var rendered = transition.RenderFromAnyToOne(
+        var rendered = transition.ToDisplayStringFromAnyToOne(
             [StateIdentity.For("A"), StateIdentity.For("B")],
             StateIdentity.For("D")
         );

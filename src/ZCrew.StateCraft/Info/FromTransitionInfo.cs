@@ -43,6 +43,6 @@ internal sealed class FromTransitionInfo<TState, TTransition> : IFromTransitionI
     /// <inheritdoc cref="IIdentity.ToString" />
     public override string ToString()
     {
-        return this.RenderFromAnyToOne(ExcludedStates, NextState);
+        return this.ToDisplayStringFromAnyToOne(ExcludedStates, NextState);
     }
 }

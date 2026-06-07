@@ -47,6 +47,6 @@ internal sealed class MappedTransitionInfo<TState, TTransition> : IMappedTransit
     /// <inheritdoc cref="IIdentity.ToString" />
     public override string ToString()
     {
-        return this.RenderFromOneToOne(PreviousState, NextState);
+        return this.ToDisplayStringFromOneToOne(PreviousState, NextState);
     }
 }

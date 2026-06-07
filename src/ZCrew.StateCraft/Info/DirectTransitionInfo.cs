@@ -43,6 +43,6 @@ internal sealed class DirectTransitionInfo<TState, TTransition> : IDirectTransit
     /// <inheritdoc cref="IIdentity.ToString" />
     public override string ToString()
     {
-        return this.RenderFromOneToOne(PreviousState, NextState);
+        return this.ToDisplayStringFromOneToOne(PreviousState, NextState);
     }
 }
