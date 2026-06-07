@@ -1,8 +1,5 @@
 using System.Text;
 using ZCrew.StateCraft.Info;
-using ZCrew.StateCraft.Rendering;
-using ZCrew.StateCraft.Rendering.Contracts;
-using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.States.Configuration;
@@ -12,8 +9,7 @@ namespace ZCrew.StateCraft.Transitions;
 /// <inheritdoc cref="ITransitionConfiguration{TState,TTransition}"/>
 internal class FromTransitionConfiguration<TState, TTransition>
     : IFromTransitionConfiguration<TState, TTransition>,
-        IFromAllStatesTransitionConfiguration<TState, TTransition>,
-        IRenderable<TState, TTransition>
+        IFromAllStatesTransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -127,58 +123,10 @@ internal class FromTransitionConfiguration<TState, TTransition>
         }
     }
 
-    /// <inheritdoc />
-    public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
-    {
-        var nextState = this.nextStateConfiguration.RenderStateIdentifier();
-        var descriptor = GetDescriptor();
-        var conditions = this.nextStateConfiguration.RenderConditions().ToArray();
-
-        // This requires all states to be loaded ahead of time. We can just add all states and then all transitions
-        foreach (var state in context.States)
-        {
-            var excluded = this.excludedStates.Any(excludedState =>
-                excludedState.Matches(state.State, state.TypeParameters)
-            );
-            if (excluded)
-            {
-                continue;
-            }
-
-            var previousState = state.Identifier;
-            var transition = new TransitionRenderingModel<TState, TTransition>(
-                previousState,
-                nextState,
-                descriptor,
-                conditions
-            );
-            context.Transitions.Add(transition);
-        }
-    }
-
     private IFromAllStatesTransitionConfiguration<TState, TTransition> Exclude(TState state, Type[] typeParameters)
     {
         this.excludedStates.Add(new ExcludedState(state, typeParameters));
         return this;
-    }
-
-    private string GetDescriptor()
-    {
-        if (this.nextStateConfiguration.TypeParameters.Count == 0)
-        {
-            return $"{this.transitionValue}";
-        }
-
-        var identifier = new StringBuilder($"{this.transitionValue}<");
-        for (var i = 0; i < this.nextStateConfiguration.TypeParameters.Count; i++)
-        {
-            if (i > 0)
-            {
-                identifier.Append(", ");
-            }
-            identifier.Append(this.nextStateConfiguration.TypeParameters[i].FriendlyName);
-        }
-        return identifier.Append('>').ToString();
     }
 
     private readonly record struct ExcludedState(TState State, Type[] TypeParameters)

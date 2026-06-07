@@ -61,4 +61,20 @@ public class DiagramHeaderTests
         Assert.Contains("    direction LR", diagram);
         Assert.DoesNotContain("    direction TB", diagram);
     }
+
+    [Fact]
+    public void ToMermaidDiagram_WhenDirectionIsInvalid_ShouldThrowArgumentOutOfRange()
+    {
+        // Arrange
+        var configuration = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("Idle")
+            .WithState("Idle", state => state);
+
+        // Act
+        var render = () => configuration.ToMermaidDiagram(options => options.Direction = (MermaidDirection)999);
+
+        // Assert
+        Assert.Throws<ArgumentOutOfRangeException>(render);
+    }
 }
