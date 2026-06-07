@@ -1,17 +1,12 @@
 using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Mapping.Contracts;
-using ZCrew.StateCraft.Rendering;
-using ZCrew.StateCraft.Rendering.Contracts;
-using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Configuration;
 
 namespace ZCrew.StateCraft.Transitions;
 
 /// <inheritdoc cref="ITransitionConfiguration{TState,TTransition}"/>
-internal class MappedTransitionConfiguration<TState, TTransition>
-    : ITransitionConfiguration<TState, TTransition>,
-        IRenderable<TState, TTransition>
+internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -70,26 +65,6 @@ internal class MappedTransitionConfiguration<TState, TTransition>
         );
 
         previousState.State.AddTransition(transition);
-    }
-
-    /// <inheritdoc />
-    public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
-    {
-        var previousState = this.previousStateConfiguration.RenderStateIdentifier();
-        var nextState = this.nextStateConfiguration.RenderStateIdentifier();
-        var descriptor = $"{this.transitionValue}";
-        var conditions = new List<string>();
-
-        conditions.AddRange(this.previousStateConfiguration.RenderConditions());
-        conditions.AddRange(this.nextStateConfiguration.RenderConditions());
-
-        var transition = new TransitionRenderingModel<TState, TTransition>(
-            previousState,
-            nextState,
-            descriptor,
-            conditions
-        );
-        context.Transitions.Add(transition);
     }
 
     /// <inheritdoc />

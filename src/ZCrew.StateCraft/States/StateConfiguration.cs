@@ -4,19 +4,14 @@ using ZCrew.StateCraft.Actions;
 using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Info;
-using ZCrew.StateCraft.Rendering;
-using ZCrew.StateCraft.Rendering.Contracts;
-using ZCrew.StateCraft.Rendering.Models;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions;
 using ZCrew.StateCraft.Triggers;
 
 namespace ZCrew.StateCraft.States;
 
-/// <inheritdoc cref="IParameterlessStateConfiguration{TState,TTransition}"/>
-internal class StateConfiguration<TState, TTransition>
-    : IInitialStateConfiguration<TState, TTransition>,
-        IRenderable<TState, TTransition>
+/// <inheritdoc/>
+internal class StateConfiguration<TState, TTransition> : IInitialStateConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -292,15 +287,6 @@ internal class StateConfiguration<TState, TTransition>
     public IParameterizedStateConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>()
     {
         return new StateConfiguration<TState, TTransition, T1, T2, T3, T4>(State);
-    }
-
-    /// <inheritdoc />
-    public void AddToRenderingContext(StateMachineRenderingContext<TState, TTransition> context)
-    {
-        var identifier = $"{State}";
-        var descriptor = ToString();
-        var state = new StateRenderingModel<TState, TTransition>(State, TypeParameters, identifier, descriptor);
-        context.States.Add(state);
     }
 
     /// <inheritdoc />

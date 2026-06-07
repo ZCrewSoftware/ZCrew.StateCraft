@@ -146,4 +146,48 @@ public class ConditionTests
         Assert.Contains("var capacity = HasCapacity();", diagram);
         Assert.Contains("return authorized && capacity;", diagram);
     }
+
+    [Fact]
+    public void ToMermaidDiagram_WhenConditionHasNoDescriptor_ShouldNotAppendIfClause()
+    {
+        // Arrange
+        var configuration = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("Idle")
+            .WithState(
+                "Idle",
+                state => state.WithTransition("Go", t => t.If(IsAuthorized, descriptor: null).To("Working"))
+            )
+            .WithState("Working", state => state);
+
+        // Act
+        var diagram = configuration.ToMermaidDiagram();
+
+        // Assert
+        Assert.Contains("    Idle --> Working : Go", diagram);
+        Assert.DoesNotContain(" <br/> If:", diagram);
+    }
+
+    [Fact]
+    public void ToMermaidDiagram_WhenOneConditionHasNoDescriptor_ShouldRenderOnlyTheDescribedCondition()
+    {
+        // Arrange
+        var configuration = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("Idle")
+            .WithState(
+                "Idle",
+                state =>
+                    state.WithTransition("Go", t => t.If(IsAuthorized, descriptor: null).If(HasCapacity).To("Working"))
+            )
+            .WithState("Working", state => state);
+
+        // Act
+        var diagram = configuration.ToMermaidDiagram();
+
+        // Assert
+        Assert.Contains("    Idle --> Working : Go <br/> If: HasCapacity", diagram);
+        Assert.DoesNotContain("And:", diagram);
+        Assert.DoesNotContain("IsAuthorized", diagram);
+    }
 }
