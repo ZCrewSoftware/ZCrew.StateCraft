@@ -5,6 +5,7 @@ using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Async;
 using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.InitialState.Contracts;
 using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
@@ -21,7 +22,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     where TTransition : notnull
 {
     private readonly AsyncLock stateMachineLock = new();
-    private readonly IStateMachineActivator<TState, TTransition> stateMachineActivator;
+    private readonly IInitialStateProvider<TState, TTransition> initialStateProvider;
     private readonly IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges;
     private readonly StateMachineOptions options;
     private readonly IReadOnlyList<ITrigger> triggers;
@@ -32,14 +33,14 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     /// <summary>
     ///     Creates a new <see cref="StateMachine{TState,TTransition}"/>.
     /// </summary>
-    /// <param name="stateMachineActivator">The initial state producer.</param>
+    /// <param name="initialStateProvider">The initial state producer.</param>
     /// <param name="onStateChanges">The handlers to invoke when the state changes.</param>
     /// <param name="triggers">The triggers that can control this state machine.</param>
     /// <param name="options">The options to enable certain features on this state machine.</param>
     /// <param name="exceptionBehavior">The exception behavior.</param>
     /// <param name="stateMachineInfo">The state machine info, taken from the configuration.</param>
     public StateMachine(
-        IStateMachineActivator<TState, TTransition> stateMachineActivator,
+        IInitialStateProvider<TState, TTransition> initialStateProvider,
         IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges,
         IReadOnlyList<ITrigger> triggers,
         StateMachineOptions options,
@@ -47,7 +48,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         IStateMachineInfo<TState, TTransition> stateMachineInfo
     )
     {
-        this.stateMachineActivator = stateMachineActivator;
+        this.initialStateProvider = initialStateProvider;
         this.onStateChanges = onStateChanges;
         this.triggers = triggers;
         this.options = options;
@@ -92,7 +93,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
 
         try
         {
-            await this.stateMachineActivator.Activate(this, token);
+            await this.initialStateProvider.Activate(this, token);
             Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
             await NextState.Activate(Parameters, token);
@@ -187,23 +188,6 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     public IStateMachineInfo<TState, TTransition> GetInfo()
     {
         return this.stateMachineInfo;
-    }
-
-    /// <inheritdoc />
-    public async Task StateChange(
-        TState previousState,
-        TTransition transition,
-        TState nextState,
-        CancellationToken token
-    )
-    {
-        foreach (var onStateChange in this.onStateChanges)
-        {
-            await ExceptionBehavior.CallOnStateChange(
-                t => onStateChange.InvokeAsync(previousState, transition, nextState, t),
-                token
-            );
-        }
     }
 
     /// <inheritdoc />

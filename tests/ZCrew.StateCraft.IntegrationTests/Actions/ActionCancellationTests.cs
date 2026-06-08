@@ -13,15 +13,9 @@ public class ActionCancellationTests
 
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
-            .WithState(
-                "A",
-                state =>
-                    state
-                        .WithAction(a => a.Invoke(Action))
-                        .WithTransition("To B", t => t.To("B"))
-            )
+            .WithAsynchronousActions()
+            .WithState("A", state => state.WithAction(a => a.Invoke(Action)).WithTransition("To B", t => t.To("B")))
             .WithState("B", state => state)
             .Build();
 
@@ -69,16 +63,10 @@ public class ActionCancellationTests
 
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithTransition("To B", t => t.To("B")))
-            .WithState(
-                "B",
-                state =>
-                    state
-                        .WithAction(a => a.Invoke(Action))
-                        .WithTransition("To A", t => t.To("A"))
-            )
+            .WithState("B", state => state.WithAction(a => a.Invoke(Action)).WithTransition("To A", t => t.To("A")))
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);

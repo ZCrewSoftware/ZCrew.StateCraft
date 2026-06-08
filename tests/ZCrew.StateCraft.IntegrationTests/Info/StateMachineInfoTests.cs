@@ -39,7 +39,7 @@ public class StateMachineInfoTests
     public void InitialState_WhenNotConfigured_ShouldBeNull()
     {
         // Arrange
-        var configuration = StateMachine.Configure<string, string>().WithState("A", state => state);
+        var configuration = StateMachine.Configure<string, string>().WithInitialState(null!);
 
         // Act
         var info = configuration.GetInfo();

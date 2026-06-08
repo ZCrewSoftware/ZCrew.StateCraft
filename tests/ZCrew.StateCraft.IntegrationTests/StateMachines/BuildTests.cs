@@ -9,7 +9,7 @@ public class BuildTests
     public void Build_WhenNoInitialState_ShouldThrowInvalidOperationException()
     {
         // Arrange
-        var configuration = StateMachine.Configure<string, string>();
+        var configuration = StateMachine.Configure<string, string>().WithInitialState(null!);
 
         // Act
         var build = () => configuration.Build();
@@ -141,7 +141,7 @@ public class BuildTests
 
         configuration.OnStateChange((_, _, _) => handler2Count++);
 
-        var machine2 = configuration.Build();
+        _ = configuration.Build();
 
         // Act
         await machine1.Activate(TestContext.Current.CancellationToken);

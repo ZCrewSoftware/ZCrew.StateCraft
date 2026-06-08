@@ -1,7 +1,6 @@
-using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
-using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Info;
+using ZCrew.StateCraft.InitialState.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.Triggers;
@@ -15,7 +14,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     where TState : notnull
     where TTransition : notnull
 {
-    private IStateMachineActivator<TState, TTransition>? initialStateProducer;
+    private readonly IInitialStateProvider<TState, TTransition> initialInitialStateProvider;
     private readonly List<IAsyncAction<TState, TTransition, TState>> onStateChanges = [];
 #pragma warning disable CS0618 // Type or member is obsolete
     private readonly List<IAsyncFunc<Exception, ExceptionResult>> deprecatedOnExceptionHandlers = [];
@@ -33,6 +32,16 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     >? deprecatedExceptionBehaviorProvider;
     private Func<IEnumerable<IAsyncAction<ExceptionContext>>, IExceptionBehavior>? exceptionBehaviorProvider;
 
+    /// <summary>
+    ///     Creates a new <see cref="StateMachineConfiguration{TState,TTransition}"/> after initializing the
+    ///     configuration.
+    /// </summary>
+    /// <param name="initialInitialStateProvider">The initial state provider.</param>
+    public StateMachineConfiguration(IInitialStateProvider<TState, TTransition> initialInitialStateProvider)
+    {
+        this.initialInitialStateProvider = initialInitialStateProvider;
+    }
+
     /// <inheritdoc/>
     public IEnumerable<IStateConfiguration<TState, TTransition>> States => this.stateConfigurations;
 
@@ -45,11 +54,6 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     /// <inheritdoc/>
     public IStateMachine<TState, TTransition> Build(StateMachineBuildOptions options)
     {
-        if (this.initialStateProducer is null)
-        {
-            throw new InvalidOperationException("Initial state must be configured before building the state machine.");
-        }
-
         // Ensure that only defined options are set. New entries to StateMachineBuildOptions will have to be added here
         if ((options & ~StateMachineBuildOptions.Validate) != 0)
         {
@@ -65,7 +69,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         var exceptionBehavior = BuildExceptionBehavior();
         var stateMachineInfo = GetInfo();
         var stateMachine = new StateMachine<TState, TTransition>(
-            this.initialStateProducer,
+            this.initialInitialStateProvider,
             this.onStateChanges.ToList(),
             triggers,
             this.stateMachineOptions,
@@ -99,251 +103,6 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     public IStateMachineConfiguration<TState, TTransition> WithAsynchronousActions()
     {
         this.stateMachineOptions |= StateMachineOptions.RunActionsAsynchronously;
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState(TState state)
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(state);
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState(
-        Func<TState> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState(
-        Func<CancellationToken, Task<TState>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState(
-        Func<CancellationToken, ValueTask<TState>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(TState state, T parameter)
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(state, parameter);
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(
-        Func<(TState, T)> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(
-        Func<CancellationToken, Task<(TState, T)>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T>(
-        Func<CancellationToken, ValueTask<(TState, T)>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
-        TState state,
-        T1 parameter1,
-        T2 parameter2
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(
-            state,
-            parameter1,
-            parameter2
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
-        Func<(TState, T1, T2)> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
-        Func<CancellationToken, Task<(TState, T1, T2)>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2>(
-        Func<CancellationToken, ValueTask<(TState, T1, T2)>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        TState state,
-        T1 parameter1,
-        T2 parameter2,
-        T3 parameter3
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
-            state,
-            parameter1,
-            parameter2,
-            parameter3
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        Func<(TState, T1, T2, T3)> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        Func<CancellationToken, Task<(TState, T1, T2, T3)>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3>(
-        Func<CancellationToken, ValueTask<(TState, T1, T2, T3)>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        TState state,
-        T1 parameter1,
-        T2 parameter2,
-        T3 parameter3,
-        T4 parameter4
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
-            state,
-            parameter1,
-            parameter2,
-            parameter3,
-            parameter4
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        Func<(TState, T1, T2, T3, T4)> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        Func<CancellationToken, Task<(TState, T1, T2, T3, T4)>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
-        return this;
-    }
-
-    /// <inheritdoc/>
-    public IStateMachineConfiguration<TState, TTransition> WithInitialState<T1, T2, T3, T4>(
-        Func<CancellationToken, ValueTask<(TState, T1, T2, T3, T4)>> stateProvider,
-        [CallerArgumentExpression(nameof(stateProvider))] string? descriptor = null
-    )
-    {
-        this.initialStateProducer = new StateMachineActivator<TState, TTransition, T1, T2, T3, T4>(
-            stateProvider.AsAsyncFunc().AsAsyncStateProvider(descriptor)
-        );
         return this;
     }
 
@@ -479,7 +238,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     /// <inheritdoc/>
     public IStateMachineInfo<TState, TTransition> GetInfo()
     {
-        var initialStateInfo = this.initialStateProducer?.GetInfo();
+        var initialStateInfo = this.initialInitialStateProvider.GetInfo();
         var stateMachineInfo = new StateMachineInfo<TState, TTransition>(initialStateInfo);
 
         // Add state after creating the machine info to avoid cyclical dependency
