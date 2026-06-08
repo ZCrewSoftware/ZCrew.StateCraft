@@ -49,6 +49,14 @@ public interface IExceptionBehavior
     Task CallOnDeactivate(Func<CancellationToken, Task> handler, CancellationToken token = default);
 
     /// <summary>
+    ///     Wraps a transition's <c>OnTransition</c> handler with exception handling.
+    /// </summary>
+    /// <param name="handler">The deactivation handler to invoke.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    /// <returns>A task that completes when the handler finishes.</returns>
+    Task CallOnTransition(Func<CancellationToken, Task> handler, CancellationToken token = default);
+
+    /// <summary>
     ///     Wraps a transition's condition evaluation with exception handling.
     /// </summary>
     /// <param name="handler">The condition handler to invoke.</param>

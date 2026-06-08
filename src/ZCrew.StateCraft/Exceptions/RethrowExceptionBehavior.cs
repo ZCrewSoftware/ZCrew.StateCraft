@@ -88,6 +88,17 @@ public class RethrowExceptionBehavior : IExceptionBehavior
     ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
     ///     <paramref name="token"/> has been canceled, in which case the exception handlers will not be called.
     /// </remarks>
+    public Task CallOnTransition(Func<CancellationToken, Task> handler, CancellationToken token = default)
+    {
+        return Execute(handler, ExceptionCallSite.OnTransition, token);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    ///     By default, this will invoke the <see cref="OnExceptionHandlers"/> using <see cref="OnException"/> when any
+    ///     exception is thrown. The special case is <see cref="OperationCanceledException"/> when
+    ///     <paramref name="token"/> has been canceled, in which case the exception handlers will not be called.
+    /// </remarks>
     public virtual Task<bool> CallCondition(
         Func<CancellationToken, Task<bool>> handler,
         CancellationToken token = default

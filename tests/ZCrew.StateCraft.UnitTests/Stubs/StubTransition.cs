@@ -41,4 +41,9 @@ internal class StubTransition<TState, TTransition> : ITransition<TState, TTransi
     {
         return Task.CompletedTask;
     }
+
+    public virtual Task StateChange(IStateMachineParameters parameters, CancellationToken token)
+    {
+        return Task.CompletedTask;
+    }
 }

@@ -1,4 +1,4 @@
-using System.Text;
+using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
@@ -16,6 +16,7 @@ internal class FromTransitionConfiguration<TState, TTransition>
     private readonly TTransition transitionValue;
     private readonly INextStateConfiguration<TState, TTransition> nextStateConfiguration;
     private readonly List<ExcludedState> excludedStates = [];
+    private readonly List<INextParametersHandler> onTransitionHandlers = [];
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="FromTransitionConfiguration{TState, TTransition}"/> class.
@@ -116,7 +117,8 @@ internal class FromTransitionConfiguration<TState, TTransition>
                 previousState,
                 nextState,
                 this.transitionValue,
-                stateMachine
+                stateMachine,
+                this.onTransitionHandlers
             );
 
             state.AddTransition(transition);

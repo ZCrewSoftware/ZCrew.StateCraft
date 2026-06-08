@@ -2,53 +2,51 @@ using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.States.Configuration;
 
 namespace ZCrew.StateCraft.Transitions;
 
-/// <inheritdoc cref="IDirectTransitionConfiguration{TState,TTransition,TNext1,TNext2,TNext3,TNext4}"/>
-internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4>
-    : IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4>
+/// <inheritdoc />
+internal class PartialMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2>
+    : IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2>
     where TState : notnull
     where TTransition : notnull
 {
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
-    private readonly IPartialNextStateConfiguration<
-        TState,
-        TTransition,
-        TNext1,
-        TNext2,
-        TNext3,
-        TNext4
-    > nextStateConfiguration;
+    private readonly IPartialNextStateConfiguration<TState, TTransition, TNext1, TNext2> nextStateConfiguration;
     private readonly TTransition transitionValue;
+    private readonly IMappingFunction mappingFunction;
     private readonly List<INextParametersHandler> onTransitionHandlers = [];
 
     /// <summary>
     ///     Initializes a new instance of the
-    ///     <see cref="PartialDirectTransitionConfiguration{TState, TTransition, TNext1, TNext2, TNext3, TNext4}"/> class.
+    ///     <see cref="PartialMappedTransitionConfiguration{TState, TTransition, TNext1, TNext2}"/> class.
     /// </summary>
     /// <param name="previousStateConfiguration">The configuration for the previous state.</param>
     /// <param name="transition">The transition value that triggers this transition.</param>
-    public PartialDirectTransitionConfiguration(
+    /// <param name="mappingFunction">The mapping function that transforms the previous parameter.</param>
+    public PartialMappedTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
-        TTransition transition
+        TTransition transition,
+        IMappingFunction mappingFunction
     )
     {
         this.previousStateConfiguration = previousStateConfiguration;
-        this.nextStateConfiguration =
-            new PartialNextStateConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4>();
+        this.nextStateConfiguration = new PartialNextStateConfiguration<TState, TTransition, TNext1, TNext2>();
         this.transitionValue = transition;
+        this.mappingFunction = mappingFunction;
     }
 
     /// <inheritdoc />
     public ITransitionConfiguration<TState, TTransition> To(TState state)
     {
-        return new DirectTransitionConfiguration<TState, TTransition>(
+        return new MappedTransitionConfiguration<TState, TTransition>(
             this.previousStateConfiguration,
             this.nextStateConfiguration.WithState(state),
             this.transitionValue,
+            this.mappingFunction,
             this.onTransitionHandlers
         );
     }
@@ -60,8 +58,8 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1,
     }
 
     /// <inheritdoc />
-    public IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, bool> condition,
+    public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
+        Func<TNext1, TNext2, bool> condition,
         [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
@@ -70,8 +68,8 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1,
     }
 
     /// <inheritdoc />
-    public IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, Task<bool>> condition,
+    public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
+        Func<TNext1, TNext2, CancellationToken, Task<bool>> condition,
         [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
@@ -80,8 +78,8 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1,
     }
 
     /// <inheritdoc />
-    public IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> If(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, ValueTask<bool>> condition,
+    public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> If(
+        Func<TNext1, TNext2, CancellationToken, ValueTask<bool>> condition,
         [CallerArgumentExpression(nameof(condition))] string? descriptor = null
     )
     {
@@ -90,8 +88,8 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1,
     }
 
     /// <inheritdoc />
-    public IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> OnTransition(
-        Action<TNext1, TNext2, TNext3, TNext4> handler,
+    public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> OnTransition(
+        Action<TNext1, TNext2> handler,
         [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
@@ -100,8 +98,8 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1,
     }
 
     /// <inheritdoc />
-    public IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> OnTransition(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, Task> handler,
+    public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> OnTransition(
+        Func<TNext1, TNext2, CancellationToken, Task> handler,
         [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
@@ -110,8 +108,8 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1,
     }
 
     /// <inheritdoc />
-    public IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3, TNext4> OnTransition(
-        Func<TNext1, TNext2, TNext3, TNext4, CancellationToken, ValueTask> handler,
+    public IMappedTransitionConfiguration<TState, TTransition, TNext1, TNext2> OnTransition(
+        Func<TNext1, TNext2, CancellationToken, ValueTask> handler,
         [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     )
     {
