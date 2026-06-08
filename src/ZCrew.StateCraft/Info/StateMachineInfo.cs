@@ -8,13 +8,13 @@ internal sealed class StateMachineInfo<TState, TTransition> : IStateMachineInfo<
     private readonly List<IStateInfo<TState, TTransition>> states = [];
     private readonly List<ITransitionInfo<TState, TTransition>> transitions = [];
 
-    public StateMachineInfo(IInitialStateInfo<TState, TTransition>? initialState)
+    public StateMachineInfo(IInitialStateInfo<TState, TTransition> initialState)
     {
         InitialState = initialState;
     }
 
     /// <inheritdoc />
-    public IInitialStateInfo<TState, TTransition>? InitialState { get; }
+    public IInitialStateInfo<TState, TTransition> InitialState { get; }
 
     /// <inheritdoc />
     public IReadOnlyList<IStateInfo<TState, TTransition>> States => this.states;

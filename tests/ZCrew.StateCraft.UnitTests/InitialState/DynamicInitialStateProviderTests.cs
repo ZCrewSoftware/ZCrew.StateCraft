@@ -1,28 +1,13 @@
 using NSubstitute;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.InitialState;
 using ZCrew.StateCraft.UnitTests.Stubs;
 
-namespace ZCrew.StateCraft.UnitTests;
+namespace ZCrew.StateCraft.UnitTests.InitialState;
 
-public class StateMachineActivatorTests
+public class DynamicInitialStateProviderTests
 {
-    [Fact]
-    public async Task Activate_WhenValueConstructor_ShouldReturnStateFromTable()
-    {
-        // Arrange
-        var expectedState = Substitute.ForPartsOf<StubState<string, string>>("State");
-        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
-        var activator = new StateMachineActivator<string, string>("State");
-
-        // Act
-        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(expectedState, stateMachine.NextState);
-        Assert.True(stateMachine.Parameters.IsNextSet);
-    }
-
     [Fact]
     public async Task Activate_WhenFuncConstructor_ShouldInvokeFuncAndReturnStateFromTable()
     {
@@ -32,7 +17,7 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<string>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns("State");
 
-        var activator = new StateMachineActivator<string, string>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string>(func.AsAsyncStateProvider());
 
         // Act
         await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
@@ -50,7 +35,7 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<string>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns("State");
 
-        var activator = new StateMachineActivator<string, string>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string>(func.AsAsyncStateProvider());
 
         // Act
         await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
@@ -58,22 +43,6 @@ public class StateMachineActivatorTests
 
         // Assert
         await func.Received(2).InvokeAsync(Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task Activate_T_WhenValueConstructor_ShouldReturnParameterizedStateFromTable()
-    {
-        // Arrange
-        var expectedState = Substitute.ForPartsOf<StubState<string, string>>("State", new[] { typeof(int) });
-        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
-        var activator = new StateMachineActivator<string, string, int>("State", 42);
-
-        // Act
-        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(expectedState, stateMachine.NextState);
-        Assert.Equal(42, stateMachine.Parameters.GetNextParameter<int>());
     }
 
     [Fact]
@@ -85,7 +54,7 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42));
 
-        var activator = new StateMachineActivator<string, string, int>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string, int>(func.AsAsyncStateProvider());
 
         // Act
         await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
@@ -103,7 +72,7 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42));
 
-        var activator = new StateMachineActivator<string, string, int>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string, int>(func.AsAsyncStateProvider());
 
         // Act
         await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
@@ -123,31 +92,13 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int)>>();
         func.InvokeAsync(cts.Token).Returns(("State", 42));
 
-        var activator = new StateMachineActivator<string, string, int>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string, int>(func.AsAsyncStateProvider());
 
         // Act
         await activator.Activate(stateMachine, cts.Token);
 
         // Assert
         await func.Received(1).InvokeAsync(cts.Token);
-    }
-
-    [Fact]
-    public async Task Activate_T1_T2_WhenValueConstructor_ShouldReturnParameterizedStateFromTable()
-    {
-        // Arrange
-        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string>>("State");
-        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
-        var activator = new StateMachineActivator<string, string, int, string>("State", 42, "hello");
-
-        // Act
-        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(expectedState, stateMachine.NextState);
-        var (p1, p2) = stateMachine.Parameters.GetNextParameters<int, string>();
-        Assert.Equal(42, p1);
-        Assert.Equal("hello", p2);
     }
 
     [Fact]
@@ -159,7 +110,7 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int, string)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello"));
 
-        var activator = new StateMachineActivator<string, string, int, string>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string, int, string>(func.AsAsyncStateProvider());
 
         // Act
         await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
@@ -177,7 +128,7 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int, string)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello"));
 
-        var activator = new StateMachineActivator<string, string, int, string>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string, int, string>(func.AsAsyncStateProvider());
 
         // Act
         await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
@@ -197,32 +148,13 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int, string)>>();
         func.InvokeAsync(cts.Token).Returns(("State", 42, "hello"));
 
-        var activator = new StateMachineActivator<string, string, int, string>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string, int, string>(func.AsAsyncStateProvider());
 
         // Act
         await activator.Activate(stateMachine, cts.Token);
 
         // Assert
         await func.Received(1).InvokeAsync(cts.Token);
-    }
-
-    [Fact]
-    public async Task Activate_T1_T2_T3_WhenValueConstructor_ShouldReturnParameterizedStateFromTable()
-    {
-        // Arrange
-        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double>>("State");
-        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
-        var activator = new StateMachineActivator<string, string, int, string, double>("State", 42, "hello", 3.14);
-
-        // Act
-        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(expectedState, stateMachine.NextState);
-        var (p1, p2, p3) = stateMachine.Parameters.GetNextParameters<int, string, double>();
-        Assert.Equal(42, p1);
-        Assert.Equal("hello", p2);
-        Assert.Equal(3.14, p3);
     }
 
     [Fact]
@@ -234,7 +166,9 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int, string, double)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello", 3.14));
 
-        var activator = new StateMachineActivator<string, string, int, string, double>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string, int, string, double>(
+            func.AsAsyncStateProvider()
+        );
 
         // Act
         await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
@@ -252,7 +186,9 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int, string, double)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello", 3.14));
 
-        var activator = new StateMachineActivator<string, string, int, string, double>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string, int, string, double>(
+            func.AsAsyncStateProvider()
+        );
 
         // Act
         await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
@@ -272,39 +208,15 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int, string, double)>>();
         func.InvokeAsync(cts.Token).Returns(("State", 42, "hello", 3.14));
 
-        var activator = new StateMachineActivator<string, string, int, string, double>(func.AsAsyncStateProvider());
+        var activator = new DynamicInitialStateProvider<string, string, int, string, double>(
+            func.AsAsyncStateProvider()
+        );
 
         // Act
         await activator.Activate(stateMachine, cts.Token);
 
         // Assert
         await func.Received(1).InvokeAsync(cts.Token);
-    }
-
-    [Fact]
-    public async Task Activate_T1_T2_T3_T4_WhenValueConstructor_ShouldReturnParameterizedStateFromTable()
-    {
-        // Arrange
-        var expectedState = Substitute.ForPartsOf<StubState<string, string, int, string, double, bool>>("State");
-        var stateMachine = Substitute.ForPartsOf<StubStateMachine<string, string>>(expectedState);
-        var activator = new StateMachineActivator<string, string, int, string, double, bool>(
-            "State",
-            42,
-            "hello",
-            3.14,
-            true
-        );
-
-        // Act
-        await activator.Activate(stateMachine, TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(expectedState, stateMachine.NextState);
-        var (p1, p2, p3, p4) = stateMachine.Parameters.GetNextParameters<int, string, double, bool>();
-        Assert.Equal(42, p1);
-        Assert.Equal("hello", p2);
-        Assert.Equal(3.14, p3);
-        Assert.True(p4);
     }
 
     [Fact]
@@ -316,7 +228,7 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int, string, double, bool)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello", 3.14, true));
 
-        var activator = new StateMachineActivator<string, string, int, string, double, bool>(
+        var activator = new DynamicInitialStateProvider<string, string, int, string, double, bool>(
             func.AsAsyncStateProvider()
         );
 
@@ -336,7 +248,7 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int, string, double, bool)>>();
         func.InvokeAsync(Arg.Any<CancellationToken>()).Returns(("State", 42, "hello", 3.14, true));
 
-        var activator = new StateMachineActivator<string, string, int, string, double, bool>(
+        var activator = new DynamicInitialStateProvider<string, string, int, string, double, bool>(
             func.AsAsyncStateProvider()
         );
 
@@ -358,7 +270,7 @@ public class StateMachineActivatorTests
         var func = Substitute.For<IAsyncFunc<(string, int, string, double, bool)>>();
         func.InvokeAsync(cts.Token).Returns(("State", 42, "hello", 3.14, true));
 
-        var activator = new StateMachineActivator<string, string, int, string, double, bool>(
+        var activator = new DynamicInitialStateProvider<string, string, int, string, double, bool>(
             func.AsAsyncStateProvider()
         );
 

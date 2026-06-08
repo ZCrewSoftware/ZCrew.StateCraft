@@ -9,7 +9,7 @@ public class DuplicateExcludedStateValidatorTests
     public void Validate_WhenNoFromTransitions_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -34,7 +34,7 @@ public class DuplicateExcludedStateValidatorTests
     public void Validate_WhenFromTransitionHasNoExcludedStates_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(
             new FromTransitionInfo<string, string>(
                 info,
@@ -57,7 +57,7 @@ public class DuplicateExcludedStateValidatorTests
     public void Validate_WhenAllExcludedStatesUnique_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(
             new FromTransitionInfo<string, string>(
                 info,
@@ -84,7 +84,7 @@ public class DuplicateExcludedStateValidatorTests
     public void Validate_WhenStateExcludedTwice_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(
             new FromTransitionInfo<string, string>(
                 info,
@@ -109,7 +109,7 @@ public class DuplicateExcludedStateValidatorTests
     public void Validate_WhenStateExcludedThreeTimes_ShouldReportTwoErrors()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(
             new FromTransitionInfo<string, string>(
                 info,
@@ -140,7 +140,7 @@ public class DuplicateExcludedStateValidatorTests
     public void Validate_WhenDuplicatesAcrossDifferentTransitions_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(
             new FromTransitionInfo<string, string>(
                 info,
@@ -172,7 +172,7 @@ public class DuplicateExcludedStateValidatorTests
     public void Validate_WhenSameStateValueWithDifferentParameterTypes_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(
             new FromTransitionInfo<string, string>(
                 info,
@@ -195,7 +195,7 @@ public class DuplicateExcludedStateValidatorTests
     public void Validate_WhenSameParameterizedStateExcludedTwice_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(
             new FromTransitionInfo<string, string>(
                 info,
@@ -223,7 +223,7 @@ public class DuplicateExcludedStateValidatorTests
     public void Validate_WhenMultipleTransitionsEachHaveDuplicate_ShouldReportAllErrors()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(
             new FromTransitionInfo<string, string>(
                 info,

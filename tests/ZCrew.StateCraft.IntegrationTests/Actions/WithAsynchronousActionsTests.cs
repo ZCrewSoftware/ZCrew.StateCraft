@@ -12,8 +12,8 @@ public class WithAsynchronousActionsTests
         var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -39,8 +39,8 @@ public class WithAsynchronousActionsTests
         var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state => state.OnEntry(onEntry).WithAction(a => a.Invoke(() => Thread.Sleep(TimeSpan.FromSeconds(5))))
@@ -61,8 +61,8 @@ public class WithAsynchronousActionsTests
         var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.OnEntry(onEntry).WithAction(a => a.Invoke(_ => Task.CompletedTask)))
             .Build();
 
@@ -80,8 +80,8 @@ public class WithAsynchronousActionsTests
         var tokenWasCanceled = false;
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithAction(a => a.Invoke(Action)).WithTransition("To B", t => t.To("B")))
             .WithState("B", state => state)
             .Build();
@@ -117,8 +117,8 @@ public class WithAsynchronousActionsTests
         var activateCompleted = new TaskCompletionSource();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithAction(a => a.Invoke(Action)).WithTransition("To B", t => t.To("B")))
             .WithState("B", state => state.OnEntry(onEntry))
             .Build();
@@ -148,8 +148,8 @@ public class WithAsynchronousActionsTests
         var tokenWasCanceled = false;
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithAction(a => a.Invoke(Action)))
             .Build();
 
@@ -183,8 +183,8 @@ public class WithAsynchronousActionsTests
         var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithTransition("To B", t => t.To("B")))
             .WithState(
                 "B",
@@ -212,8 +212,8 @@ public class WithAsynchronousActionsTests
         var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithTransition("To B", t => t.To("B")))
             .WithState(
                 "B",
@@ -246,8 +246,8 @@ public class WithAsynchronousActionsTests
         var onEntry = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.OnEntry(onEntry).WithTransition("To B", t => t.To("B")))
             .WithState(
                 "B",
@@ -272,8 +272,8 @@ public class WithAsynchronousActionsTests
         var tokenWasCanceled = false;
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithTransition("To B", t => t.To("B")))
             .WithState("B", state => state.WithAction(a => a.Invoke(Action)).WithTransition("To A", t => t.To("A")))
             .Build();
@@ -310,8 +310,8 @@ public class WithAsynchronousActionsTests
         var transitionCompleted = new TaskCompletionSource();
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.OnEntry(onEntry).WithTransition("To B", t => t.To("B")))
             .WithState("B", state => state.WithAction(a => a.Invoke(Action)).WithTransition("To A", t => t.To("A")))
             .Build();
@@ -343,8 +343,8 @@ public class WithAsynchronousActionsTests
         var tokenWasCanceled = false;
         var stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithTransition("To B", t => t.To("B")))
             .WithState("B", state => state.WithAction(a => a.Invoke(Action)))
             .Build();
@@ -383,8 +383,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -425,8 +425,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -465,8 +465,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -504,8 +504,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithTransition("To B", "B"))
             .WithState(
                 "B",
@@ -547,8 +547,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -599,8 +599,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -636,8 +636,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -677,8 +677,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -719,8 +719,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -759,8 +759,8 @@ public class WithAsynchronousActionsTests
         var isFirstEntry = true;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -806,8 +806,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -847,8 +847,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -890,8 +890,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -928,8 +928,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -971,8 +971,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -1043,8 +1043,8 @@ public class WithAsynchronousActionsTests
 
         var sm1 = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -1066,8 +1066,8 @@ public class WithAsynchronousActionsTests
 
         sm2 = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithTransition("To B", "B"))
             .WithState(
                 "B",
@@ -1111,8 +1111,8 @@ public class WithAsynchronousActionsTests
         // sm1's action transitions sm2 (A → B), then waits
         var sm1 = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState(
                 "A",
                 state =>
@@ -1143,8 +1143,8 @@ public class WithAsynchronousActionsTests
         // sm2's action self-transitions (B → C), then calls back to sm1
         sm2 = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithTransition("To B", "B"))
             .WithState(
                 "B",
@@ -1194,8 +1194,8 @@ public class WithAsynchronousActionsTests
         IStateMachine<string, string> stateMachine = null!;
         stateMachine = StateMachine
             .Configure<string, string>()
-            .WithAsynchronousActions()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .OnException(ctx => exceptionHandled.TrySetResult(ctx.Exception))
             .WithState(
                 "A",

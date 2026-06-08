@@ -9,7 +9,7 @@ public class MissingExcludedStateValidatorTests
     public void Validate_WhenNoFromTransitions_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -34,7 +34,7 @@ public class MissingExcludedStateValidatorTests
     public void Validate_WhenExcludedStateExists_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "D", []));
         info.Add(
@@ -59,7 +59,7 @@ public class MissingExcludedStateValidatorTests
     public void Validate_WhenExcludedParameterizedStateExists_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(int)]));
         info.Add(new StateInfo<string, string>(info, "D", []));
         info.Add(
@@ -84,7 +84,7 @@ public class MissingExcludedStateValidatorTests
     public void Validate_WhenExcludedStateDoesNotExist_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -110,7 +110,7 @@ public class MissingExcludedStateValidatorTests
     public void Validate_WhenExcludedStateHasWrongArityWithParameterizedRegistered_ShouldSuggestExcept()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(int)]));
         info.Add(
             new FromTransitionInfo<string, string>(
@@ -137,7 +137,7 @@ public class MissingExcludedStateValidatorTests
     public void Validate_WhenExcludedStateHasWrongArityWithParameterlessRegistered_ShouldSuggestExcept()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
             new FromTransitionInfo<string, string>(
@@ -164,7 +164,7 @@ public class MissingExcludedStateValidatorTests
     public void Validate_WhenExcludedStateMatchesMultipleStatesByValue_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(int)]));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(string)]));
         info.Add(
@@ -191,7 +191,7 @@ public class MissingExcludedStateValidatorTests
     public void Validate_WhenMultipleExcludedStatesMissing_ShouldReportAllErrors()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(
             new FromTransitionInfo<string, string>(
@@ -219,7 +219,7 @@ public class MissingExcludedStateValidatorTests
     public void Validate_WhenSomeFromTransitionsValid_ShouldReportOnlyInvalid()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(

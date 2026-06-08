@@ -39,7 +39,7 @@ public interface IStateMachineInfo<TState, TTransition>
     ///     This is only <see langword="null"/> if it has not been configured yet. If this information came from a
     ///     <see cref="IStateMachine{TState,TTransition}"/> then this will never be <see langword="null"/>.
     /// </remarks>
-    IInitialStateInfo<TState, TTransition>? InitialState { get; }
+    IInitialStateInfo<TState, TTransition> InitialState { get; }
 
     /// <summary>
     ///     Every state configured on the machine, in declaration order.

@@ -1,18 +1,18 @@
 using ZCrew.StateCraft.StateMachines.Contracts;
 
-namespace ZCrew.StateCraft;
+namespace ZCrew.StateCraft.InitialState.Contracts;
 
 /// <summary>
-///     Wraps the different techniques for storing the activating a state machine.
+///     Wraps the different techniques for storing the initial state of a state machine.
 /// </summary>
 /// <typeparam name="TState">The type of the state.</typeparam>
 /// <typeparam name="TTransition">The type of the transition.</typeparam>
-internal interface IStateMachineActivator<TState, TTransition>
+internal interface IInitialStateProvider<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
     /// <summary>
-    ///     Retrieves the initial state, and activates the <paramref name="stateMachine"/>.
+    ///     Sets the initial state of the state machine.
     /// </summary>
     /// <param name="stateMachine">The state machine.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>

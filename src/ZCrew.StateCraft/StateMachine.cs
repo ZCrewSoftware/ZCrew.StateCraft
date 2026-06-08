@@ -1,5 +1,3 @@
-using ZCrew.StateCraft.StateMachines;
-
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -82,10 +80,10 @@ public static class StateMachine
     ///         .Build();
     ///     </code>
     /// </example>
-    public static IStateMachineConfiguration<TState, TTransition> Configure<TState, TTransition>()
+    public static IInitialStateMachineConfiguration<TState, TTransition> Configure<TState, TTransition>()
         where TState : notnull
         where TTransition : notnull
     {
-        return new StateMachineConfiguration<TState, TTransition>();
+        return new InitialStateMachineConfiguration<TState, TTransition>();
     }
 }

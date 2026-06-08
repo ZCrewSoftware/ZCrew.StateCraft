@@ -2,6 +2,25 @@
 
 ## Breaking Changes
 
+### Initial state must be configured first
+
+- **`StateMachine.Configure<TState, TTransition>()` now returns
+  `IInitialStateMachineConfiguration<TState, TTransition>`.** This interface only exposes the
+  `WithInitialState(...)` overloads. The rest of the fluent API (`WithState`, `WithTransition`,
+  `WithTrigger`, `OnStateChange`, `Build`, …) lives on `IStateMachineConfiguration<TState, TTransition>`,
+  which you only receive *after* calling `WithInitialState(...)`. Configuration order now matters: the
+  initial state must be specified first before the state machine can be configured further. Move any
+  `WithInitialState(...)` call to the front of the chain.
+
+  ```csharp
+  // v2 — WithInitialState(...) must come first
+  var stateMachine = StateMachine
+      .Configure<MarineState, MarineTransition>()
+      .WithInitialState(MarineState.Idle)
+      .WithState(MarineState.Idle, state => /* ... */)
+      .Build();
+  ```
+
 ### Inverted ("From All") transitions
 
 - **`From()` return type.** On a parameterized state, `From()` now returns the typed
