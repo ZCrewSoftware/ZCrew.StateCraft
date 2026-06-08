@@ -118,6 +118,7 @@ public class WithAsynchronousActionsTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
+            .WithAsynchronousActions()
             .WithState("A", state => state.WithAction(a => a.Invoke(Action)).WithTransition("To B", t => t.To("B")))
             .WithState("B", state => state.OnEntry(onEntry))
             .Build();

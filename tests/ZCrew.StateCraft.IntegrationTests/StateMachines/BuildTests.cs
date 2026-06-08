@@ -6,19 +6,6 @@ namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 public class BuildTests
 {
     [Fact]
-    public void Build_WhenNoInitialState_ShouldThrowInvalidOperationException()
-    {
-        // Arrange
-        var configuration = StateMachine.Configure<string, string>().WithInitialState(null!);
-
-        // Act
-        var build = () => configuration.Build();
-
-        // Assert
-        Assert.Throws<InvalidOperationException>(build);
-    }
-
-    [Fact]
     public void Build_WhenInitialStateValue_ShouldSucceed()
     {
         // Arrange

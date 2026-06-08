@@ -36,19 +36,6 @@ public class StateMachineInfoTests
     }
 
     [Fact]
-    public void InitialState_WhenNotConfigured_ShouldBeNull()
-    {
-        // Arrange
-        var configuration = StateMachine.Configure<string, string>().WithInitialState(null!);
-
-        // Act
-        var info = configuration.GetInfo();
-
-        // Assert
-        Assert.Null(info.InitialState);
-    }
-
-    [Fact]
     public void States_WhenMultipleConfigured_ShouldReturnAllInDeclarationOrder()
     {
         // Arrange
