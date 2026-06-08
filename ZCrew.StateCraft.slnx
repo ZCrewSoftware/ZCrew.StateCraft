@@ -16,7 +16,7 @@
     <File Path="docs/11-exception-handling.md" />
   </Folder>
   <Folder Name="/docs/upgrades/">
-    <File Path="docs/v1-to-v2.md" />
+    <File Path="docs/upgrades/v1-to-v2.md" />
   </Folder>
   <Folder Name="/samples/" />
   <Folder Name="/samples/MarineSample/">
