@@ -2,104 +2,122 @@ using NSubstitute;
 
 namespace ZCrew.StateCraft.IntegrationTests.Transitions;
 
-public partial class OnTransitionTests
+public partial class OnTransitionInvertedTransitionTests
 {
     [Fact]
-    public async Task OnTransition_WhenCalled_ShouldInvokeHandler()
+    public async Task OnTransition_WhenCalledOnInvertedTransition_ShouldInvokeHandler()
     {
         // Arrange
         var handler = Substitute.For<Action>();
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
-            .WithState(
-                "A",
-                state => state.WithTransition("To B", t => t.WithNoParameters().OnTransition(handler).To("B"))
-            )
-            .WithState("B", state => state)
+            .WithState("A", state => state)
+            .WithState("D", state => state.WithTransition("To D", t => t.From().AllOtherStates().OnTransition(handler)))
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Act
-        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+        await stateMachine.Transition("To D", TestContext.Current.CancellationToken);
 
         // Assert
         handler.Received(1).Invoke();
     }
 
     [Fact]
-    public async Task OnTransition_Async_WhenCalled_ShouldInvokeHandler()
+    public async Task OnTransition_Async_WhenCalledOnInvertedTransition_ShouldInvokeHandler()
     {
         // Arrange
         var invoked = false;
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
+            .WithState("A", state => state)
             .WithState(
-                "A",
+                "D",
                 state =>
                     state.WithTransition(
-                        "To B",
+                        "To D",
                         t =>
-                            t.WithNoParameters()
+                            t.From()
+                                .AllOtherStates()
                                 .OnTransition(_ =>
                                 {
                                     invoked = true;
                                     return Task.CompletedTask;
                                 })
-                                .To("B")
                     )
             )
-            .WithState("B", state => state)
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Act
-        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+        await stateMachine.Transition("To D", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(invoked);
     }
 
     [Fact]
-    public async Task OnTransition_ValueTaskAsync_WhenCalled_ShouldInvokeHandler()
+    public async Task OnTransition_ValueTaskAsync_WhenCalledOnInvertedTransition_ShouldInvokeHandler()
     {
         // Arrange
         var invoked = false;
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
+            .WithState("A", state => state)
             .WithState(
-                "A",
+                "D",
                 state =>
                     state.WithTransition(
-                        "To B",
+                        "To D",
                         t =>
-                            t.WithNoParameters()
+                            t.From()
+                                .AllOtherStates()
                                 .OnTransition(_ =>
                                 {
                                     invoked = true;
                                     return ValueTask.CompletedTask;
                                 })
-                                .To("B")
                     )
             )
-            .WithState("B", state => state)
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Act
-        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+        await stateMachine.Transition("To D", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(invoked);
     }
 
     [Fact]
-    public async Task OnTransition_WhenMultipleRegistered_ShouldInvokeInRegistrationOrder()
+    public async Task OnTransition_WithAllStates_WhenCalledOnInvertedTransition_ShouldInvokeHandler()
+    {
+        // Arrange
+        var handler = Substitute.For<Action>();
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state)
+            .WithState("D", state => state.WithTransition("To D", t => t.From().AllStates().OnTransition(handler)))
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        await stateMachine.Transition("To D", TestContext.Current.CancellationToken);
+
+        // Assert
+        handler.Received(1).Invoke();
+    }
+
+    [Fact]
+    public async Task OnTransition_WhenMultipleRegisteredOnInvertedTransition_ShouldInvokeInRegistrationOrder()
     {
         // Arrange
         var first = Substitute.For<Action>();
@@ -107,21 +125,21 @@ public partial class OnTransitionTests
         var stateMachine = StateMachine
             .Configure<string, string>()
             .WithInitialState("A")
+            .WithState("A", state => state)
             .WithState(
-                "A",
+                "D",
                 state =>
                     state.WithTransition(
-                        "To B",
-                        t => t.WithNoParameters().OnTransition(first).OnTransition(second).To("B")
+                        "To D",
+                        t => t.From().AllOtherStates().OnTransition(first).OnTransition(second)
                     )
             )
-            .WithState("B", state => state)
             .Build();
 
         await stateMachine.Activate(TestContext.Current.CancellationToken);
 
         // Act
-        await stateMachine.Transition("To B", TestContext.Current.CancellationToken);
+        await stateMachine.Transition("To D", TestContext.Current.CancellationToken);
 
         // Assert
         Received.InOrder(() =>

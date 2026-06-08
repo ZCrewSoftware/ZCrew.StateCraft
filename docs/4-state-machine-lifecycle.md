@@ -230,10 +230,26 @@ them (up to four):
         .To(State.Running)))
 ```
 
+### Inverted Transitions
+
+An inverted transition configured with `From()` also supports `OnTransition`. Register the handler
+after `AllStates()` / `AllOtherStates()` (and any `Except(...)` calls). The handler receives the
+parameter(s) of the destination state — the values supplied to `Transition(...)`:
+
+```csharp
+.WithState(State.Error, state => state
+    .WithParameter<ErrorInfo>()
+    .WithTransition(Transition.Fail, t => t
+        .From()
+        .AllOtherStates()
+        .Except(State.Completed)
+        .OnTransition(error => Console.WriteLine($"Failing: {error.Message}"))))
+```
+
 `OnTransition` is available on every transition configured with a builder (`WithNoParameters`,
-`WithParameter`/`WithParameters`, `WithMappedParameter(s)`, `WithSameParameter(s)`). It is not
-available on the `WithTransition(transition, state)` shortcut or on inverted transitions configured
-with `From()`.
+`WithParameter`/`WithParameters`, `WithMappedParameter(s)`, `WithSameParameter(s)`) and on inverted
+transitions configured with `From()` (after `AllStates`/`AllOtherStates`). It is not available on the
+`WithTransition(transition, state)` shortcut.
 
 ## State Change Handlers
 

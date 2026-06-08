@@ -3,7 +3,8 @@ using System.Runtime.CompilerServices;
 namespace ZCrew.StateCraft;
 
 /// <summary>
-///     Configures an inverted transition from all (or most) states, with the ability to exclude specific states.
+///     Configures an inverted transition (whose destination state has two parameters) from all (or most) states,
+///     with the ability to exclude specific states and to register handlers that run when the transition is performed.
 ///     This interface also extends <see cref="ITransitionConfiguration{TState, TTransition}"/> so the configuration
 ///     chain can terminate without calling <see cref="Except(TState)"/>.
 /// </summary>
@@ -15,48 +16,42 @@ namespace ZCrew.StateCraft;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-public interface IFromAllStatesTransitionConfiguration<TState, TTransition>
+/// <typeparam name="TNext1">The type of the first parameter for the destination state.</typeparam>
+/// <typeparam name="TNext2">The type of the second parameter for the destination state.</typeparam>
+public interface IFromAllStatesTransitionConfiguration<TState, TTransition, TNext1, TNext2>
     : ITransitionConfiguration<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
-    /// <summary>
-    ///     Excludes a parameterless state from the inverted transition. The excluded state will not have this
-    ///     transition available.
-    /// </summary>
-    /// <param name="state">The state value to exclude.</param>
-    /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IFromAllStatesTransitionConfiguration<TState, TTransition> Except(TState state);
+    /// <inheritdoc cref="IFromAllStatesTransitionConfiguration{TState, TTransition}.Except(TState)"/>
+    IFromAllStatesTransitionConfiguration<TState, TTransition, TNext1, TNext2> Except(TState state);
 
-    /// <inheritdoc cref="Except(TState)"/>
-    /// <typeparam name="TPrevious">
-    ///     The parameter type of the state to exclude. This narrows the exclusion to the specific state configured
-    ///     with this parameter type.
-    /// </typeparam>
-    IFromAllStatesTransitionConfiguration<TState, TTransition> Except<TPrevious>(TState state);
+    /// <inheritdoc cref="IFromAllStatesTransitionConfiguration{TState, TTransition}.Except{TPrevious}(TState)"/>
+    IFromAllStatesTransitionConfiguration<TState, TTransition, TNext1, TNext2> Except<TPrevious>(TState state);
 
-    /// <inheritdoc cref="Except(TState)"/>
-    /// <typeparam name="TPrevious1">The type of the first parameter of the state to exclude.</typeparam>
-    /// <typeparam name="TPrevious2">The type of the second parameter of the state to exclude.</typeparam>
-    IFromAllStatesTransitionConfiguration<TState, TTransition> Except<TPrevious1, TPrevious2>(TState state);
-
-    /// <inheritdoc cref="Except(TState)"/>
-    /// <typeparam name="TPrevious1">The type of the first parameter of the state to exclude.</typeparam>
-    /// <typeparam name="TPrevious2">The type of the second parameter of the state to exclude.</typeparam>
-    /// <typeparam name="TPrevious3">The type of the third parameter of the state to exclude.</typeparam>
-    IFromAllStatesTransitionConfiguration<TState, TTransition> Except<TPrevious1, TPrevious2, TPrevious3>(TState state);
-
-    /// <inheritdoc cref="Except(TState)"/>
-    /// <typeparam name="TPrevious1">The type of the first parameter of the state to exclude.</typeparam>
-    /// <typeparam name="TPrevious2">The type of the second parameter of the state to exclude.</typeparam>
-    /// <typeparam name="TPrevious3">The type of the third parameter of the state to exclude.</typeparam>
-    /// <typeparam name="TPrevious4">The type of the fourth parameter of the state to exclude.</typeparam>
-    IFromAllStatesTransitionConfiguration<TState, TTransition> Except<TPrevious1, TPrevious2, TPrevious3, TPrevious4>(
+    /// <inheritdoc cref="IFromAllStatesTransitionConfiguration{TState, TTransition}.Except{TPrevious1, TPrevious2}(TState)"/>
+    IFromAllStatesTransitionConfiguration<TState, TTransition, TNext1, TNext2> Except<TPrevious1, TPrevious2>(
         TState state
     );
 
+    /// <inheritdoc cref="IFromAllStatesTransitionConfiguration{TState, TTransition}.Except{TPrevious1, TPrevious2, TPrevious3}(TState)"/>
+    IFromAllStatesTransitionConfiguration<TState, TTransition, TNext1, TNext2> Except<
+        TPrevious1,
+        TPrevious2,
+        TPrevious3
+    >(TState state);
+
+    /// <inheritdoc cref="IFromAllStatesTransitionConfiguration{TState, TTransition}.Except{TPrevious1, TPrevious2, TPrevious3, TPrevious4}(TState)"/>
+    IFromAllStatesTransitionConfiguration<TState, TTransition, TNext1, TNext2> Except<
+        TPrevious1,
+        TPrevious2,
+        TPrevious3,
+        TPrevious4
+    >(TState state);
+
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when this transition is performed.
+    ///     The handler receives the parameter values that were passed to the destination state.
     /// </summary>
     /// <param name="handler">The delegate to call when this transition is performed.</param>
     /// <param name="descriptor">
@@ -64,13 +59,14 @@ public interface IFromAllStatesTransitionConfiguration<TState, TTransition>
     ///     <paramref name="handler"/> is captured automatically.
     /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IFromAllStatesTransitionConfiguration<TState, TTransition> OnTransition(
-        Action handler,
+    IFromAllStatesTransitionConfiguration<TState, TTransition, TNext1, TNext2> OnTransition(
+        Action<TNext1, TNext2> handler,
         [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when this transition is performed.
+    ///     The handler receives the parameter values that were passed to the destination state.
     /// </summary>
     /// <param name="handler">The delegate to call when this transition is performed.</param>
     /// <param name="descriptor">
@@ -78,13 +74,14 @@ public interface IFromAllStatesTransitionConfiguration<TState, TTransition>
     ///     <paramref name="handler"/> is captured automatically.
     /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IFromAllStatesTransitionConfiguration<TState, TTransition> OnTransition(
-        Func<CancellationToken, Task> handler,
+    IFromAllStatesTransitionConfiguration<TState, TTransition, TNext1, TNext2> OnTransition(
+        Func<TNext1, TNext2, CancellationToken, Task> handler,
         [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 
     /// <summary>
     ///     Configures a <paramref name="handler"/> delegate which will be called when this transition is performed.
+    ///     The handler receives the parameter values that were passed to the destination state.
     /// </summary>
     /// <param name="handler">The delegate to call when this transition is performed.</param>
     /// <param name="descriptor">
@@ -92,8 +89,8 @@ public interface IFromAllStatesTransitionConfiguration<TState, TTransition>
     ///     <paramref name="handler"/> is captured automatically.
     /// </param>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
-    IFromAllStatesTransitionConfiguration<TState, TTransition> OnTransition(
-        Func<CancellationToken, ValueTask> handler,
+    IFromAllStatesTransitionConfiguration<TState, TTransition, TNext1, TNext2> OnTransition(
+        Func<TNext1, TNext2, CancellationToken, ValueTask> handler,
         [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 }

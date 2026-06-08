@@ -128,6 +128,37 @@ await machine.Transition(
     cancellationToken);
 ```
 
+## On Transition
+
+`OnTransition(...)` registers a handler that runs when the inverted transition is performed,
+regardless of which source state it fired from. Register it after `AllStates()` /
+`AllOtherStates()` (and any `Except(...)` calls):
+
+```csharp
+.WithState(State.Canceled, state => state
+    .WithTransition(Transition.Cancel, t => t
+        .From()
+        .AllOtherStates()
+        .Except(State.Completed)
+        .OnTransition(() => Console.WriteLine("Canceled"))))
+```
+
+When the destination state has parameters, the handler receives the destination parameter
+value(s) — the values supplied to `Transition(...)`:
+
+```csharp
+.WithState(State.Error, state => state
+    .WithParameter<ErrorInfo>()
+    .WithTransition(Transition.Fail, t => t
+        .From()
+        .AllOtherStates()
+        .OnTransition(error => Console.WriteLine($"Failing: {error.Message}"))))
+```
+
+Synchronous, `Task`, and `ValueTask` handlers are supported, and multiple handlers run in
+registration order. See [State Machine Lifecycle](./4-state-machine-lifecycle.md) for how
+`OnTransition` relates to the other lifecycle hooks.
+
 ## Conditional Transitions
 
 Conditions can be added before `From()` using `If(...)`. When the destination state is parameterless, these conditions
