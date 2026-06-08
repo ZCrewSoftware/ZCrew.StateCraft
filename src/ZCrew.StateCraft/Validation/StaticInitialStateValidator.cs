@@ -6,8 +6,8 @@ internal static class StaticInitialStateValidator
 {
     /// <summary>
     ///     Validates that the initial state, when provided statically from
-    ///     <see cref="IStateMachineConfiguration{TState,TTransition}.WithInitialState(TState)"/> (and overloads),
-    ///     exists.
+    ///     <see cref="IInitialStateMachineConfiguration{TState,TTransition}.WithInitialState(TState)"/>
+    ///     (and overloads), exists.
     /// </summary>
     /// <param name="context">The validation context.</param>
     /// <typeparam name="TState">The state type.</typeparam>

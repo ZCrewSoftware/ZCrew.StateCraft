@@ -9,7 +9,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenStateMachineHasNoStates_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
@@ -23,7 +23,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenStateMachineHasNoTransitions_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         var context = new StateMachineValidationContext<string, string> { Info = info };
 
@@ -38,7 +38,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenSingleTransition_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -63,7 +63,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenMultipleTransitionsToDifferentStates_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(new StateInfo<string, string>(info, "C", []));
@@ -98,7 +98,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenMultipleTransitionsToSameStateWithDifferentParameterCounts_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(int)]));
@@ -133,7 +133,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenMultipleTransitionsToSameStateWithNonAssignableTypes_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(int)]));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(string)]));
@@ -168,7 +168,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenDerivedTypeTransitionFollowsBaseTypeTransition_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(object)]));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(string)]));
@@ -204,7 +204,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenBaseTypeTransitionFollowsDerivedTypeTransition_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(string)]));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(object)]));
@@ -239,7 +239,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenDuplicateParameterlessTransitions_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -274,7 +274,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenDuplicateParameterizedTransitions_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(int)]));
         info.Add(
@@ -309,7 +309,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenTripleDuplicateTransitions_ShouldReportTwoErrors()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -356,7 +356,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenMultipleStatesWithUnreachableTransitions_ShouldReportAllErrors()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(new StateInfo<string, string>(info, "C", []));
@@ -413,7 +413,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenTransitionsFromDifferentStatesAreDuplicates_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(new StateInfo<string, string>(info, "C", []));
@@ -448,7 +448,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenSecondParameterlessTransitionIsConditional_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(
             new DirectTransitionInfo<string, string>(
@@ -482,7 +482,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenFirstParameterlessTransitionIsConditional_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(
             new DirectTransitionInfo<string, string>(
@@ -515,7 +515,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenSecondParameterizedTransitionIsConditional_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(int)]));
         info.Add(
@@ -550,7 +550,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenFirstParameterizedTransitionIsConditional_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", [typeof(int)]));
         info.Add(
@@ -584,7 +584,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenSingleReentrantParameterlessTransition_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(
             new DirectTransitionInfo<string, string>(
@@ -608,7 +608,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenDuplicateReentrantParameterlessTransitions_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(
             new DirectTransitionInfo<string, string>(
@@ -642,7 +642,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenSingleReentrantWithSameParameterTransition_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         info.Add(
             new DirectTransitionInfo<string, string>(
@@ -666,7 +666,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenDuplicateReentrantWithSameParameterTransitions_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         info.Add(
             new DirectTransitionInfo<string, string>(
@@ -700,7 +700,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenSingleReentrantParameterizedTransition_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         info.Add(
             new DirectTransitionInfo<string, string>(
@@ -724,7 +724,7 @@ public class UnreachableTransitionValidatorTests
     public void Validate_WhenDuplicateReentrantParameterizedTransitions_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         info.Add(
             new DirectTransitionInfo<string, string>(

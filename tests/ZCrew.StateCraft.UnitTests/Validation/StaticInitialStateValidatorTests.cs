@@ -9,7 +9,7 @@ public class StaticInitialStateValidatorTests
     public void Validate_WhenInitialStateIsNull_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         var context = new StateMachineValidationContext<string, string> { Info = info };

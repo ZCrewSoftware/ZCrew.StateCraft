@@ -9,7 +9,7 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenStateMachineHasNoStates_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
@@ -23,7 +23,7 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenStateMachineHasSingleState_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         var context = new StateMachineValidationContext<string, string> { Info = info };
 
@@ -38,7 +38,7 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenStateMachineHasMultipleUniqueStates_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(new StateInfo<string, string>(info, "C", []));
@@ -55,7 +55,7 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenSameStateNameWithDifferentTypeParameters_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         var context = new StateMachineValidationContext<string, string> { Info = info };
@@ -71,7 +71,7 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenSameStateNameWithDifferentTypeParameterTypes_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(string)]));
         var context = new StateMachineValidationContext<string, string> { Info = info };
@@ -87,7 +87,7 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenDuplicateParameterlessState_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         var context = new StateMachineValidationContext<string, string> { Info = info };
@@ -104,7 +104,7 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenDuplicateParameterizedState_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         var context = new StateMachineValidationContext<string, string> { Info = info };
@@ -121,7 +121,7 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenMultipleDuplicateStates_ShouldReportAllErrors()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
@@ -143,7 +143,7 @@ public class DuplicateStateValidatorTests
     public void Validate_WhenTripleDuplicateState_ShouldReportTwoErrors()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "A", []));

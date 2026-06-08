@@ -9,7 +9,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenStateMachineHasNoStates_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         var context = new StateMachineValidationContext<string, string> { Info = info };
 
         // Act
@@ -23,7 +23,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenStateMachineHasNoTransitions_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         var context = new StateMachineValidationContext<string, string> { Info = info };
 
@@ -38,7 +38,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionIsTuple_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(Tuple<int, string>)]));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -63,7 +63,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionIsValueTuple_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof((int, string))]));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -88,7 +88,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionIsGenericType_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(List<string>)]));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -113,7 +113,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionIsNullableValueType_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int?)]));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -138,7 +138,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionFromNonExistentState_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
             new DirectTransitionInfo<string, string>(
@@ -163,7 +163,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenParameterizedTransitionFromParameterlessState_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", []));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -189,7 +189,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenParameterlessTransitionFromParameterizedState_ShouldSuggestExplicitForm()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -217,7 +217,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenParameterlessTransitionFromMultipleParameterizedStates_ShouldListAllAlternatives()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(string)]));
         info.Add(new StateInfo<string, string>(info, "B", []));
@@ -247,7 +247,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionFromStateWithNonAssignableParameterType_ShouldFail()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(int)]));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -273,7 +273,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenTransitionFromStateWithAssignableParameterType_ShouldPass()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "A", [typeof(object)]));
         info.Add(new StateInfo<string, string>(info, "B", []));
         info.Add(
@@ -298,7 +298,7 @@ public class TransitionFromValidatorTests
     public void Validate_WhenMultipleErrors_ShouldReportAllErrors()
     {
         // Arrange
-        var info = new StateMachineInfo<string, string>(null);
+        var info = new StateMachineInfo<string, string>(new StaticInitialStateInfo<string, string>("A", [], []));
         info.Add(new StateInfo<string, string>(info, "C", []));
         info.Add(
             new DirectTransitionInfo<string, string>(
