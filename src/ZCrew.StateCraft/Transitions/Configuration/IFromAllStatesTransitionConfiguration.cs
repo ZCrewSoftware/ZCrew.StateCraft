@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace ZCrew.StateCraft;
 
 /// <summary>
@@ -51,5 +53,47 @@ public interface IFromAllStatesTransitionConfiguration<TState, TTransition>
     /// <typeparam name="TPrevious4">The type of the fourth parameter of the state to exclude.</typeparam>
     IFromAllStatesTransitionConfiguration<TState, TTransition> Except<TPrevious1, TPrevious2, TPrevious3, TPrevious4>(
         TState state
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this transition is performed.
+    /// </summary>
+    /// <param name="handler">The delegate to call when this transition is performed.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IFromAllStatesTransitionConfiguration<TState, TTransition> OnTransition(
+        Action handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this transition is performed.
+    /// </summary>
+    /// <param name="handler">The delegate to call when this transition is performed.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IFromAllStatesTransitionConfiguration<TState, TTransition> OnTransition(
+        Func<CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this transition is performed.
+    /// </summary>
+    /// <param name="handler">The delegate to call when this transition is performed.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IFromAllStatesTransitionConfiguration<TState, TTransition> OnTransition(
+        Func<CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
     );
 }

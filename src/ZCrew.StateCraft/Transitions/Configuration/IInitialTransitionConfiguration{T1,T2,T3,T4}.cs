@@ -65,7 +65,7 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T1, T2, T3
     >();
 
     /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition}.From"/>
-    IFromTransitionConfiguration<TState, TTransition> From();
+    IFromTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> From();
 
     /// <summary>
     ///     Configures the transition to map the previous four parameters to a single next parameter.

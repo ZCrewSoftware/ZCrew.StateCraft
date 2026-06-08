@@ -60,4 +60,9 @@ public enum ExceptionCallSite
     /// </summary>
     /// <seealso cref="IExceptionBehavior.CallTrigger"/>
     Trigger,
+
+    /// <summary>
+    ///     The exception was thrown during a transition's <c>OnTransition</c> handler.
+    /// </summary>
+    OnTransition,
 }

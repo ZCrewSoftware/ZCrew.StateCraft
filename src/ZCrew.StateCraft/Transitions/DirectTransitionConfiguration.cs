@@ -1,4 +1,4 @@
-using System.Text;
+using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Configuration;
@@ -13,6 +13,7 @@ internal class DirectTransitionConfiguration<TState, TTransition> : ITransitionC
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly INextStateConfiguration<TState, TTransition> nextStateConfiguration;
     private readonly TTransition transitionValue;
+    private readonly IReadOnlyList<INextParametersHandler> onTransitionHandlers;
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -21,15 +22,18 @@ internal class DirectTransitionConfiguration<TState, TTransition> : ITransitionC
     /// <param name="previousStateConfiguration">The configuration for the previous state.</param>
     /// <param name="nextStateConfiguration">The configuration for the next state.</param>
     /// <param name="transitionValue">The transition value that triggers this transition.</param>
+    /// <param name="onTransitionHandlers">The <c>OnTransition</c> handlers.</param>
     public DirectTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
         INextStateConfiguration<TState, TTransition> nextStateConfiguration,
-        TTransition transitionValue
+        TTransition transitionValue,
+        IReadOnlyList<INextParametersHandler> onTransitionHandlers
     )
     {
         this.previousStateConfiguration = previousStateConfiguration;
         this.nextStateConfiguration = nextStateConfiguration;
         this.transitionValue = transitionValue;
+        this.onTransitionHandlers = onTransitionHandlers;
     }
 
     /// <inheritdoc />
@@ -55,7 +59,8 @@ internal class DirectTransitionConfiguration<TState, TTransition> : ITransitionC
             previousState,
             nextState,
             this.transitionValue,
-            stateMachine
+            stateMachine,
+            this.onTransitionHandlers
         );
 
         previousState.State.AddTransition(transition);

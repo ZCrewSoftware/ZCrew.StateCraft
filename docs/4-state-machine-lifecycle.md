@@ -14,12 +14,16 @@ StateCraft provides hooks, triggers, and actions at key points in a state machin
 | `WithTrigger`   | Background signal-driven transition       | v1.0    | v1.1   |
 | `WithAction`    | Long-running interruptible state work     | ✘       | v1.0   |
 | `OnExit`        | Called each time a state is exited        | ✘       | v1.0   |
+| `OnTransition`  | Called when a transition is performed     | ✘       | ✘      |
 | `OnStateChange` | Called during transitions                 | v1.0    | v1.0   |
 | `OnDeactivate`  | Called once when the state machine stops  | ✘       | v1.0   |
 
 Each hook supports both synchronous and asynchronous signatures.
 Each state-level hook will have the same parameters as the state, if any (up to 4 parameters).
 See [Triggers](./10-triggers.md) and [Actions](./5-actions.md) for detailed configuration of those components.
+`OnTransition` is transition-scoped — configured on an individual transition rather than the machine
+or a state — and was introduced in **v2.0**. It receives the parameter(s) passed to the next state.
+See [Transition Handlers](#transition-handlers) below.
 
 ## State Machine Flow
 
@@ -43,11 +47,12 @@ During a transition from State A to State B:
 1. Cancel and await previous state (State A) actions
 2. Deactivate State A's state-scoped triggers
 3. `OnExit` - Clean up the previous state (State A)
-4. `OnStateChange` (machine-level) - Machine-level state change
-5. `OnStateChange` (state-level) - State-level state change (State B)
-6. `OnEntry` - Initialize the next state (State B)
-7. Activate State B's state-scoped triggers
-8. Start next state (State B) actions
+4. `OnTransition` - Side effects for this specific transition (State A → State B)
+5. `OnStateChange` (machine-level) - Machine-level state change
+6. `OnStateChange` (state-level) - State-level state change (State B)
+7. `OnEntry` - Initialize the next state (State B)
+8. Activate State B's state-scoped triggers
+9. Start next state (State B) actions
 
 ### Deactivation Flow
 
@@ -147,6 +152,104 @@ For states with multiple parameters, handlers receive all parameters:
     .OnEntry(async (job, context, token) => await RunAsync(job, context, token))
     .OnExit(async (job, context, token) => await StopAsync(job, context, token)))
 ```
+
+## Transition Handlers
+
+The `OnTransition` handler runs when a specific transition is performed. Unlike the state-scoped
+hooks, it is configured on an individual transition — after choosing the transition's parameters and
+before `To`/`ToSameState` — and runs after the previous state's `OnExit` but before any
+`OnStateChange` handler.
+
+`OnTransition` receives the parameter(s) being passed to the **next** state (in contrast to
+`OnExit`, which receives the previous state's parameter). This makes it a good place for side effects
+that belong to a particular transition or path rather than to entering a state.
+
+### Configuration
+
+```csharp
+.WithState(State.A, state => state
+    .WithTransition(Transition.Go, t => t
+        .WithNoParameters()
+        // Synchronous
+        .OnTransition(() => Console.WriteLine("Going to B"))
+        // Asynchronous
+        .OnTransition(async token => await AuditAsync(token))
+        .To(State.B)))
+```
+
+### Parameterized Transitions
+
+A transition that carries a parameter passes it to the handler. This is the value supplied to
+`Transition(...)` and forwarded to the next state:
+
+```csharp
+.WithState(State.Idle, state => state
+    .WithTransition(Transition.Start, t => t
+        .WithParameter<JobData>()
+        .OnTransition(job => Console.WriteLine($"Starting job: {job.Id}"))
+        .To(State.Running)))
+```
+
+### Mapped Transitions
+
+For mapped transitions the handler receives the mapped value that is passed to the next state:
+
+```csharp
+.WithState(State.Running, state => state
+    .WithParameter<JobData>()
+    .WithTransition(Transition.Complete, t => t
+        .WithMappedParameter<string>(job => job.Id)
+        .OnTransition(id => Console.WriteLine($"Completed job: {id}"))
+        .To(State.Done)))
+```
+
+### Reentrant Transitions
+
+A reentrant transition passes the current parameter through unchanged, so the handler receives that
+same value:
+
+```csharp
+.WithState(State.Running, state => state
+    .WithParameter<JobData>()
+    .WithTransition(Transition.Heartbeat, t => t
+        .WithSameParameter()
+        .OnTransition(job => Console.WriteLine($"Heartbeat for job: {job.Id}"))
+        .ToSameState()))
+```
+
+### Multi-Parameter Transitions
+
+When the transition produces multiple parameters for the next state, the handler receives all of
+them (up to four):
+
+```csharp
+.WithState(State.Idle, state => state
+    .WithTransition(Transition.Start, t => t
+        .WithParameters<JobData, UserContext>()
+        .OnTransition((job, context) => Console.WriteLine($"Starting {job.Id} for {context.User}"))
+        .To(State.Running)))
+```
+
+### Inverted Transitions
+
+An inverted transition configured with `From()` also supports `OnTransition`. Register the handler
+after `AllStates()` / `AllOtherStates()` (and any `Except(...)` calls). The handler receives the
+parameter(s) of the destination state — the values supplied to `Transition(...)`:
+
+```csharp
+.WithState(State.Error, state => state
+    .WithParameter<ErrorInfo>()
+    .WithTransition(Transition.Fail, t => t
+        .From()
+        .AllOtherStates()
+        .Except(State.Completed)
+        .OnTransition(error => Console.WriteLine($"Failing: {error.Message}"))))
+```
+
+`OnTransition` is available on every transition configured with a builder (`WithNoParameters`,
+`WithParameter`/`WithParameters`, `WithMappedParameter(s)`, `WithSameParameter(s)`) and on inverted
+transitions configured with `From()` (after `AllStates`/`AllOtherStates`). It is not available on the
+`WithTransition(transition, state)` shortcut.
 
 ## State Change Handlers
 
@@ -258,19 +361,22 @@ var machine = StateMachine
     .Configure<State, Transition>()
     .WithInitialState(State.A)
 
-    .OnStateChange((_, _, _) => Console.WriteLine("4. OnStateChange (machine-level)"))
+    .OnStateChange((_, _, _) => Console.WriteLine("5. OnStateChange (machine-level)"))
 
     .WithState(State.A, state => state
         .OnActivate(_ => Console.WriteLine("1. OnActivate (State.A)"))
         .OnEntry(() => Console.WriteLine("2. OnEntry (State.A)"))
         .OnExit(() => Console.WriteLine("3. OnExit (State.A)"))
-        .WithTransition(Transition.Go, State.B))
+        .WithTransition(Transition.Go, t => t
+            .WithNoParameters()
+            .OnTransition(() => Console.WriteLine("4. OnTransition (Go)"))
+            .To(State.B)))
 
     .WithState(State.B, state => state
-        .OnStateChange((_, _, _) => Console.WriteLine("5. OnStateChange (State.B)"))
-        .OnEntry(() => Console.WriteLine("6. OnEntry (State.B)"))
-        .OnExit(() => Console.WriteLine("7. OnExit (State.B)"))
-        .OnDeactivate(_ => Console.WriteLine("8. OnDeactivate (State.B)")))
+        .OnStateChange((_, _, _) => Console.WriteLine("6. OnStateChange (State.B)"))
+        .OnEntry(() => Console.WriteLine("7. OnEntry (State.B)"))
+        .OnExit(() => Console.WriteLine("8. OnExit (State.B)"))
+        .OnDeactivate(_ => Console.WriteLine("9. OnDeactivate (State.B)")))
 
     .Build();
 
@@ -284,11 +390,12 @@ Output:
 1. OnActivate (State.A)
 2. OnEntry (State.A)
 3. OnExit (State.A)
-4. OnStateChange (machine-level)
-5. OnStateChange (State.B)
-6. OnEntry (State.B)
-7. OnExit (State.B)
-8. OnDeactivate (State.B)
+4. OnTransition (Go)
+5. OnStateChange (machine-level)
+6. OnStateChange (State.B)
+7. OnEntry (State.B)
+8. OnExit (State.B)
+9. OnDeactivate (State.B)
 ```
 
 ## Best Practices
@@ -337,6 +444,13 @@ The state-level `OnStateChange` handler is ideal for persisting using rich updat
     }))
 ```
 
+### OnTransition vs OnStateChange
+
+Use `OnTransition` for side effects tied to a **specific transition or path** — it runs only when
+that transition is taken. Use `OnStateChange` when you care about **entering a state** regardless of
+how it was reached. Also, `OnStateChange` is designed for durability (e.g., persisting to a database).
+Like the other hooks, keep `OnTransition` quick and move long-running work into a state action.
+
 ### Idempotent Handlers
 
 Design handlers to be idempotent when possible. This helps with recovery scenarios:
@@ -353,7 +467,7 @@ Design handlers to be idempotent when possible. This helps with recovery scenari
 
 All lifecycle operations are thread-safe.
 Concurrent transitions are synchronized by the state machine's internal lock.
-All handlers are thread-safe: `OnActivate`, `OnEntry`, `OnStateChange` (both), `OnExit`, `OnDeactivate`.
+All handlers are thread-safe: `OnActivate`, `OnEntry`, `OnTransition`, `OnStateChange` (both), `OnExit`, `OnDeactivate`.
 You don't need additional synchronization in handlers unless accessing external shared state.
 
 ## Next Steps

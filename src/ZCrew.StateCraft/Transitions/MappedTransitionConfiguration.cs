@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
@@ -14,6 +15,7 @@ internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionC
     private readonly INextStateConfiguration<TState, TTransition> nextStateConfiguration;
     private readonly TTransition transitionValue;
     private readonly IMappingFunction mappingFunction;
+    private readonly List<INextParametersHandler> onTransitionHandlers;
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -23,17 +25,20 @@ internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionC
     /// <param name="nextStateConfiguration">The configuration for the next state.</param>
     /// <param name="transition">The transition value that triggers this transition.</param>
     /// <param name="mappingFunction">The mapping function that transforms the previous parameter.</param>
+    /// <param name="onTransitionHandlers">The <c>OnTransition</c> handlers.</param>
     public MappedTransitionConfiguration(
         IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration,
         INextStateConfiguration<TState, TTransition> nextStateConfiguration,
         TTransition transition,
-        IMappingFunction mappingFunction
+        IMappingFunction mappingFunction,
+        List<INextParametersHandler> onTransitionHandlers
     )
     {
         this.previousStateConfiguration = previousStateConfiguration;
         this.nextStateConfiguration = nextStateConfiguration;
         this.transitionValue = transition;
         this.mappingFunction = mappingFunction;
+        this.onTransitionHandlers = onTransitionHandlers;
     }
 
     /// <inheritdoc />
@@ -61,7 +66,8 @@ internal class MappedTransitionConfiguration<TState, TTransition> : ITransitionC
             nextState,
             this.transitionValue,
             this.mappingFunction,
-            stateMachine
+            stateMachine,
+            this.onTransitionHandlers
         );
 
         previousState.State.AddTransition(transition);

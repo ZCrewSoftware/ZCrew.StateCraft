@@ -48,10 +48,16 @@ internal interface ITransition<TState, TTransition>
     Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token);
 
     /// <summary>
-    ///     Performs the transition by invoking the state machine's state change handlers and the next state's state
-    ///     change handlers.
+    ///     Performs the transition by invoking the transition's <c>OnTransition</c> handlers.
     /// </summary>
     /// <param name="parameters">The state machine parameters.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     Task Transition(IStateMachineParameters parameters, CancellationToken token);
+
+    /// <summary>
+    ///     Performs the transition by invoking the next state's <c>OnStateChange</c> handlers.
+    /// </summary>
+    /// <param name="parameters">The state machine parameters.</param>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    Task StateChange(IStateMachineParameters parameters, CancellationToken token);
 }

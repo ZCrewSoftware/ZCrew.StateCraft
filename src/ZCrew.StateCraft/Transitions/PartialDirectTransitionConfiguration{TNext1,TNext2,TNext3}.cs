@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.States;
 using ZCrew.StateCraft.States.Configuration;
@@ -15,6 +16,7 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1,
     private readonly IPreviousStateConfiguration<TState, TTransition> previousStateConfiguration;
     private readonly IPartialNextStateConfiguration<TState, TTransition, TNext1, TNext2, TNext3> nextStateConfiguration;
     private readonly TTransition transitionValue;
+    private readonly List<INextParametersHandler> onTransitionHandlers = [];
 
     /// <summary>
     ///     Initializes a new instance of the
@@ -38,7 +40,8 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1,
         return new DirectTransitionConfiguration<TState, TTransition>(
             this.previousStateConfiguration,
             this.nextStateConfiguration.WithState(state),
-            this.transitionValue
+            this.transitionValue,
+            this.onTransitionHandlers
         );
     }
 
@@ -75,6 +78,36 @@ internal class PartialDirectTransitionConfiguration<TState, TTransition, TNext1,
     )
     {
         this.nextStateConfiguration.Add(condition.AsAsyncFunc().AsAsyncCondition(descriptor));
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> OnTransition(
+        Action<TNext1, TNext2, TNext3> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
+    {
+        this.onTransitionHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor).AsNextParametersHandler());
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> OnTransition(
+        Func<TNext1, TNext2, TNext3, CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
+    {
+        this.onTransitionHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor).AsNextParametersHandler());
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IDirectTransitionConfiguration<TState, TTransition, TNext1, TNext2, TNext3> OnTransition(
+        Func<TNext1, TNext2, TNext3, CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
+    {
+        this.onTransitionHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor).AsNextParametersHandler());
         return this;
     }
 

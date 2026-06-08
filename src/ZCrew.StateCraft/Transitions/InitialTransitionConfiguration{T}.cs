@@ -288,10 +288,10 @@ internal class InitialTransitionConfiguration<TState, TTransition, T>
     }
 
     /// <inheritdoc />
-    public IFromTransitionConfiguration<TState, TTransition> From()
+    public IFromTransitionConfiguration<TState, TTransition, T> From()
     {
         var nextStateConfiguration = this.previousStateConfiguration.ToNextStateConfiguration();
-        return new FromTransitionConfiguration<TState, TTransition>(this.transitionValue, nextStateConfiguration);
+        return new FromTransitionConfiguration<TState, TTransition, T>(this.transitionValue, nextStateConfiguration);
     }
 
     /// <inheritdoc />

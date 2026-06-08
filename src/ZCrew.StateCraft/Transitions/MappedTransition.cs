@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Async.Contracts;
 using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
@@ -24,6 +25,7 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
 {
     private readonly IMappingFunction mappingFunction;
     private readonly IStateMachine<TState, TTransition> stateMachine;
+    private readonly IReadOnlyList<INextParametersHandler> onTransitionHandlers;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MappedTransition{TState, TTransition}"/> class.
@@ -33,12 +35,14 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
     /// <param name="transition">The transition value that triggers this transition.</param>
     /// <param name="mappingFunction">The mapping function that transforms the previous parameter.</param>
     /// <param name="stateMachine">The state machine that owns this transition.</param>
+    /// <param name="onTransitionHandlers">The <c>OnTransition</c> handlers.</param>
     public MappedTransition(
         IPreviousState<TState, TTransition> previous,
         INextState<TState, TTransition> next,
         TTransition transition,
         IMappingFunction mappingFunction,
-        IStateMachine<TState, TTransition> stateMachine
+        IStateMachine<TState, TTransition> stateMachine,
+        IReadOnlyList<INextParametersHandler> onTransitionHandlers
     )
     {
         Previous = previous;
@@ -46,6 +50,7 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
         TransitionValue = transition;
         this.mappingFunction = mappingFunction;
         this.stateMachine = stateMachine;
+        this.onTransitionHandlers = onTransitionHandlers;
     }
 
     /// <inheritdoc />
@@ -97,13 +102,18 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
     /// <inheritdoc />
     public async Task Transition(IStateMachineParameters parameters, CancellationToken token)
     {
+        await EnsureNextParametersWereMapped(parameters, token);
         this.stateMachine.Tracker?.Transitioned(this);
-
-        if (!parameters.IsNextSet)
+        foreach (var handler in this.onTransitionHandlers)
         {
-            await this.stateMachine.ExceptionBehavior.CallMap(t => this.mappingFunction.Map(parameters, t), token);
+            await this.stateMachine.ExceptionBehavior.CallOnTransition(t => handler.Invoke(parameters, t), token);
         }
-        await this.stateMachine.StateChange(Previous.State.StateValue, TransitionValue, Next.State.StateValue, token);
+    }
+
+    /// <inheritdoc />
+    public async Task StateChange(IStateMachineParameters parameters, CancellationToken token)
+    {
+        await EnsureNextParametersWereMapped(parameters, token);
         await Next.State.StateChange(Previous.State.StateValue, TransitionValue, parameters, token);
     }
 
@@ -119,5 +129,15 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
         }
 
         return $"{TransitionValue}({Previous}) → {Next}";
+    }
+
+    private Task EnsureNextParametersWereMapped(IStateMachineParameters parameters, CancellationToken token)
+    {
+        if (parameters.IsNextSet)
+        {
+            return Task.CompletedTask;
+        }
+
+        return this.stateMachine.ExceptionBehavior.CallMap(t => this.mappingFunction.Map(parameters, t), token);
     }
 }

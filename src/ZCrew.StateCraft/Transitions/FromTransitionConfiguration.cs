@@ -1,4 +1,8 @@
-using System.Text;
+using System.Runtime.CompilerServices;
+using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Async.Contracts;
+using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.Identities.Extensions;
 using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
@@ -15,7 +19,8 @@ internal class FromTransitionConfiguration<TState, TTransition>
 {
     private readonly TTransition transitionValue;
     private readonly INextStateConfiguration<TState, TTransition> nextStateConfiguration;
-    private readonly List<ExcludedState> excludedStates = [];
+    private readonly List<IStateIdentity<TState>> excludedStates = [];
+    private readonly List<INextParametersHandler> onTransitionHandlers = [];
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="FromTransitionConfiguration{TState, TTransition}"/> class.
@@ -40,25 +45,31 @@ internal class FromTransitionConfiguration<TState, TTransition>
     /// <inheritdoc />
     public IFromAllStatesTransitionConfiguration<TState, TTransition> AllOtherStates()
     {
-        return Exclude(this.nextStateConfiguration.StateValue, this.nextStateConfiguration.TypeParameters.ToArray());
+        this.excludedStates.Add(
+            StateIdentity.For(this.nextStateConfiguration.StateValue, this.nextStateConfiguration.TypeParameters)
+        );
+        return this;
     }
 
     /// <inheritdoc />
     public IFromAllStatesTransitionConfiguration<TState, TTransition> Except(TState state)
     {
-        return Exclude(state, []);
+        this.excludedStates.Add(StateIdentity.For(state));
+        return this;
     }
 
     /// <inheritdoc />
     public IFromAllStatesTransitionConfiguration<TState, TTransition> Except<TPrevious>(TState state)
     {
-        return Exclude(state, [typeof(TPrevious)]);
+        this.excludedStates.Add(StateIdentity.For<TState, TPrevious>(state));
+        return this;
     }
 
     /// <inheritdoc />
     public IFromAllStatesTransitionConfiguration<TState, TTransition> Except<TPrevious1, TPrevious2>(TState state)
     {
-        return Exclude(state, [typeof(TPrevious1), typeof(TPrevious2)]);
+        this.excludedStates.Add(StateIdentity.For<TState, TPrevious1, TPrevious2>(state));
+        return this;
     }
 
     /// <inheritdoc />
@@ -66,7 +77,8 @@ internal class FromTransitionConfiguration<TState, TTransition>
         TState state
     )
     {
-        return Exclude(state, [typeof(TPrevious1), typeof(TPrevious2), typeof(TPrevious3)]);
+        this.excludedStates.Add(StateIdentity.For<TState, TPrevious1, TPrevious2, TPrevious3>(state));
+        return this;
     }
 
     /// <inheritdoc />
@@ -77,7 +89,38 @@ internal class FromTransitionConfiguration<TState, TTransition>
         TPrevious4
     >(TState state)
     {
-        return Exclude(state, [typeof(TPrevious1), typeof(TPrevious2), typeof(TPrevious3), typeof(TPrevious4)]);
+        this.excludedStates.Add(StateIdentity.For<TState, TPrevious1, TPrevious2, TPrevious3, TPrevious4>(state));
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IFromAllStatesTransitionConfiguration<TState, TTransition> OnTransition(
+        Action handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
+    {
+        this.onTransitionHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor).AsNextParametersHandler());
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IFromAllStatesTransitionConfiguration<TState, TTransition> OnTransition(
+        Func<CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
+    {
+        this.onTransitionHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor).AsNextParametersHandler());
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IFromAllStatesTransitionConfiguration<TState, TTransition> OnTransition(
+        Func<CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    )
+    {
+        this.onTransitionHandlers.Add(handler.AsAsyncAction().AsAsyncHandler(descriptor).AsNextParametersHandler());
+        return this;
     }
 
     /// <inheritdoc />
@@ -85,7 +128,11 @@ internal class FromTransitionConfiguration<TState, TTransition>
     {
         var nextStateInfo = this.nextStateConfiguration.GetInfo(stateMachine);
         var excludedStateInfo = this
-            .excludedStates.Select(excludedState => excludedState.GetInfo(stateMachine))
+            .excludedStates.Select(excludedState => new StateInfo<TState, TTransition>(
+                stateMachine,
+                excludedState.StateValue,
+                excludedState.StateParameterTypes
+            ))
             .ToArray();
         return new FromTransitionInfo<TState, TTransition>(
             stateMachine,
@@ -116,34 +163,11 @@ internal class FromTransitionConfiguration<TState, TTransition>
                 previousState,
                 nextState,
                 this.transitionValue,
-                stateMachine
+                stateMachine,
+                this.onTransitionHandlers
             );
 
             state.AddTransition(transition);
-        }
-    }
-
-    private IFromAllStatesTransitionConfiguration<TState, TTransition> Exclude(TState state, Type[] typeParameters)
-    {
-        this.excludedStates.Add(new ExcludedState(state, typeParameters));
-        return this;
-    }
-
-    private readonly record struct ExcludedState(TState State, Type[] TypeParameters)
-    {
-        public bool Matches(TState state, IReadOnlyList<Type> typeParameters)
-        {
-            if (!EqualityComparer<TState>.Default.Equals(state, State))
-            {
-                return false;
-            }
-
-            return typeParameters.SequenceEqual(TypeParameters);
-        }
-
-        public IStateInfo<TState, TTransition> GetInfo(IStateMachineInfo<TState, TTransition> stateMachine)
-        {
-            return new StateInfo<TState, TTransition>(stateMachine, State, TypeParameters);
         }
     }
 }

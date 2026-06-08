@@ -72,6 +72,48 @@ public interface IDirectTransitionConfiguration<TState, TTransition>
     );
 
     /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this transition is performed.
+    /// </summary>
+    /// <param name="handler">The delegate to call when this transition is performed.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition> OnTransition(
+        Action handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this transition is performed.
+    /// </summary>
+    /// <param name="handler">The delegate to call when this transition is performed.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition> OnTransition(
+        Func<CancellationToken, Task> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
+    ///     Configures a <paramref name="handler"/> delegate which will be called when this transition is performed.
+    /// </summary>
+    /// <param name="handler">The delegate to call when this transition is performed.</param>
+    /// <param name="descriptor">
+    ///     An optional descriptor identifying the handler. When omitted, the caller's expression for
+    ///     <paramref name="handler"/> is captured automatically.
+    /// </param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    IDirectTransitionConfiguration<TState, TTransition> OnTransition(
+        Func<CancellationToken, ValueTask> handler,
+        [CallerArgumentExpression(nameof(handler))] string? descriptor = null
+    );
+
+    /// <summary>
     ///     Configure the state to transition to.
     /// </summary>
     /// <param name="state">The next state.</param>

@@ -406,15 +406,6 @@ public interface IStateMachine<TState, TTransition>
     IStateMachineInfo<TState, TTransition> GetInfo();
 
     /// <summary>
-    ///     Invokes the state machine's state change handlers.
-    /// </summary>
-    /// <param name="previousState">The state being transitioned from.</param>
-    /// <param name="transition">The transition being applied.</param>
-    /// <param name="nextState">The state being transitioned to.</param>
-    /// <param name="token">The token to monitor for cancellation requests.</param>
-    internal Task StateChange(TState previousState, TTransition transition, TState nextState, CancellationToken token);
-
-    /// <summary>
     ///     Adds the <paramref name="state"/> to this machine.
     /// </summary>
     /// <param name="state">The state to add.</param>

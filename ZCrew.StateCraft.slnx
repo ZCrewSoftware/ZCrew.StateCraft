@@ -15,6 +15,9 @@
     <File Path="docs/10-triggers.md" />
     <File Path="docs/11-exception-handling.md" />
   </Folder>
+  <Folder Name="/docs/upgrades/">
+    <File Path="docs/upgrades/v1-to-v2.md" />
+  </Folder>
   <Folder Name="/samples/" />
   <Folder Name="/samples/MarineSample/">
     <File Path="samples/MarineSample/MarineSample.slnx" />

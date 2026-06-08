@@ -236,6 +236,23 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         this.internalState = InternalState.Transitioning;
         await currentTransition.Transition(Parameters, token);
         this.internalState = InternalState.Transitioned;
+
+        this.internalState = InternalState.StateChanging;
+        foreach (var onStateChange in this.onStateChanges)
+        {
+            await ExceptionBehavior.CallOnStateChange(
+                t =>
+                    onStateChange.InvokeAsync(
+                        PreviousState.StateValue,
+                        currentTransition.TransitionValue,
+                        NextState.StateValue,
+                        t
+                    ),
+                token
+            );
+        }
+        await currentTransition.StateChange(Parameters, token);
+        this.internalState = InternalState.StateChanged;
     }
 
     /// <param name="methodLock">The state machine lock to release.</param>

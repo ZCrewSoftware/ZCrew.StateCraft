@@ -36,10 +36,19 @@ internal enum InternalState
     Transitioning,
 
     /// <summary>
-    ///     The state machine has transitioned: setting the next state, setting the next parameter, and has invoked
-    ///     the state change handlers. The state machine is ready to enter the next state.
+    ///     The state machine has transitioned: setting the next state and setting the next parameters.
     /// </summary>
     Transitioned,
+
+    /// <summary>
+    ///     The state machine is int he process of changing states.
+    /// </summary>
+    StateChanging,
+
+    /// <summary>
+    ///     The state machine has invoked the state change handlers. The state machine is ready to enter the next state.
+    /// </summary>
+    StateChanged,
 
     /// <summary>
     ///     The state machine is entering a state.

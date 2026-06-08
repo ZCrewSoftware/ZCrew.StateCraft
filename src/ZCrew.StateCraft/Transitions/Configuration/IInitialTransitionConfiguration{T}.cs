@@ -118,7 +118,7 @@ public interface IInitialTransitionConfiguration<TState, TTransition, T>
     IDirectTransitionConfiguration<TState, TTransition, T1, T2, T3, T4> WithParameters<T1, T2, T3, T4>();
 
     /// <inheritdoc cref="IInitialTransitionConfiguration{TState,TTransition}.From"/>
-    IFromTransitionConfiguration<TState, TTransition> From();
+    IFromTransitionConfiguration<TState, TTransition, T> From();
 
     /// <summary>
     ///     Configures the transition to map the previous parameter of type <typeparamref name="T"/> to the next
