@@ -5,7 +5,7 @@ They are only available from parameterized states and do not require a parameter
 `StateMachine.Transition(...)` at runtime.
 
 `WithSameParameter()` is a convenience for `WithMappedParameter(previous => previous)`. For transitions that need to
-convert the parameter to a different type, see [Mapped Transitions](./8-mapped-transitions.md).
+convert the parameter to a different type, see [Mapped Transitions](./mapped-transitions.md).
 
 ## Configuration
 
@@ -63,7 +63,7 @@ Like mapped transitions, reentrant transitions do not require a parameter at run
 await machine.Transition(Transition.Retry, cancellationToken);
 ```
 
-This is the key distinction from [parameterized transitions](./7-parameterized-transitions.md), which require a
+This is the key distinction from [parameterized transitions](./parameterized-transitions.md), which require a
 parameter at runtime.
 
 ## Conditional Transitions
@@ -258,13 +258,13 @@ short-circuit evaluation:
 ### Consider Inverted Transitions for Shared Destinations
 
 If many states share the same transition to a common destination (e.g., a `Canceled` state), consider using
-[Inverted Transitions](./13-inverted-transitions.md) instead of repeating the transition on each state.
+[Inverted Transitions](./inverted-transitions.md) instead of repeating the transition on each state.
 
 ## Next Steps
 
-- [Mapped Transitions](./8-mapped-transitions.md) - Parameter type conversion between states
-- [Parameterless Transitions](./6-parameterless-transitions.md) - Transitions without data
-- [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
-- [Inverted Transitions](./13-inverted-transitions.md) - Define transitions by destination instead of source
-- [Triggers](./10-triggers.md) - Autonomous transitions based on signals
-- [Exception Handling](./11-exception-handling.md) - Error handling strategies
+- [Mapped Transitions](./mapped-transitions.md) - Parameter type conversion between states
+- [Parameterless Transitions](./parameterless-transitions.md) - Transitions without data
+- [Parameterized Transitions](./parameterized-transitions.md) - Transitions that carry typed data
+- [Inverted Transitions](./inverted-transitions.md) - Define transitions by destination instead of source
+- [Triggers](./triggers.md) - Autonomous transitions based on signals
+- [Exception Handling](./exception-handling.md) - Error handling strategies

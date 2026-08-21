@@ -371,7 +371,7 @@ Signals should await an asynchronous condition, not perform blocking work:
 
 ## Next Steps
 
-- [Exception Handling](./11-exception-handling.md) - Error handling strategies
-- [Actions](./5-actions.md) - Long-running work within states
-- [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
-- [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
+- [Exception Handling](./exception-handling.md) - Error handling strategies
+- [Actions](./actions.md) - Long-running work within states
+- [Parameterless Transitions](./parameterless-transitions.md) - Simple state-to-state transitions
+- [Parameterized Transitions](./parameterized-transitions.md) - Transitions that carry typed data

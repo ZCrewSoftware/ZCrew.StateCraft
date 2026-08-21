@@ -1,21 +1,25 @@
 # ZCrew.StateCraft
 
+> Hello there!\
+> My name is Matt and I write software like this to learn, explore topics I find neat, and hopefully help you write
+> great software. This software will be free forever, so do what you like with it.
+
 A fluent, async-first state machine library for .NET. StateCraft provides a clean, type-safe API for defining states, transitions, and lifecycle handlers with full support for parameterized states, conditional transitions, and cancellation.
 
 ## Features
 
-- **[Fluent Configuration API](docs/2-getting-started.md)** - Intuitive builder pattern for defining state machines
+- **[Fluent Configuration API](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/getting-started.md)** - Intuitive builder pattern for defining state machines
 - **Async/Await Support** - First-class support for async lifecycle handlers and actions
-- **[Parameterized States](docs/7-parameterized-transitions.md)** - States can carry typed data (up to 4 parameters) that flows through entry, action, and exit handlers
-- **[Conditional Transitions](docs/7-parameterized-transitions.md)** - Guard conditions that determine if a transition should proceed
-- **[Mapped Transitions](docs/8-mapped-transitions.md)** - Transform parameters during transitions between states
-- **[Reentrant Transitions](docs/9-reentrant-transitions.md)** - Preserve parameters when transitioning between states of the same type
-- **[Lifecycle Handlers](docs/4-state-machine-lifecycle.md)** - OnEntry, OnExit, and OnStateChange hooks for state management
-- **[Triggers](docs/10-triggers.md)** - Autonomous transition initiators (one-shot and repeating) that activate with the state machine
-- **[Actions](docs/5-actions.md)** - Long-running actions that states perform, which can transition the state machine
-- **[Exception Handling](docs/11-exception-handling.md)** - Configurable exception handlers and [custom exception behavior](docs/12-exception-behavior.md)
+- **[Parameterized States](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/parameterized-transitions.md)** - States can carry typed data (up to 4 parameters) that flows through entry, action, and exit handlers
+- **[Conditional Transitions](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/parameterized-transitions.md)** - Guard conditions that determine if a transition should proceed
+- **[Mapped Transitions](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mapped-transitions.md)** - Transform parameters during transitions between states
+- **[Reentrant Transitions](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/reentrant-transitions.md)** - Preserve parameters when transitioning between states of the same type
+- **[Lifecycle Handlers](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/state-machine-lifecycle.md)** - OnEntry, OnExit, and OnStateChange hooks for state management
+- **[Triggers](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/triggers.md)** - Autonomous transition initiators (one-shot and repeating) that activate with the state machine
+- **[Actions](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/actions.md)** - Long-running actions that states perform, which can transition the state machine
+- **[Exception Handling](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/exception-handling.md)** - Configurable exception handlers and [custom exception behavior](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/exception-behavior.md)
 - **Thread-Safe** - Internal locking ensures safe concurrent access
-- **[Validation](docs/3-general-concepts.md)** - Detects configuration errors like duplicate states and invalid transitions
+- **[Validation](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/general-concepts.md)** - Detects configuration errors like duplicate states and invalid transitions
 
 ## Installation
 
@@ -172,8 +176,8 @@ depositSignal.Release(); // Automatically transitions to Idle
 
 ## Documentation
 
-For detailed documentation on each feature, see the [docs](docs/) folder.
+For detailed documentation on each feature, see the [docs](https://github.com/ZCrewSoftware/ZCrew.StateCraft/tree/main/docs) folder.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/LICENSE.md) file for details.

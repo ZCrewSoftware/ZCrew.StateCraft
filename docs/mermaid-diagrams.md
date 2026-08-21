@@ -181,8 +181,8 @@ A method group or property reference makes the diagram self-documenting without 
 
 ## Next Steps
 
-- [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
-- [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
-- [Mapped Transitions](./8-mapped-transitions.md) - Automatic parameter conversion
-- [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
-- [Inverted Transitions](./13-inverted-transitions.md) - Define transitions by destination instead of source
+- [Parameterless Transitions](./parameterless-transitions.md) - Simple state-to-state transitions
+- [Parameterized Transitions](./parameterized-transitions.md) - Transitions that carry typed data
+- [Mapped Transitions](./mapped-transitions.md) - Automatic parameter conversion
+- [Reentrant Transitions](./reentrant-transitions.md) - Same-parameter transitions
+- [Inverted Transitions](./inverted-transitions.md) - Define transitions by destination instead of source

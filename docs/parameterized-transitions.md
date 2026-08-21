@@ -343,13 +343,13 @@ short-circuit evaluation:
 ### Consider Inverted Transitions for Shared Destinations
 
 If many states share the same transition to a common destination (e.g., a `Canceled` state), consider using
-[Inverted Transitions](./13-inverted-transitions.md) instead of repeating the transition on each state.
+[Inverted Transitions](./inverted-transitions.md) instead of repeating the transition on each state.
 
 ## Next Steps
 
-- [Mapped Transitions](./8-mapped-transitions.md) - Automatic parameter conversion
-- [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
-- [Parameterless Transitions](./6-parameterless-transitions.md) - Transitions without data
-- [Inverted Transitions](./13-inverted-transitions.md) - Define transitions by destination instead of source
-- [Triggers](./10-triggers.md) - Autonomous transitions based on signals
-- [Exception Handling](./11-exception-handling.md) - Error handling strategies
+- [Mapped Transitions](./mapped-transitions.md) - Automatic parameter conversion
+- [Reentrant Transitions](./reentrant-transitions.md) - Same-parameter transitions
+- [Parameterless Transitions](./parameterless-transitions.md) - Transitions without data
+- [Inverted Transitions](./inverted-transitions.md) - Define transitions by destination instead of source
+- [Triggers](./triggers.md) - Autonomous transitions based on signals
+- [Exception Handling](./exception-handling.md) - Error handling strategies

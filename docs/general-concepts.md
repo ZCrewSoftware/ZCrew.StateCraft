@@ -317,11 +317,11 @@ Reusing configurations:
 
 ## Next Steps
 
-- [State Machine Lifecycle](./4-state-machine-lifecycle.md) - Detailed lifecycle handler documentation
-- [Actions](./5-actions.md) - Long-running interruptible state work
-- [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
-- [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
-- [Mapped Transitions](./8-mapped-transitions.md) - Automatic parameter conversion
-- [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
-- [Triggers](./10-triggers.md) - Autonomous transitions based on signals
-- [Exception Handling](./11-exception-handling.md) - Error handling strategies
+- [State Machine Lifecycle](./state-machine-lifecycle.md) - Detailed lifecycle handler documentation
+- [Actions](./actions.md) - Long-running interruptible state work
+- [Parameterless Transitions](./parameterless-transitions.md) - Simple state-to-state transitions
+- [Parameterized Transitions](./parameterized-transitions.md) - Transitions that carry typed data
+- [Mapped Transitions](./mapped-transitions.md) - Automatic parameter conversion
+- [Reentrant Transitions](./reentrant-transitions.md) - Same-parameter transitions
+- [Triggers](./triggers.md) - Autonomous transitions based on signals
+- [Exception Handling](./exception-handling.md) - Error handling strategies
