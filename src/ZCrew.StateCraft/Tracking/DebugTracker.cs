@@ -1,78 +1,182 @@
 using System.Diagnostics;
-using ZCrew.StateCraft.Tracking.Contracts;
-using ZCrew.StateCraft.Transitions.Contracts;
+using ZCrew.StateCraft.Identities.Extensions;
+using ZCrew.StateCraft.Parameters.Contracts;
 
 namespace ZCrew.StateCraft.Tracking;
 
-/// <inheritdoc />
+/// <summary>
+///     Records a rolling window of state machine events as text so the trace can be read from a debugger.
+/// </summary>
+/// <typeparam name="TState">The type representing state identifiers.</typeparam>
+/// <typeparam name="TTransition">The type representing transition identifiers.</typeparam>
 [DebuggerDisplay("Count={Count}")]
-internal class DebugTracker<TState, TTransition> : ITracker<TState, TTransition>
+internal class DebugTracker<TState, TTransition> : Tracker<TState, TTransition>
     where TState : notnull
     where TTransition : notnull
 {
+    private const int MaximumRecords = 100;
+
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly LinkedList<string> records = [];
 
+    /// <summary>
+    ///     The number of records currently held.
+    /// </summary>
     public int Count => this.records.Count;
 
     /// <inheritdoc />
-    public void Activated(IState<TState, TTransition> initialState)
+    public override void Activating(IStateIdentity<TState> state, IParameters parameters)
     {
-        AddRecord($"Activated at {initialState}");
+        AddRecord($"Activating {Describe(state, parameters)}");
     }
 
     /// <inheritdoc />
-    public void Activated<T>(IState<TState, TTransition> initialState, T initialParameter)
+    public override void Activated(IStateIdentity<TState> state, IParameters parameters)
     {
-        AddRecord($"Activated at {initialState}");
+        AddRecord($"Activated {Describe(state, parameters)}");
     }
 
     /// <inheritdoc />
-    public void Deactivated(IState<TState, TTransition> finalState)
+    public override void Deactivating(IStateIdentity<TState> state, IParameters parameters)
     {
-        AddRecord($"Deactivated at {finalState}");
+        AddRecord($"Deactivating {Describe(state, parameters)}");
     }
 
     /// <inheritdoc />
-    public void Deactivated<T>(IState<TState, TTransition> finalState, T parameter)
+    public override void Deactivated(IStateIdentity<TState> state, IParameters parameters)
     {
-        AddRecord($"Deactivated at {finalState}");
+        AddRecord($"Deactivated {Describe(state, parameters)}");
     }
 
     /// <inheritdoc />
-    public void Transitioned(ITransition<TState, TTransition> transition)
+    public override void Entering(IStateIdentity<TState> state, IParameters parameters)
     {
-        AddRecord($"Performing {transition}");
+        AddRecord($"Entering {Describe(state, parameters)}");
     }
 
     /// <inheritdoc />
-    public void Transitioned<T>(ITransition<TState, TTransition> transition, T parameter)
+    public override void Entered(IStateIdentity<TState> state, IParameters parameters)
     {
-        AddRecord($"Performing {transition}");
+        AddRecord($"Entered {Describe(state, parameters)}");
     }
 
     /// <inheritdoc />
-    public void Entered(IState<TState, TTransition> state)
+    public override void Exiting(IStateIdentity<TState> state, IParameters parameters)
     {
-        AddRecord($"Entered {state}");
+        AddRecord($"Exiting {Describe(state, parameters)}");
     }
 
     /// <inheritdoc />
-    public void Entered<T>(IState<TState, TTransition> state, T parameter)
+    public override void Exited(IStateIdentity<TState> state, IParameters parameters)
     {
-        AddRecord($"Entered {state}");
+        AddRecord($"Exited {Describe(state, parameters)}");
     }
 
     /// <inheritdoc />
-    public void Exited(IState<TState, TTransition> state)
+    public override void Transitioning(ITransitionIdentity<TTransition> transition, IParameters parameters)
     {
-        AddRecord($"Exited {state}");
+        AddRecord($"Transitioning {Describe(transition, parameters)}");
     }
 
     /// <inheritdoc />
-    public void Exited<T>(IState<TState, TTransition> state, T parameter)
+    public override void Transitioned(ITransitionIdentity<TTransition> transition, IParameters parameters)
     {
-        AddRecord($"Exited {state}");
+        AddRecord($"Transitioned {Describe(transition, parameters)}");
+    }
+
+    /// <inheritdoc />
+    public override void StateChanging(
+        IStateIdentity<TState> from,
+        ITransitionIdentity<TTransition> transition,
+        IStateIdentity<TState> to,
+        IParameters parameters
+    )
+    {
+        AddRecord($"State changing {transition.ToDisplayStringFromOneToOne(from, to)} {parameters}");
+    }
+
+    /// <inheritdoc />
+    public override void StateChanged(
+        IStateIdentity<TState> from,
+        ITransitionIdentity<TTransition> transition,
+        IStateIdentity<TState> to,
+        IParameters parameters
+    )
+    {
+        AddRecord($"State changed {transition.ToDisplayStringFromOneToOne(from, to)} {parameters}");
+    }
+
+    /// <inheritdoc />
+    public override void ActionStarting(IStateIdentity<TState> state, IParameters parameters)
+    {
+        AddRecord($"Action starting {Describe(state, parameters)}");
+    }
+
+    /// <inheritdoc />
+    public override void ActionCompleted(IStateIdentity<TState> state, IParameters parameters)
+    {
+        AddRecord($"Action completed {Describe(state, parameters)}");
+    }
+
+    /// <inheritdoc />
+    public override void TransitionQuerying(
+        TransitionQueryKind kind,
+        TTransition transition,
+        IStateIdentity<TState> from,
+        IParameters parameters
+    )
+    {
+        AddRecord($"{kind} requested '{transition}' from {Describe(from, parameters)}");
+    }
+
+    /// <inheritdoc />
+    public override void TransitionFound(ITransitionIdentity<TTransition> transition, IParameters parameters)
+    {
+        AddRecord($"Resolved {Describe(transition, parameters)}");
+    }
+
+    /// <inheritdoc />
+    public override void TransitionNotFound(
+        TransitionQueryKind kind,
+        TTransition transition,
+        IStateIdentity<TState> from,
+        IParameters parameters
+    )
+    {
+        AddRecord($"{kind} found no match for '{transition}' from {Describe(from, parameters)}");
+    }
+
+    /// <inheritdoc />
+    public override void TransitionSkipped(
+        ITransitionIdentity<TTransition> candidate,
+        TransitionSkippedReason reason,
+        IParameters parameters
+    )
+    {
+        AddRecord($"Rejected {candidate.ToDisplayString()} ({reason}) {parameters}");
+    }
+
+    /// <inheritdoc />
+    public override void RolledBack(IStateIdentity<TState> restoredState, Exception? exception)
+    {
+        var cause = exception == null ? "" : $": {exception.GetType().Name}: {exception.Message}";
+        AddRecord($"Rolled back to {restoredState.ToDisplayString()}{cause}");
+    }
+
+    /// <inheritdoc />
+    public override void HandlerFailed(ExceptionCallSite callSite, Exception exception)
+    {
+        AddRecord($"{callSite} threw {exception.GetType().Name}: {exception.Message}");
+    }
+
+    private static string Describe(IStateIdentity<TState> state, IParameters parameters)
+    {
+        return $"{state.ToDisplayString()} {parameters}";
+    }
+
+    private static string Describe(ITransitionIdentity<TTransition> transition, IParameters parameters)
+    {
+        return $"{transition.ToDisplayString()} {parameters}";
     }
 
     private void AddRecord(string message)
@@ -81,7 +185,7 @@ internal class DebugTracker<TState, TTransition> : ITracker<TState, TTransition>
         this.records.AddLast(record);
 
         // Limit the records to just a constant value for now
-        if (this.records.Count > 100)
+        if (this.records.Count > MaximumRecords)
         {
             this.records.RemoveFirst();
         }

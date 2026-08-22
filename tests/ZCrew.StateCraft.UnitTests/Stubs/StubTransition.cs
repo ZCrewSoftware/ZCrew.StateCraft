@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Identities.Extensions;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.States.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
@@ -21,7 +22,7 @@ internal class StubTransition<TState, TTransition> : ITransition<TState, TTransi
         Previous = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition>(previousState));
         TransitionValue = transition;
         Next = new StubStateRef<TState, TTransition>(new StubState<TState, TTransition>(nextState));
-        TransitionTypeParameters = typeParameters;
+        TransitionParameterTypes = typeParameters;
     }
 
     public IPreviousState<TState, TTransition> Previous { get; }
@@ -30,7 +31,7 @@ internal class StubTransition<TState, TTransition> : ITransition<TState, TTransi
 
     public TTransition TransitionValue { get; }
 
-    public IReadOnlyList<Type> TransitionTypeParameters { get; }
+    public IReadOnlyList<Type> TransitionParameterTypes { get; }
 
     public virtual Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
     {
@@ -45,5 +46,10 @@ internal class StubTransition<TState, TTransition> : ITransition<TState, TTransi
     public virtual Task StateChange(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
+    }
+
+    public override string ToString()
+    {
+        return this.ToDisplayString();
     }
 }

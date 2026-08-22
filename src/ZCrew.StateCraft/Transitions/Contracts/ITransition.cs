@@ -15,7 +15,7 @@ namespace ZCrew.StateCraft.Transitions.Contracts;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-internal interface ITransition<TState, TTransition>
+internal interface ITransition<TState, TTransition> : ITransitionIdentity<TTransition>
     where TState : notnull
     where TTransition : notnull
 {
@@ -28,16 +28,6 @@ internal interface ITransition<TState, TTransition>
     ///     The next state reference.
     /// </summary>
     INextState<TState, TTransition> Next { get; }
-
-    /// <summary>
-    ///     The transition value.
-    /// </summary>
-    TTransition TransitionValue { get; }
-
-    /// <summary>
-    ///     The type parameters of the transition. Empty if the transition can be invoked without providing a parameter.
-    /// </summary>
-    IReadOnlyList<Type> TransitionTypeParameters { get; }
 
     /// <summary>
     ///     Evaluate if the conditions to perform this transition have been met.

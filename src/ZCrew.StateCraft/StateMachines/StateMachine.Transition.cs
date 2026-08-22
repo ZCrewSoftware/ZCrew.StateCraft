@@ -1,4 +1,5 @@
 using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.Tracking;
 
 namespace ZCrew.StateCraft.StateMachines;
 
@@ -22,14 +23,20 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetEmptyNextParameters();
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.Transition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var currentTransition = await PreviousState.GetTransition(transition, Parameters, token);
             NextState = currentTransition.Next.State;
             await ExitState(token);
             await ExecuteTransition(currentTransition, token);
         }
-        catch when (CurrentState == null)
+        catch (Exception exception) when (CurrentState == null)
         {
-            Rollback();
+            Rollback(exception);
             this.internalState = InternalState.Recovery;
             throw;
         }
@@ -55,14 +62,20 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetNextParameter(parameter);
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.Transition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var currentTransition = await PreviousState.GetTransition(transition, Parameters, token);
             NextState = currentTransition.Next.State;
             await ExitState(token);
             await ExecuteTransition(currentTransition, token);
         }
-        catch when (CurrentState == null)
+        catch (Exception exception) when (CurrentState == null)
         {
-            Rollback();
+            Rollback(exception);
             this.internalState = InternalState.Recovery;
             throw;
         }
@@ -93,14 +106,20 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetNextParameters(parameter1, parameter2);
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.Transition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var currentTransition = await PreviousState.GetTransition(transition, Parameters, token);
             NextState = currentTransition.Next.State;
             await ExitState(token);
             await ExecuteTransition(currentTransition, token);
         }
-        catch when (CurrentState == null)
+        catch (Exception exception) when (CurrentState == null)
         {
-            Rollback();
+            Rollback(exception);
             this.internalState = InternalState.Recovery;
             throw;
         }
@@ -132,14 +151,20 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetNextParameters(parameter1, parameter2, parameter3);
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.Transition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var currentTransition = await PreviousState.GetTransition(transition, Parameters, token);
             NextState = currentTransition.Next.State;
             await ExitState(token);
             await ExecuteTransition(currentTransition, token);
         }
-        catch when (CurrentState == null)
+        catch (Exception exception) when (CurrentState == null)
         {
-            Rollback();
+            Rollback(exception);
             this.internalState = InternalState.Recovery;
             throw;
         }
@@ -172,14 +197,20 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetNextParameters(parameter1, parameter2, parameter3, parameter4);
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.Transition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var currentTransition = await PreviousState.GetTransition(transition, Parameters, token);
             NextState = currentTransition.Next.State;
             await ExitState(token);
             await ExecuteTransition(currentTransition, token);
         }
-        catch when (CurrentState == null)
+        catch (Exception exception) when (CurrentState == null)
         {
-            Rollback();
+            Rollback(exception);
             this.internalState = InternalState.Recovery;
             throw;
         }

@@ -29,6 +29,24 @@ internal class StateMachineParameters : IStateMachineParameters
     public ReadOnlySpan<Type> NextParameterTypes => this.nextParameters.Types;
 
     /// <inheritdoc />
+    public IParameters CapturePrevious()
+    {
+        return this.previousParameters.Capture();
+    }
+
+    /// <inheritdoc />
+    public IParameters CaptureCurrent()
+    {
+        return this.currentParameters.Capture();
+    }
+
+    /// <inheritdoc />
+    public IParameters CaptureNext()
+    {
+        return this.nextParameters.Capture();
+    }
+
+    /// <inheritdoc />
     public void SetEmptyNextParameters()
     {
         this.nextParameters.Set();
@@ -161,9 +179,11 @@ internal class StateMachineParameters : IStateMachineParameters
         this.nextParameters.Clear();
     }
 
-    [DebuggerDisplay("{name}: IsSet={IsSet}, Count={Count}")]
-    private class Parameters
+    [DebuggerDisplay("{name}: {ToString(),nq}")]
+    private sealed class Parameters : IParameters
     {
+        private static readonly Parameters Unset = new("Unset");
+
         private readonly Type?[] types = new Type?[4];
         private readonly object?[] values = new object?[4];
         private readonly string name;
@@ -184,6 +204,41 @@ internal class StateMachineParameters : IStateMachineParameters
                 VerifySet();
                 return this.types.AsSpan()[..Count]!;
             }
+        }
+
+        IReadOnlyList<Type> IParameters.Types => Types.ToArray();
+
+        IReadOnlyList<object?> IParameters.Values
+        {
+            get
+            {
+                VerifySet();
+                return this.values.AsSpan()[..Count].ToArray();
+            }
+        }
+
+        // Returns a frozen copy that survives the slot being recycled
+        public IParameters Capture()
+        {
+            if (!IsSet)
+            {
+                return Unset;
+            }
+
+            var copy = new Parameters(this.name) { Count = Count, IsSet = true };
+            Array.Copy(this.types, copy.types, Count);
+            Array.Copy(this.values, copy.values, Count);
+            return copy;
+        }
+
+        public override string ToString()
+        {
+            if (!IsSet)
+            {
+                return "<unset>";
+            }
+
+            return $"({string.Join(", ", this.values.Take(Count).Select(value => value?.ToString() ?? "null"))})";
         }
 
         public void Set()

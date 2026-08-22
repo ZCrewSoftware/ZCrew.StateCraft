@@ -1,5 +1,6 @@
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.StateMachines.Contracts;
+using ZCrew.StateCraft.Tracking.Contracts;
 
 namespace ZCrew.StateCraft;
 
@@ -218,4 +219,14 @@ public interface IStateMachineConfiguration<TState, TTransition>
     ///     The states in this configuration.
     /// </summary>
     internal IEnumerable<IStateConfiguration<TState, TTransition>> States { get; }
+
+    /// <summary>
+    ///     Sets the tracker that receives notifications about state machine lifecycle events. The provider is invoked
+    ///     once per <see cref="Build()"/> so each state machine gets its own tracker.
+    /// </summary>
+    /// <param name="trackerProvider">A factory that produces the tracker for a state machine.</param>
+    /// <returns>A reference to the configuration after the configuration was updated.</returns>
+    internal IStateMachineConfiguration<TState, TTransition> WithTracker(
+        Func<ITracker<TState, TTransition>> trackerProvider
+    );
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Diagnostics;
 using ZCrew.StateCraft.Extensions;
 using ZCrew.StateCraft.Parameters.Contracts;
+using ZCrew.StateCraft.Tracking;
 using ZCrew.StateCraft.Transitions.Contracts;
 
 namespace ZCrew.StateCraft;
@@ -62,24 +63,43 @@ internal sealed class TransitionTable<TState, TTransition> : IEnumerable<ITransi
     {
         foreach (var transition in this.transitions)
         {
+            // The tracker lives on the machine, which every transition can reach through its target state
+            var tracker = transition.Next.State.StateMachine.Tracker;
+
             // Filter out transitions with other values
             if (!EqualityComparer<TTransition>.Default.Equals(transition.TransitionValue, transitionValue))
             {
+                tracker?.TransitionSkipped(
+                    transition,
+                    TransitionSkippedReason.TransitionValueMismatch,
+                    parameters.CaptureNext()
+                );
                 continue;
             }
 
             // Filter out transitions with parameters
-            if (!transition.TransitionTypeParameters.IsAssignableFrom(parameters.NextParameterTypes))
+            if (!transition.TransitionParameterTypes.IsAssignableFrom(parameters.NextParameterTypes))
             {
+                tracker?.TransitionSkipped(
+                    transition,
+                    TransitionSkippedReason.ParameterTypeMismatch,
+                    parameters.CaptureNext()
+                );
                 continue;
             }
 
             // Filter out transitions that failed conditions
             if (!await transition.EvaluateConditions(parameters, token))
             {
+                tracker?.TransitionSkipped(
+                    transition,
+                    TransitionSkippedReason.ConditionFailed,
+                    parameters.CaptureNext()
+                );
                 continue;
             }
 
+            tracker?.TransitionFound(transition, parameters.CaptureNext());
             return transition;
         }
 

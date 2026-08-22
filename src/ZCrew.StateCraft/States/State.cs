@@ -1,5 +1,6 @@
 using ZCrew.StateCraft.Actions.Contracts;
 using ZCrew.StateCraft.Async;
+using ZCrew.StateCraft.Identities.Extensions;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
@@ -70,7 +71,7 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
     public TState StateValue { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> TypeParameters { get; } = [];
+    public IReadOnlyList<Type> StateParameterTypes { get; } = [];
 
     /// <inheritdoc />
     public IStateMachine<TState, TTransition> StateMachine { get; }
@@ -81,7 +82,6 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
     /// <inheritdoc />
     public async Task Activate(IStateMachineParameters parameters, CancellationToken token)
     {
-        StateMachine.Tracker?.Activated(this);
         foreach (var handler in this.onActivateHandlers)
         {
             await StateMachine.ExceptionBehavior.CallOnActivate(t => handler.Invoke(StateValue, t), token);
@@ -91,7 +91,6 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
     /// <inheritdoc />
     public async Task Deactivate(IStateMachineParameters parameters, CancellationToken token)
     {
-        StateMachine.Tracker?.Deactivated(this);
         foreach (var handler in this.onDeactivateHandlers)
         {
             await StateMachine.ExceptionBehavior.CallOnDeactivate(t => handler.Invoke(StateValue, t), token);
@@ -118,7 +117,6 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
     /// <inheritdoc />
     public async Task Enter(IStateMachineParameters parameters, CancellationToken token)
     {
-        StateMachine.Tracker?.Entered(this);
         foreach (var handler in this.onEntryHandlers)
         {
             await StateMachine.ExceptionBehavior.CallOnEntry(handler.Invoke, token);
@@ -138,7 +136,6 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
             await StateMachine.ExceptionBehavior.CallTrigger(trigger.Deactivate, token);
         }
 
-        StateMachine.Tracker?.Exited(this);
         foreach (var handler in this.onExitHandlers)
         {
             await StateMachine.ExceptionBehavior.CallOnExit(handler.Invoke, token);
@@ -194,9 +191,9 @@ internal class State<TState, TTransition> : IState<TState, TTransition>
         return await this.transitionTable.LookupTransition(transition, parameters, token);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IStateIdentity{TState}"/>
     public override string ToString()
     {
-        return $"{StateValue}";
+        return this.ToDisplayString();
     }
 }

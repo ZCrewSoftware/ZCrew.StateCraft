@@ -15,20 +15,10 @@ namespace ZCrew.StateCraft;
 ///     The transition type. This should be an <see langword="enum"/> type or it should be an equatable type so the
 ///     state machine behaves as expected.
 /// </typeparam>
-internal interface IState<TState, TTransition>
+internal interface IState<TState, TTransition> : IStateIdentity<TState>
     where TState : notnull
     where TTransition : notnull
 {
-    /// <summary>
-    ///     The state value.
-    /// </summary>
-    TState StateValue { get; }
-
-    /// <summary>
-    ///     The type parameters of the state.
-    /// </summary>
-    IReadOnlyList<Type> TypeParameters { get; }
-
     /// <summary>
     ///     The state machine that contains this state.
     /// </summary>
