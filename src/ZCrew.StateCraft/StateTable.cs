@@ -58,7 +58,7 @@ internal sealed class StateTable<TState, TTransition> : IEnumerable<IState<TStat
                 continue;
             }
 
-            if (!state.TypeParameters.IsAssignableFrom(types))
+            if (!state.StateParameterTypes.IsAssignableFrom(types))
             {
                 continue;
             }

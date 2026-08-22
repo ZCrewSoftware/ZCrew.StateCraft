@@ -1,4 +1,5 @@
 using ZCrew.StateCraft.Async.Contracts;
+using ZCrew.StateCraft.Identities.Extensions;
 using ZCrew.StateCraft.Mapping.Contracts;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
@@ -63,7 +64,7 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
     public TTransition TransitionValue { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> TransitionTypeParameters { get; } = [];
+    public IReadOnlyList<Type> TransitionParameterTypes { get; } = [];
 
     /// <inheritdoc />
     public async Task<bool> EvaluateConditions(IStateMachineParameters parameters, CancellationToken token)
@@ -103,7 +104,6 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
     public async Task Transition(IStateMachineParameters parameters, CancellationToken token)
     {
         await EnsureNextParametersWereMapped(parameters, token);
-        this.stateMachine.Tracker?.Transitioned(this);
         foreach (var handler in this.onTransitionHandlers)
         {
             await this.stateMachine.ExceptionBehavior.CallOnTransition(t => handler.Invoke(parameters, t), token);
@@ -117,18 +117,10 @@ internal class MappedTransition<TState, TTransition> : ITransition<TState, TTran
         await Next.State.StateChange(Previous.State.StateValue, TransitionValue, parameters, token);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="ITransitionIdentity{TTransition}"/>
     public override string ToString()
     {
-        if (
-            Previous.State.StateValue.Equals(Next.State.StateValue)
-            && Previous.State.TypeParameters.SequenceEqual(Next.State.TypeParameters)
-        )
-        {
-            return $"{TransitionValue}({Previous}) ↩";
-        }
-
-        return $"{TransitionValue}({Previous}) → {Next}";
+        return this.ToDisplayStringFromOneToOne(Previous.State, Next.State);
     }
 
     private Task EnsureNextParametersWereMapped(IStateMachineParameters parameters, CancellationToken token)

@@ -1,4 +1,5 @@
 using ZCrew.StateCraft.Extensions;
+using ZCrew.StateCraft.Tracking;
 
 namespace ZCrew.StateCraft.StateMachines;
 
@@ -22,7 +23,23 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetEmptyNextParameters();
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.CanTransition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var nextTransition = await PreviousState.GetTransitionOrDefault(transition, Parameters, token);
+            if (nextTransition == null)
+            {
+                Tracker?.TransitionNotFound(
+                    TransitionQueryKind.CanTransition,
+                    transition,
+                    PreviousState,
+                    Parameters.CaptureNext()
+                );
+            }
+
             return nextTransition != null;
         }
         finally
@@ -49,7 +66,23 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetNextParameter(parameter);
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.CanTransition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var nextTransition = await PreviousState.GetTransitionOrDefault(transition, Parameters, token);
+            if (nextTransition == null)
+            {
+                Tracker?.TransitionNotFound(
+                    TransitionQueryKind.CanTransition,
+                    transition,
+                    PreviousState,
+                    Parameters.CaptureNext()
+                );
+            }
+
             return nextTransition != null;
         }
         finally
@@ -81,7 +114,23 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetNextParameters(parameter1, parameter2);
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.CanTransition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var nextTransition = await PreviousState.GetTransitionOrDefault(transition, Parameters, token);
+            if (nextTransition == null)
+            {
+                Tracker?.TransitionNotFound(
+                    TransitionQueryKind.CanTransition,
+                    transition,
+                    PreviousState,
+                    Parameters.CaptureNext()
+                );
+            }
+
             return nextTransition != null;
         }
         finally
@@ -114,7 +163,23 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetNextParameters(parameter1, parameter2, parameter3);
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.CanTransition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var nextTransition = await PreviousState.GetTransitionOrDefault(transition, Parameters, token);
+            if (nextTransition == null)
+            {
+                Tracker?.TransitionNotFound(
+                    TransitionQueryKind.CanTransition,
+                    transition,
+                    PreviousState,
+                    Parameters.CaptureNext()
+                );
+            }
+
             return nextTransition != null;
         }
         finally
@@ -148,7 +213,23 @@ internal partial class StateMachine<TState, TTransition>
         {
             BeginTransition();
             Parameters.SetNextParameters(parameter1, parameter2, parameter3, parameter4);
+            Tracker?.TransitionQuerying(
+                TransitionQueryKind.CanTransition,
+                transition,
+                PreviousState,
+                Parameters.CaptureNext()
+            );
             var nextTransition = await PreviousState.GetTransitionOrDefault(transition, Parameters, token);
+            if (nextTransition == null)
+            {
+                Tracker?.TransitionNotFound(
+                    TransitionQueryKind.CanTransition,
+                    transition,
+                    PreviousState,
+                    Parameters.CaptureNext()
+                );
+            }
+
             return nextTransition != null;
         }
         finally

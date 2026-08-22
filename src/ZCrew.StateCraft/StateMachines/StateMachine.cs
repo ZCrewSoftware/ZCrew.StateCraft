@@ -9,7 +9,6 @@ using ZCrew.StateCraft.InitialState.Contracts;
 using ZCrew.StateCraft.Parameters;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
-using ZCrew.StateCraft.Tracking;
 using ZCrew.StateCraft.Tracking.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
 using ZCrew.StateCraft.Triggers.Contracts;
@@ -39,13 +38,15 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     /// <param name="options">The options to enable certain features on this state machine.</param>
     /// <param name="exceptionBehavior">The exception behavior.</param>
     /// <param name="stateMachineInfo">The state machine info, taken from the configuration.</param>
+    /// <param name="tracker">The tracker for this state machine.</param>
     public StateMachine(
         IInitialStateProvider<TState, TTransition> initialStateProvider,
         IReadOnlyList<IAsyncAction<TState, TTransition, TState>> onStateChanges,
         IReadOnlyList<ITrigger> triggers,
         StateMachineOptions options,
         IExceptionBehavior exceptionBehavior,
-        IStateMachineInfo<TState, TTransition> stateMachineInfo
+        IStateMachineInfo<TState, TTransition> stateMachineInfo,
+        ITracker<TState, TTransition>? tracker
     )
     {
         this.initialStateProvider = initialStateProvider;
@@ -54,8 +55,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         this.options = options;
         ExceptionBehavior = exceptionBehavior;
         this.stateMachineInfo = stateMachineInfo;
-
-        SetupTracking();
+        Tracker = tracker;
     }
 
     /// <inheritdoc />
@@ -96,7 +96,9 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             await this.initialStateProvider.Activate(this, token);
             Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
+            Tracker?.Activating(NextState, Parameters.CaptureNext());
             await NextState.Activate(Parameters, token);
+            Tracker?.Activated(NextState, Parameters.CaptureNext());
         }
         catch
         {
@@ -125,7 +127,9 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             // Deactivate reads from the Previous parameters, so shift them over.
             Parameters.CommitTransition();
             Parameters.BeginTransition();
+            Tracker?.Deactivating(NextState!, Parameters.CapturePrevious());
             await NextState!.Deactivate(Parameters, CancellationToken.None);
+            Tracker?.Deactivated(NextState, Parameters.CapturePrevious());
 
             // If enable triggers or activating the state throws, reset fully
             Parameters.Clear();
@@ -152,7 +156,9 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             await DeactivateTriggers(token);
             if (PreviousState != null)
             {
+                Tracker?.Deactivating(PreviousState, Parameters.CapturePrevious());
                 await PreviousState.Deactivate(Parameters, token);
+                Tracker?.Deactivated(PreviousState, Parameters.CapturePrevious());
             }
             Parameters.Clear();
             PreviousState = null;
@@ -166,7 +172,9 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             BeginTransition();
             await ExitState(token);
             await DeactivateTriggers(token);
+            Tracker?.Deactivating(PreviousState, Parameters.CapturePrevious());
             await PreviousState.Deactivate(Parameters, token);
+            Tracker?.Deactivated(PreviousState, Parameters.CapturePrevious());
 
             // An action has deactivated the state machine and the token needs to be cleaned up before deactivating
             // The 'token' here may be the action's cancellation token
@@ -176,9 +184,9 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             PreviousState = null;
             this.internalState = InternalState.Inactive;
         }
-        catch when (CurrentState == null)
+        catch (Exception exception) when (CurrentState == null)
         {
-            Rollback();
+            Rollback(exception);
             this.internalState = InternalState.Recovery;
             throw;
         }
@@ -207,7 +215,9 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             await DeactivateActions(token);
         }
 
+        Tracker?.Exiting(PreviousState, Parameters.CapturePrevious());
         await PreviousState.Exit(Parameters, token);
+        Tracker?.Exited(PreviousState, Parameters.CapturePrevious());
 
         this.internalState = InternalState.Exited;
     }
@@ -218,10 +228,13 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
         this.internalState = InternalState.Transitioning;
+        Tracker?.Transitioning(currentTransition, Parameters.CaptureNext());
         await currentTransition.Transition(Parameters, token);
+        Tracker?.Transitioned(currentTransition, Parameters.CaptureNext());
         this.internalState = InternalState.Transitioned;
 
         this.internalState = InternalState.StateChanging;
+        Tracker?.StateChanging(PreviousState, currentTransition, NextState, Parameters.CaptureNext());
         foreach (var onStateChange in this.onStateChanges)
         {
             await ExceptionBehavior.CallOnStateChange(
@@ -236,6 +249,7 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
             );
         }
         await currentTransition.StateChange(Parameters, token);
+        Tracker?.StateChanged(PreviousState, currentTransition, NextState, Parameters.CaptureNext());
         this.internalState = InternalState.StateChanged;
     }
 
@@ -252,7 +266,9 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
         this.internalState = InternalState.Entering;
+        Tracker?.Entering(NextState, Parameters.CaptureNext());
         await NextState.Enter(Parameters, token);
+        Tracker?.Entered(NextState, Parameters.CaptureNext());
         this.internalState = InternalState.Entered;
 
         Parameters.CommitTransition();
@@ -273,15 +289,20 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         }
         else
         {
+            var actionState = CurrentState;
+            var actionParameters = Parameters.CaptureCurrent();
+
             // Start the execution of the action and allow the state machine to be transitioned or deactivated.
             // Even if this throws an exception then the caller should have a 'using' statement to ensure the lock is
             // always released.
-            var action = CurrentState.Action(Parameters, token);
+            Tracker?.ActionStarting(actionState, actionParameters);
+            var action = actionState.Action(Parameters, token);
             this.internalState = InternalState.Active;
             methodLock.Dispose();
 
             // Then await the action - which is now free to transition the state machine without deadlocking
             await action;
+            Tracker?.ActionCompleted(actionState, actionParameters);
         }
     }
 
@@ -296,12 +317,24 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         NextState = null;
     }
 
-    private void Rollback()
+    /// <summary>
+    ///     Reverts a transition in progress, restoring the state the machine came from. Every failure path and every
+    ///     dry run funnels through here, so it is the single place the tracker is told a transition did not stick.
+    /// </summary>
+    /// <param name="exception">
+    ///     The exception that caused the rollback, or <see langword="null"/> when the rollback was expected.
+    /// </param>
+    private void Rollback(Exception? exception = null)
     {
         Parameters.RollbackTransition();
         NextState = null;
         CurrentState = PreviousState;
         PreviousState = null;
+
+        if (CurrentState != null)
+        {
+            Tracker?.RolledBack(CurrentState, exception);
+        }
     }
 
     /// <summary>
@@ -315,7 +348,9 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
     {
         Debug.Assert(NextState != null, $"Expected {nameof(NextState)} to be set.");
 
+        Tracker?.Entering(NextState, Parameters.CaptureNext());
         await NextState.Enter(Parameters, token);
+        Tracker?.Entered(NextState, Parameters.CaptureNext());
         Parameters.CommitTransition();
         PreviousState = null;
         CurrentState = NextState;
@@ -325,14 +360,22 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         // Use a canceled token here so that any async work is canceled immediately; but synchronous work (or work that
         // must run) can just ignore the cancellation token and execute before transitioning to the next state
         var canceledToken = new CancellationToken(true);
+        Tracker?.ActionStarting(CurrentState, Parameters.CaptureCurrent());
         var action = CurrentState.Action(Parameters, canceledToken);
         await action.ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+        Tracker?.ActionCompleted(CurrentState, Parameters.CaptureCurrent());
     }
 
-    private Task ActivateActions(CancellationToken token)
+    private async Task ActivateActions(CancellationToken token)
     {
         Debug.Assert(CurrentState != null, $"Expected {nameof(CurrentState)} to be set.");
-        return CurrentState.Action(Parameters, token);
+
+        var actionState = CurrentState;
+        var actionParameters = Parameters.CaptureCurrent();
+
+        Tracker?.ActionStarting(actionState, actionParameters);
+        await actionState.Action(Parameters, token);
+        Tracker?.ActionCompleted(actionState, actionParameters);
     }
 
     private Task DeactivateActions(CancellationToken token)
@@ -354,11 +397,5 @@ internal sealed partial class StateMachine<TState, TTransition> : IStateMachine<
         {
             await trigger.Deactivate(token);
         }
-    }
-
-    [Conditional("DEBUG")]
-    private void SetupTracking()
-    {
-        Tracker = new DebugTracker<TState, TTransition>();
     }
 }

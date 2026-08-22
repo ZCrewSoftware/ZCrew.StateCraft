@@ -1,3 +1,4 @@
+using ZCrew.StateCraft.Identities.Extensions;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.Transitions.Contracts;
@@ -18,14 +19,14 @@ internal class StubState<TState, TTransition> : IState<TState, TTransition>
     public StubState(TState state, params Type[] typeParameters)
     {
         StateValue = state;
-        TypeParameters = typeParameters;
+        StateParameterTypes = typeParameters;
     }
 
     public TState StateValue { get; }
 
-    public IStateMachine<TState, TTransition> StateMachine => null!;
+    public IStateMachine<TState, TTransition> StateMachine { get; } = new StubStateMachine<TState, TTransition>();
 
-    public IReadOnlyList<Type> TypeParameters { get; }
+    public IReadOnlyList<Type> StateParameterTypes { get; }
 
     public IEnumerable<ITransition<TState, TTransition>> Transitions { get; } = [];
 
@@ -86,9 +87,7 @@ internal class StubState<TState, TTransition> : IState<TState, TTransition>
 
     public override string ToString()
     {
-        return TypeParameters.Count == 0
-            ? $"{StateValue}"
-            : $"{StateValue}<{string.Join(", ", TypeParameters.Select(t => t.FriendlyName))}>";
+        return this.ToDisplayString();
     }
 }
 
@@ -107,9 +106,9 @@ internal class StubState<TState, TTransition, T1, T2> : IState<TState, TTransiti
 
     public TState StateValue { get; }
 
-    public IReadOnlyList<Type> TypeParameters => [typeof(T1), typeof(T2)];
+    public IReadOnlyList<Type> StateParameterTypes => [typeof(T1), typeof(T2)];
 
-    public IStateMachine<TState, TTransition> StateMachine => null!;
+    public IStateMachine<TState, TTransition> StateMachine { get; } = new StubStateMachine<TState, TTransition>();
 
     public IEnumerable<ITransition<TState, TTransition>> Transitions { get; } = [];
 
@@ -166,6 +165,11 @@ internal class StubState<TState, TTransition, T1, T2> : IState<TState, TTransiti
     public virtual Task Exit(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
+    }
+
+    public override string ToString()
+    {
+        return this.ToDisplayString();
     }
 }
 
@@ -184,9 +188,9 @@ internal class StubState<TState, TTransition, T1, T2, T3> : IState<TState, TTran
 
     public TState StateValue { get; }
 
-    public IReadOnlyList<Type> TypeParameters => [typeof(T1), typeof(T2), typeof(T3)];
+    public IReadOnlyList<Type> StateParameterTypes => [typeof(T1), typeof(T2), typeof(T3)];
 
-    public IStateMachine<TState, TTransition> StateMachine => null!;
+    public IStateMachine<TState, TTransition> StateMachine { get; } = new StubStateMachine<TState, TTransition>();
 
     public IEnumerable<ITransition<TState, TTransition>> Transitions { get; } = [];
 
@@ -243,6 +247,11 @@ internal class StubState<TState, TTransition, T1, T2, T3> : IState<TState, TTran
     public virtual Task Exit(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
+    }
+
+    public override string ToString()
+    {
+        return this.ToDisplayString();
     }
 }
 
@@ -261,9 +270,9 @@ internal class StubState<TState, TTransition, T1, T2, T3, T4> : IState<TState, T
 
     public TState StateValue { get; }
 
-    public IReadOnlyList<Type> TypeParameters => [typeof(T1), typeof(T2), typeof(T3), typeof(T4)];
+    public IReadOnlyList<Type> StateParameterTypes => [typeof(T1), typeof(T2), typeof(T3), typeof(T4)];
 
-    public IStateMachine<TState, TTransition> StateMachine => null!;
+    public IStateMachine<TState, TTransition> StateMachine { get; } = new StubStateMachine<TState, TTransition>();
 
     public IEnumerable<ITransition<TState, TTransition>> Transitions { get; } = [];
 
@@ -320,5 +329,10 @@ internal class StubState<TState, TTransition, T1, T2, T3, T4> : IState<TState, T
     public virtual Task Exit(IStateMachineParameters parameters, CancellationToken token)
     {
         return Task.CompletedTask;
+    }
+
+    public override string ToString()
+    {
+        return this.ToDisplayString();
     }
 }

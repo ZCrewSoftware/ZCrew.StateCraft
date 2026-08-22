@@ -3,6 +3,8 @@ using ZCrew.StateCraft.Info;
 using ZCrew.StateCraft.InitialState.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States;
+using ZCrew.StateCraft.Tracking;
+using ZCrew.StateCraft.Tracking.Contracts;
 using ZCrew.StateCraft.Triggers;
 using ZCrew.StateCraft.Triggers.Contracts;
 using ZCrew.StateCraft.Validation;
@@ -21,6 +23,7 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
     private readonly List<ITriggerConfiguration<TState, TTransition>> triggerConfigurations = [];
     private StateMachineOptions stateMachineOptions = StateMachineOptions.None;
     private Func<IEnumerable<IAsyncAction<ExceptionContext>>, IExceptionBehavior>? exceptionBehaviorProvider;
+    private Func<ITracker<TState, TTransition>>? trackerProvider;
 
     /// <summary>
     ///     Creates a new <see cref="StateMachineConfiguration{TState,TTransition}"/> after initializing the
@@ -56,7 +59,8 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         }
 
         var triggers = new List<ITrigger>();
-        var exceptionBehavior = BuildExceptionBehavior();
+        var tracker = BuildTracker();
+        var exceptionBehavior = BuildExceptionBehavior(tracker);
         var stateMachineInfo = GetInfo();
         var stateMachine = new StateMachine<TState, TTransition>(
             this.initialInitialStateProvider,
@@ -64,7 +68,8 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
             triggers,
             this.stateMachineOptions,
             exceptionBehavior,
-            stateMachineInfo
+            stateMachineInfo,
+            tracker
         );
 
         foreach (var triggerConfiguration in this.triggerConfigurations)
@@ -87,6 +92,17 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         }
 
         return stateMachine;
+    }
+
+    /// <inheritdoc/>
+    public IStateMachineConfiguration<TState, TTransition> WithTracker(
+        Func<ITracker<TState, TTransition>> trackerProvider
+    )
+    {
+        ArgumentNullException.ThrowIfNull(trackerProvider);
+
+        this.trackerProvider = trackerProvider;
+        return this;
     }
 
     /// <inheritdoc/>
@@ -209,9 +225,37 @@ internal class StateMachineConfiguration<TState, TTransition> : IStateMachineCon
         return stateMachineInfo;
     }
 
-    private IExceptionBehavior BuildExceptionBehavior()
+    private IExceptionBehavior BuildExceptionBehavior(ITracker<TState, TTransition>? tracker)
     {
-        return this.exceptionBehaviorProvider?.Invoke(this.onExceptionHandlers)
+        var exceptionBehaviour =
+            this.exceptionBehaviorProvider?.Invoke(this.onExceptionHandlers)
             ?? new RethrowExceptionBehavior(this.onExceptionHandlers);
+
+        if (tracker == null)
+        {
+            return exceptionBehaviour;
+        }
+
+        return new TrackingExceptionBehavior<TState, TTransition>(exceptionBehaviour, tracker);
+    }
+
+    private
+#if DEBUG
+    ITracker<TState, TTransition>
+#else
+    ITracker<TState, TTransition>?
+#endif
+    BuildTracker()
+    {
+        if (this.trackerProvider != null)
+        {
+            return this.trackerProvider();
+        }
+
+#if DEBUG
+        return new DebugTracker<TState, TTransition>();
+#else
+        return null;
+#endif
     }
 }

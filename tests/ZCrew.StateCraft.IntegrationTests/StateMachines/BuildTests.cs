@@ -1,5 +1,6 @@
 using NSubstitute;
 using ZCrew.Extensions.Tasks;
+using ZCrew.StateCraft.Tracking;
 
 namespace ZCrew.StateCraft.IntegrationTests.StateMachines;
 
@@ -67,7 +68,7 @@ public class BuildTests
         var stateMachine = configuration.Build();
 
         // Assert
-        Assert.IsType<RethrowExceptionBehavior>(stateMachine.ExceptionBehavior);
+        Assert.IsType<RethrowExceptionBehavior>(Unwrap(stateMachine.ExceptionBehavior));
     }
 
     [Fact]
@@ -84,7 +85,7 @@ public class BuildTests
         var stateMachine = configuration.Build();
 
         // Assert
-        Assert.Same(exceptionBehavior, stateMachine.ExceptionBehavior);
+        Assert.Same(exceptionBehavior, Unwrap(stateMachine.ExceptionBehavior));
     }
 
     [Fact]
@@ -161,5 +162,11 @@ public class BuildTests
         // Assert
         Assert.Equal("B", machine1.CurrentState?.StateValue);
         Assert.Equal("A", machine2.CurrentState?.StateValue);
+    }
+
+    // A machine with a tracker decorates its exception behavior, so unwrap before asserting on the configured one.
+    private static IExceptionBehavior Unwrap(IExceptionBehavior behavior)
+    {
+        return behavior is TrackingExceptionBehavior<string, string> tracking ? tracking.Inner : behavior;
     }
 }

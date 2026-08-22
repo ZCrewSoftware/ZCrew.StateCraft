@@ -158,7 +158,7 @@ internal class FromTransitionConfiguration<TState, TTransition, TNext1, TNext2, 
         foreach (var state in stateMachine.StateTable)
         {
             var excluded = this.excludedStates.Any(excludedState =>
-                excludedState.Matches(state.StateValue, state.TypeParameters)
+                excludedState.Matches(state.StateValue, state.StateParameterTypes)
             );
             if (excluded)
             {

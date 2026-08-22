@@ -134,9 +134,9 @@ public interface IDirectTransitionConfiguration<TState, TTransition, TNext1, TNe
     /// </summary>
     /// <returns>The final state configuration step.</returns>
     /// <remarks>
-    ///     Since a state may have the same <see cref="IState{TState,TTransition}.StateValue"/> but different parameters
+    ///     Since a state may have the same <see cref="IStateIdentity{TState}.StateValue"/> but different parameters
     ///     this may point to a different configured state. This is merely shorthand for <see cref="To"/> with the same
-    ///     <see cref="IState{TState,TTransition}.StateValue"/>.
+    ///     <see cref="IStateIdentity{TState}.StateValue"/>.
     /// </remarks>
     ITransitionConfiguration<TState, TTransition> ToSameState();
 }

@@ -1,4 +1,5 @@
 using ZCrew.StateCraft.Async.Contracts;
+using ZCrew.StateCraft.Identities.Extensions;
 using ZCrew.StateCraft.Parameters.Contracts;
 using ZCrew.StateCraft.StateMachines.Contracts;
 using ZCrew.StateCraft.States.Contracts;
@@ -57,12 +58,11 @@ internal class DirectTransition<TState, TTransition> : ITransition<TState, TTran
     public TTransition TransitionValue { get; }
 
     /// <inheritdoc />
-    public IReadOnlyList<Type> TransitionTypeParameters => Next.State.TypeParameters;
+    public IReadOnlyList<Type> TransitionParameterTypes => Next.State.StateParameterTypes;
 
     /// <inheritdoc />
     public async Task Transition(IStateMachineParameters parameters, CancellationToken token)
     {
-        this.stateMachine.Tracker?.Transitioned(this);
         foreach (var handler in this.onTransitionHandlers)
         {
             await this.stateMachine.ExceptionBehavior.CallOnTransition(t => handler.Invoke(parameters, t), token);
@@ -93,17 +93,9 @@ internal class DirectTransition<TState, TTransition> : ITransition<TState, TTran
         return nextStateCondition;
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="ITransitionIdentity{TTransition}"/>
     public override string ToString()
     {
-        if (
-            Previous.State.StateValue.Equals(Next.State.StateValue)
-            && Previous.State.TypeParameters.SequenceEqual(Next.State.TypeParameters)
-        )
-        {
-            return $"{TransitionValue}({Previous}) ↩";
-        }
-
-        return $"{TransitionValue}({Previous}) → {Next}";
+        return this.ToDisplayStringFromOneToOne(Previous.State, Next.State);
     }
 }

@@ -59,6 +59,27 @@ internal interface IStateMachineParameters
     ReadOnlySpan<Type> NextParameterTypes { get; }
 
     /// <summary>
+    ///     Captures an immutable copy of the previous parameters that is safe to retain after the slot is
+    ///     recycled.
+    /// </summary>
+    /// <returns>The copy, which is unset if <see cref="IsPreviousSet"/> is not <see langword="true"/>.</returns>
+    IParameters CapturePrevious();
+
+    /// <summary>
+    ///     Captures an immutable copy of the current parameters that is safe to retain after the slot is
+    ///     recycled.
+    /// </summary>
+    /// <returns>The copy, which is unset if <see cref="IsCurrentSet"/> is not <see langword="true"/>.</returns>
+    IParameters CaptureCurrent();
+
+    /// <summary>
+    ///     Captures an immutable copy of the next parameters that is safe to retain after the slot is
+    ///     recycled.
+    /// </summary>
+    /// <returns>The copy, which is unset if <see cref="IsNextSet"/> is not <see langword="true"/>.</returns>
+    IParameters CaptureNext();
+
+    /// <summary>
     ///     Stages empty parameters for a parameterless transition.
     /// </summary>
     void SetEmptyNextParameters();

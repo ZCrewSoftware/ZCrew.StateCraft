@@ -1521,4 +1521,105 @@ public class StateMachineParametersTests
         // Assert
         Assert.NotNull(result);
     }
+
+    [Fact]
+    public void CaptureNext_WhenNoParametersSet_ShouldReturnUnset()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+
+        // Act
+        var captured = parameters.CaptureNext();
+
+        // Assert
+        Assert.False(captured.IsSet);
+        Assert.Equal(0, captured.Count);
+        Assert.Equal("<unset>", captured.ToString());
+        Assert.Throws<InvalidOperationException>(() => captured.Values);
+    }
+
+    [Fact]
+    public void CaptureNext_WhenEmptyParametersSet_ShouldReturnSetWithNoValues()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetEmptyNextParameters();
+
+        // Act
+        var captured = parameters.CaptureNext();
+
+        // Assert
+        Assert.True(captured.IsSet);
+        Assert.Equal(0, captured.Count);
+        Assert.Empty(captured.Values);
+        Assert.Empty(captured.Types);
+        Assert.Equal("()", captured.ToString());
+    }
+
+    [Fact]
+    public void CaptureNext_WhenParametersSet_ShouldCopyValuesAndTypes()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameters(42, "answer");
+
+        // Act
+        var captured = parameters.CaptureNext();
+
+        // Assert
+        Assert.True(captured.IsSet);
+        Assert.Equal(2, captured.Count);
+        Assert.Equal([42, "answer"], captured.Values);
+        Assert.Equal([typeof(int), typeof(string)], captured.Types);
+        Assert.Equal((42, "answer"), captured.Get<int, string>());
+        Assert.Equal("(42, answer)", captured.ToString());
+    }
+
+    [Fact]
+    public void CaptureNext_WhenSlotIsRecycled_ShouldRetainCopy()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter(42);
+        var captured = parameters.CaptureNext();
+
+        // Act
+        parameters.CommitTransition();
+        parameters.Clear();
+
+        // Assert
+        Assert.True(captured.IsSet);
+        Assert.Equal(42, captured.Get<int>());
+    }
+
+    [Fact]
+    public void CaptureCurrent_WhenParametersSet_ShouldCopyCurrentSlot()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter("current");
+        parameters.CommitTransition();
+
+        // Act
+        var captured = parameters.CaptureCurrent();
+
+        // Assert
+        Assert.Equal("current", captured.Get<string>());
+    }
+
+    [Fact]
+    public void CapturePrevious_WhenParametersSet_ShouldCopyPreviousSlot()
+    {
+        // Arrange
+        var parameters = new StateMachineParameters();
+        parameters.SetNextParameter("previous");
+        parameters.CommitTransition();
+        parameters.BeginTransition();
+
+        // Act
+        var captured = parameters.CapturePrevious();
+
+        // Assert
+        Assert.Equal("previous", captured.Get<string>());
+    }
 }
