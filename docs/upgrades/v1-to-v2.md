@@ -30,3 +30,7 @@
 - **`IFromAllStatesTransitionConfiguration<TState, TTransition>`** gained three `OnTransition(...)`
   overloads (`Action`, `Func<CancellationToken, Task>`, `Func<CancellationToken, ValueTask>`).
   Custom implementations of this interface must add them.
+
+### Removed Legacy Exception Handler
+
+- The exception handler was marked `[Obsolete]` for a few releases now. It is finally removed.

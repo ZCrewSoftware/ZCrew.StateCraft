@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using ZCrew.Extensions.Tasks;
 using ZCrew.StateCraft.StateMachines.Contracts;
 
@@ -62,19 +61,6 @@ public interface IStateMachineConfiguration<TState, TTransition>
     IStateMachineConfiguration<TState, TTransition> WithAsynchronousActions();
 
     /// <summary>
-    ///     Obsolete. Use:
-    ///     <see cref="WithExceptionBehavior(Func{IEnumerable{IAsyncAction{ExceptionContext}}, IExceptionBehavior})"/>
-    ///     instead.
-    /// </summary>
-    [Obsolete(
-        "Use WithExceptionBehavior(Func<IEnumerable<IAsyncAction<ExceptionContext>>, IExceptionBehavior>); "
-            + "Removed in v2.0.0"
-    )]
-    IStateMachineConfiguration<TState, TTransition> WithExceptionBehavior(
-        Func<IEnumerable<IAsyncFunc<Exception, ExceptionResult>>, IExceptionBehavior> exceptionBehaviorProvider
-    );
-
-    /// <summary>
     ///     Configures a custom <see cref="IExceptionBehavior"/> provider. This will be called each time
     ///     <see cref="Build()"/> is called.
     /// </summary>
@@ -126,28 +112,6 @@ public interface IStateMachineConfiguration<TState, TTransition>
     /// <returns>A reference to the configuration after the configuration was updated.</returns>
     IStateMachineConfiguration<TState, TTransition> OnStateChange(
         Func<TState, TTransition, TState, CancellationToken, ValueTask> handler
-    );
-
-    /// <summary>
-    ///     Obsolete. Use <see cref="OnException(Action{ExceptionContext})"/> instead.
-    /// </summary>
-    [Obsolete("Use OnException(Action<ExceptionContext>); Removed in v2.0.0")]
-    IStateMachineConfiguration<TState, TTransition> OnException(Func<Exception, ExceptionResult> handler);
-
-    /// <summary>
-    ///     Obsolete. Use <see cref="OnException(Action{ExceptionContext})"/> instead.
-    /// </summary>
-    [Obsolete("Use OnException(Func<ExceptionContext, CancellationToken, Task>); Removed in v2.0.0")]
-    IStateMachineConfiguration<TState, TTransition> OnException(
-        Func<Exception, CancellationToken, Task<ExceptionResult>> handler
-    );
-
-    /// <summary>
-    ///     Obsolete. Use <see cref="OnException(Action{ExceptionContext})"/> instead.
-    /// </summary>
-    [Obsolete("Use OnException(Func<ExceptionContext, CancellationToken, ValueTask>); Removed in v2.0.0")]
-    IStateMachineConfiguration<TState, TTransition> OnException(
-        Func<Exception, CancellationToken, ValueTask<ExceptionResult>> handler
     );
 
     /// <summary>
