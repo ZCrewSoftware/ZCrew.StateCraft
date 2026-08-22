@@ -130,7 +130,7 @@ public static class StateInfoExtensions
         {
             if (!stateInfo.TryFindPathTo(target, out var path))
             {
-                throw new UnreachableStateException();
+                throw UnreachableStateException.ForPath(stateInfo, target);
             }
 
             return path;
