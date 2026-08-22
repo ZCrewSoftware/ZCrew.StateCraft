@@ -1,19 +1,19 @@
 <Solution>
   <Folder Name="/docs/">
-    <File Path="docs/1-introduction.md" />
-    <File Path="docs/12-exception-behavior.md" />
-    <File Path="docs/13-inverted-transitions.md" />
-    <File Path="docs/14-mermaid-diagrams.md" />
-    <File Path="docs/2-getting-started.md" />
-    <File Path="docs/3-general-concepts.md" />
-    <File Path="docs/4-state-machine-lifecycle.md" />
-    <File Path="docs/5-actions.md" />
-    <File Path="docs/6-parameterless-transitions.md" />
-    <File Path="docs/7-parameterized-transitions.md" />
-    <File Path="docs/8-mapped-transitions.md" />
-    <File Path="docs/9-reentrant-transitions.md" />
-    <File Path="docs/10-triggers.md" />
-    <File Path="docs/11-exception-handling.md" />
+    <File Path="docs/introduction.md" />
+    <File Path="docs/exception-behavior.md" />
+    <File Path="docs/inverted-transitions.md" />
+    <File Path="docs/mermaid-diagrams.md" />
+    <File Path="docs/getting-started.md" />
+    <File Path="docs/general-concepts.md" />
+    <File Path="docs/state-machine-lifecycle.md" />
+    <File Path="docs/actions.md" />
+    <File Path="docs/parameterless-transitions.md" />
+    <File Path="docs/parameterized-transitions.md" />
+    <File Path="docs/mapped-transitions.md" />
+    <File Path="docs/reentrant-transitions.md" />
+    <File Path="docs/triggers.md" />
+    <File Path="docs/exception-handling.md" />
   </Folder>
   <Folder Name="/docs/upgrades/">
     <File Path="docs/upgrades/v1-to-v2.md" />

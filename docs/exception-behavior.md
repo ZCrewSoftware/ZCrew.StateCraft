@@ -35,9 +35,9 @@ When no custom behavior is configured, StateCraft uses `RethrowExceptionBehavior
    that includes the exception and the call site where it was thrown.
 3. After all handlers have been called, rethrows the original exception with its original stack trace.
 4. Handles `OperationCanceledException` specially — rethrown for lifecycle/conditions/mapping, suppressed for
-   actions/triggers (see [Exception Handling](./11-exception-handling.md#operationcanceledexception)).
+   actions/triggers (see [Exception Handling](./exception-handling.md#operationcanceledexception)).
 
-This is the same behavior described in the [Exception Handling](./11-exception-handling.md) documentation.
+This is the same behavior described in the [Exception Handling](./exception-handling.md) documentation.
 
 ## Overriding the Default Behavior
 
@@ -187,7 +187,7 @@ Only suppress exceptions when you are certain the state machine can safely conti
 
 ## Next Steps
 
-- [Exception Handling](./11-exception-handling.md) - OnException handlers and ExceptionContext
-- [State Machine Lifecycle](./4-state-machine-lifecycle.md) - Lifecycle handler documentation
-- [Actions](./5-actions.md) - Long-running interruptible state work
-- [Triggers](./10-triggers.md) - Autonomous transitions based on signals
+- [Exception Handling](./exception-handling.md) - OnException handlers and ExceptionContext
+- [State Machine Lifecycle](./state-machine-lifecycle.md) - Lifecycle handler documentation
+- [Actions](./actions.md) - Long-running interruptible state work
+- [Triggers](./triggers.md) - Autonomous transitions based on signals

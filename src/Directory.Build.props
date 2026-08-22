@@ -11,19 +11,19 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <IsPackable>true</IsPackable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <!-- Common NuGet package metadata -->
   <PropertyGroup>
     <Authors>Matt Zawislak</Authors>
     <Company>ZCrew</Company>
-    <PackageProjectUrl>https://github.com/zcrew/ZCrew.StateCraft</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/zcrew/ZCrew.StateCraft.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/ZCrewSoftware/ZCrew.StateCraft</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ZCrewSoftware/ZCrew.StateCraft.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <!-- Source Link for better debugging experience -->
@@ -32,18 +32,13 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <!-- Make internals visible to the corresponding test project(s) -->
   <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>$(AssemblyName).UnitTests</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>$(AssemblyName).IntegrationTests</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>DynamicProxyGenAssembly2</_Parameter1>
-    </AssemblyAttribute>
+    <InternalsVisibleTo Include="$(AssemblyName).UnitTests"/>
+    <InternalsVisibleTo Include="$(AssemblyName).IntegrationTests"/>
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
   </ItemGroup>
 </Project>

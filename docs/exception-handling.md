@@ -331,7 +331,7 @@ catch (Exception ex)
 
 ## Next Steps
 
-- [Exception Behavior](./12-exception-behavior.md) - Custom exception behavior
-- [State Machine Lifecycle](./4-state-machine-lifecycle.md) - Lifecycle handler documentation
-- [Actions](./5-actions.md) - Long-running interruptible state work
-- [Triggers](./10-triggers.md) - Autonomous transitions based on signals
+- [Exception Behavior](./exception-behavior.md) - Custom exception behavior
+- [State Machine Lifecycle](./state-machine-lifecycle.md) - Lifecycle handler documentation
+- [Actions](./actions.md) - Long-running interruptible state work
+- [Triggers](./triggers.md) - Autonomous transitions based on signals

@@ -5,8 +5,8 @@ A Mermaid diagram renderer for [ZCrew.StateCraft](https://www.nuget.org/packages
 ## Features
 
 - **One-line rendering** - `ToMermaidDiagram()` produces the diagram from a configuration; no need to `Build()` first
-- **[Layout direction](docs/14-mermaid-diagrams.md#direction)** - Top-to-bottom or left-to-right layouts
-- **[Newline handling](docs/14-mermaid-diagrams.md#newline)** - Strip newlines, replace them with spaces, or render them as `<br/>` line breaks inside descriptors
+- **[Layout direction](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mermaid-diagrams.md#direction)** - Top-to-bottom or left-to-right layouts
+- **[Newline handling](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mermaid-diagrams.md#newline)** - Strip newlines, replace them with spaces, or render them as `<br/>` line breaks inside descriptors
 - **Condition descriptors** - Guarded transitions render with `If` / `And` clauses pulled from each condition's descriptor
 - **Parameterized state support** - Type parameters appear in both the state identifier and its descriptor
 - **Mermaid-safe escaping** - Angle brackets and consecutive spaces are encoded so the diagram parses cleanly
@@ -107,8 +107,8 @@ The condition then renders as `If: ready to process` instead of the verbatim exp
 
 ## Documentation
 
-For detailed documentation, see [Mermaid Diagrams](docs/14-mermaid-diagrams.md) in the docs folder.
+For detailed documentation, see [Mermaid Diagrams](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mermaid-diagrams.md) in the docs folder.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/LICENSE.md) file for details.

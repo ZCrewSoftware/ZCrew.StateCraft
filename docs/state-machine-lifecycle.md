@@ -20,7 +20,7 @@ StateCraft provides hooks, triggers, and actions at key points in a state machin
 
 Each hook supports both synchronous and asynchronous signatures.
 Each state-level hook will have the same parameters as the state, if any (up to 4 parameters).
-See [Triggers](./10-triggers.md) and [Actions](./5-actions.md) for detailed configuration of those components.
+See [Triggers](./triggers.md) and [Actions](./actions.md) for detailed configuration of those components.
 `OnTransition` is transition-scoped — configured on an individual transition rather than the machine
 or a state — and was introduced in **v2.0**. It receives the parameter(s) passed to the next state.
 See [Transition Handlers](#transition-handlers) below.
@@ -472,10 +472,10 @@ You don't need additional synchronization in handlers unless accessing external 
 
 ## Next Steps
 
-- [Actions](./5-actions.md) - Long-running interruptible state work
-- [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
-- [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
-- [Mapped Transitions](./8-mapped-transitions.md) - Automatic parameter conversion
-- [Reentrant Transitions](./9-reentrant-transitions.md) - Same-parameter transitions
-- [Triggers](./10-triggers.md) - Autonomous transitions based on signals
-- [Exception Handling](./11-exception-handling.md) - Error handling strategies
+- [Actions](./actions.md) - Long-running interruptible state work
+- [Parameterless Transitions](./parameterless-transitions.md) - Simple state-to-state transitions
+- [Parameterized Transitions](./parameterized-transitions.md) - Transitions that carry typed data
+- [Mapped Transitions](./mapped-transitions.md) - Automatic parameter conversion
+- [Reentrant Transitions](./reentrant-transitions.md) - Same-parameter transitions
+- [Triggers](./triggers.md) - Autonomous transitions based on signals
+- [Exception Handling](./exception-handling.md) - Error handling strategies

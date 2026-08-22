@@ -156,7 +156,7 @@ value(s) — the values supplied to `Transition(...)`:
 ```
 
 Synchronous, `Task`, and `ValueTask` handlers are supported, and multiple handlers run in
-registration order. See [State Machine Lifecycle](./4-state-machine-lifecycle.md) for how
+registration order. See [State Machine Lifecycle](./state-machine-lifecycle.md) for how
 `OnTransition` relates to the other lifecycle hooks.
 
 ## Conditional Transitions
@@ -334,9 +334,9 @@ one or two states transition to a destination, a regular transition is simpler a
 
 ## Next Steps
 
-- [Parameterless Transitions](./6-parameterless-transitions.md) - Simple state-to-state transitions
-- [Parameterized Transitions](./7-parameterized-transitions.md) - Transitions that carry typed data
-- [Mapped Transitions](./8-mapped-transitions.md) - Parameter type conversion between states
-- [Reentrant Transitions](./9-reentrant-transitions.md) - Pass parameters unchanged between states
-- [Triggers](./10-triggers.md) - Autonomous transitions based on signals
-- [Exception Handling](./11-exception-handling.md) - Error handling strategies
+- [Parameterless Transitions](./parameterless-transitions.md) - Simple state-to-state transitions
+- [Parameterized Transitions](./parameterized-transitions.md) - Transitions that carry typed data
+- [Mapped Transitions](./mapped-transitions.md) - Parameter type conversion between states
+- [Reentrant Transitions](./reentrant-transitions.md) - Pass parameters unchanged between states
+- [Triggers](./triggers.md) - Autonomous transitions based on signals
+- [Exception Handling](./exception-handling.md) - Error handling strategies
