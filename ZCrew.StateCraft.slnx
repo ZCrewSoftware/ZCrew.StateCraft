@@ -4,6 +4,7 @@
     <File Path="docs/exception-behavior.md" />
     <File Path="docs/inverted-transitions.md" />
     <File Path="docs/mermaid-diagrams.md" />
+    <File Path="docs/plantuml-diagrams.md" />
     <File Path="docs/getting-started.md" />
     <File Path="docs/general-concepts.md" />
     <File Path="docs/state-machine-lifecycle.md" />
@@ -29,11 +30,13 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/ZCrew.StateCraft.Mermaid/ZCrew.StateCraft.Mermaid.csproj" />
+    <Project Path="src/ZCrew.StateCraft.PlantUml/ZCrew.StateCraft.PlantUml.csproj" />
     <Project Path="src/ZCrew.StateCraft/ZCrew.StateCraft.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ZCrew.StateCraft.IntegrationTests/ZCrew.StateCraft.IntegrationTests.csproj" />
     <Project Path="tests/ZCrew.StateCraft.Mermaid.IntegrationTests/ZCrew.StateCraft.Mermaid.IntegrationTests.csproj" />
+    <Project Path="tests/ZCrew.StateCraft.PlantUml.IntegrationTests/ZCrew.StateCraft.PlantUml.IntegrationTests.csproj" />
     <Project Path="tests/ZCrew.StateCraft.UnitTests/ZCrew.StateCraft.UnitTests.csproj" />
   </Folder>
 </Solution>

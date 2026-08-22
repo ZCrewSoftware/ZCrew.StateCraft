@@ -1,15 +1,15 @@
 # ZCrew.StateCraft.Mermaid
 
-A Mermaid diagram renderer for [ZCrew.StateCraft](https://www.nuget.org/packages/ZCrew.StateCraft). Render any state machine configuration as a [Mermaid `stateDiagram-v2`](https://mermaid.js.org/syntax/stateDiagram.html) diagram so documentation stays in sync with the code rather than being hand-maintained alongside it.
+A Mermaid renderer for [ZCrew.StateCraft](https://www.nuget.org/packages/ZCrew.StateCraft). Render any state machine configuration as a [Mermaid `stateDiagram-v2`](https://mermaid.js.org/syntax/stateDiagram.html), so the diagram never drifts from the code.
 
 ## Features
 
-- **One-line rendering** - `ToMermaidDiagram()` produces the diagram from a configuration; no need to `Build()` first
-- **[Layout direction](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mermaid-diagrams.md#direction)** - Top-to-bottom or left-to-right layouts
-- **[Newline handling](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mermaid-diagrams.md#newline)** - Strip newlines, replace them with spaces, or render them as `<br/>` line breaks inside descriptors
-- **Condition descriptors** - Guarded transitions render with `If` / `And` clauses pulled from each condition's descriptor
-- **Parameterized state support** - Type parameters appear in both the state identifier and its descriptor
-- **Mermaid-safe escaping** - Angle brackets and consecutive spaces are encoded so the diagram parses cleanly
+- **One-line rendering** - `ToMermaidDiagram()` works straight off a configuration; no `Build()` needed
+- **[Layout direction](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mermaid-diagrams.md#direction)** - Top-to-bottom or left-to-right
+- **[Newline handling](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mermaid-diagrams.md#newline)** - Strip newlines, turn them into spaces, or render them as `<br/>`
+- **Condition descriptors** - Guarded transitions render with `If` / `And` clauses
+- **Parameterized states** - Type parameters appear in the state identifier and its descriptor
+- **Mermaid-safe escaping** - Angle brackets and runs of spaces are encoded so the diagram parses cleanly
 
 ## Installation
 
@@ -51,7 +51,7 @@ var configuration = StateMachine
 var diagram = configuration.ToMermaidDiagram();
 ```
 
-`diagram` is a `string` containing the diagram text — write it to a file, embed it in a Markdown document, or paste it into the [Mermaid live editor](https://mermaid.live).
+`diagram` is a `string` — write it to a file, embed it in a Markdown document, or paste it into the [Mermaid live editor](https://mermaid.live).
 
 ### Sample Output
 
@@ -74,7 +74,7 @@ stateDiagram-v2
 
 ### Options
 
-`ToMermaidDiagram` has three overloads — defaults, an explicit `MermaidOptions` instance, or a configure callback:
+Three overloads — defaults, a `MermaidOptions` instance, or a configure callback:
 
 ```csharp
 // Defaults
@@ -97,17 +97,17 @@ configuration.ToMermaidDiagram(options =>
 
 ### Readable Conditions
 
-Every `If(...)` overload accepts an optional descriptor that defaults to `[CallerArgumentExpression]`. Method groups and properties produce clean descriptors out of the box; for complex inline lambdas, pass an explicit descriptor so the diagram stays readable:
+`If(...)` captures the condition's source text by default. Method groups and properties read well on their own; for a large lambda, pass a descriptor instead:
 
 ```csharp
-.If(() => /* large block-bodied condition... */, "ready to process")
+.If(() => /* several lines of conditions... */, "ready to process")
 ```
 
-The condition then renders as `If: ready to process` instead of the verbatim expression text.
+That renders as `If: ready to process` rather than the whole expression.
 
 ## Documentation
 
-For detailed documentation, see [Mermaid Diagrams](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mermaid-diagrams.md) in the docs folder.
+See [Mermaid Diagrams](https://github.com/ZCrewSoftware/ZCrew.StateCraft/blob/main/docs/mermaid-diagrams.md) for the full documentation.
 
 ## License
 

@@ -24,5 +24,6 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ZCrew.StateCraft.Mermaid" />
+    <InternalsVisibleTo Include="ZCrew.StateCraft.PlantUml" />
   </ItemGroup>
 </Project>

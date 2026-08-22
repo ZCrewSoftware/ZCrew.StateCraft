@@ -1,12 +1,12 @@
 # Mermaid Diagrams
 
 The `ZCrew.StateCraft.Mermaid` package renders a state machine configuration as a
-[Mermaid `stateDiagram-v2`](https://mermaid.js.org/syntax/stateDiagram.html) diagram. It is useful for documenting the
-shape of a state machine without keeping a hand-written diagram in sync with the code.
+[Mermaid `stateDiagram-v2`](https://mermaid.js.org/syntax/stateDiagram.html), so the diagram never drifts from the
+code. For PlantUML output instead, see [PlantUML Diagrams](./plantuml-diagrams.md).
 
 ## Installation
 
-Add a reference to the `ZCrew.StateCraft.Mermaid` package alongside the core package:
+Add a reference to the package alongside the core one:
 
 ```xml
 <PackageReference Include="ZCrew.StateCraft" />
@@ -21,8 +21,8 @@ using ZCrew.StateCraft.Mermaid;
 
 ## Rendering a Diagram
 
-`ToMermaidDiagram()` is an extension on `IStateMachineConfiguration<TState, TTransition>`, so the diagram is produced
-directly from the configuration — there is no need to `Build()` the state machine first:
+`ToMermaidDiagram()` is an extension on `IStateMachineConfiguration<TState, TTransition>`, so you render straight
+from the configuration — there is no need to `Build()` first:
 
 ```csharp
 enum State { Idle, Running, Finished }
@@ -44,8 +44,8 @@ var configuration = StateMachine
 var diagram = configuration.ToMermaidDiagram();
 ```
 
-`diagram` is a `string` containing the diagram text. Write it to a file, embed it in a Markdown document, or paste it
-into the [Mermaid live editor](https://mermaid.live).
+`diagram` is a `string`. Write it to a file, embed it in a Markdown document, or paste it into the
+[Mermaid live editor](https://mermaid.live).
 
 ### Sample Output
 
@@ -66,7 +66,7 @@ stateDiagram-v2
     Running --> Finished : Complete
 ````
 
-When passed through a Mermaid renderer it produces:
+Which a Mermaid renderer draws as:
 
 ```mermaid
 ---
@@ -85,7 +85,7 @@ stateDiagram-v2
 
 ## Options
 
-`ToMermaidDiagram` has three overloads. Pick whichever fits the call site:
+`ToMermaidDiagram` has three overloads — defaults, an options instance, or a configure callback:
 
 ```csharp
 // Defaults
@@ -108,81 +108,53 @@ configuration.ToMermaidDiagram(options =>
 
 ### `Direction`
 
-Sets the layout direction emitted at the top of the diagram (`direction TB` or `direction LR`).
+The layout direction emitted at the top of the diagram.
 
-| Value          | Mermaid token | Description                            |
-|----------------|---------------|----------------------------------------|
-| `TopToBottom`  | `TB`          | States flow top to bottom (default).   |
-| `LeftToRight`  | `LR`          | States flow left to right.             |
+| Value         | Mermaid token | Description                          |
+|---------------|---------------|--------------------------------------|
+| `TopToBottom` | `TB`          | States flow top to bottom (default). |
+| `LeftToRight` | `LR`          | States flow left to right.           |
 
 ### `Newline`
 
-Controls how newline characters inside a descriptor (state name, transition descriptor, or condition descriptor) are
-rendered. Mermaid does not allow raw newlines inside a descriptor, so they must be transformed:
+How newlines inside a descriptor are rendered. Mermaid does not allow raw newlines in a descriptor, so they have
+to become something else:
 
-| Value                 | Behavior                                                                       |
-|-----------------------|--------------------------------------------------------------------------------|
-| `Ignore`              | Strip newlines entirely; surrounding text is concatenated (default).           |
-| `Space`               | Replace each newline with a single space.                                      |
-| `HtmlSingleLineBreak` | Replace each newline with `<br/>` so descriptors render as multiple lines.     |
+| Value                 | Behavior                                                      |
+|-----------------------|---------------------------------------------------------------|
+| `Ignore`              | Strip them; the surrounding text runs together (default).     |
+| `Space`               | Replace each one with a single space.                         |
+| `HtmlSingleLineBreak` | Replace each one with `<br/>` so the descriptor spans lines.  |
 
-`HtmlSingleLineBreak` is the right choice when descriptors carry multi-line text you want to preserve visually — for
-example, larger block-bodied lambda conditions (see the next section).
+Use `HtmlSingleLineBreak` when a descriptor carries multi-line text worth keeping — a block-bodied lambda
+condition, for example.
 
-### Other Encoding Behavior
+### Other Encoding
 
-Regardless of options, descriptors are always escaped to keep Mermaid's parser happy:
+Descriptors are always escaped, whatever the options:
 
-- `<` becomes `#lt;`, `>` becomes `#gt;` — so a parameterized state's `<int>` suffix renders as `&ltint&gt`.
-- Runs of consecutive spaces have the second-and-later characters replaced with `#nbsp;` so Mermaid does not collapse
-  them.
+- `<` becomes `#lt;` and `>` becomes `#gt;`, so a parameterized state's `<int>` suffix survives Mermaid's parser.
+- The second and later spaces in a run become `#nbsp;`, since Mermaid would collapse them.
+
+Conditions are always joined onto the transition descriptor with `<br/>`. The `Newline` option only affects
+newlines inside a descriptor's own text.
 
 ## Tips
 
-### Use the Descriptor Overload for Complex Conditions
+### Name Your Conditions
 
-Every `If(...)` overload accepts an optional descriptor parameter that defaults to
-`[CallerArgumentExpression(nameof(condition))]`. For a method-group reference like `If(QueueIsHealthy)` the captured
-expression is just `QueueIsHealthy`, which reads cleanly. But when the condition is a larger inline expression or a
-block-bodied lambda, the captured text becomes noisy:
+`If(...)` captures the condition's source text by default, via `[CallerArgumentExpression]`. A method group or
+property reads well on its own:
 
 ```csharp
-// Captured descriptor: "() => { var isAuthorized = this.userService.IsAuthorized(UserId); ..."
-.If(() =>
-{
-    var isAuthorized = this.userService.IsAuthorized(UserId);
-    var hasCapacity = Quantity == 0 || this.allocationService.TryAllocate(Quantity, InventoryId);
-    return isAuthorized && hasCapacity;
-})
+.If(QueueIsHealthy)     // If: QueueIsHealthy
+.If(policy.CanCancel)   // If: policy.CanCancel
 ```
 
-Pass an explicit descriptor to keep the diagram readable:
+A large lambda does not, so pass a descriptor instead:
 
 ```csharp
-.If(() => /* same condition as before ... */, "ready to process")
+.If(() => /* several lines of conditions... */, "ready to process")
 ```
 
-The condition then renders as `If: ready to process` instead of the verbatim expression text.
-
-### Prefer Methods or Properties for Conditions When Possible
-
-A method group or property reference makes the diagram self-documenting without needing an explicit descriptor:
-
-```csharp
-// Renders property check as: If: QueueIsHealthy
-.If(QueueIsHealthy)
-
-// Renders method group as: If: policy.CanCancel
-.If(policy.CanCancel)
-
-// Renders lambda method as: If: () => policy.CanCancel
-.If(() => policy.CanCancel)
-```
-
-## Next Steps
-
-- [Parameterless Transitions](./parameterless-transitions.md) - Simple state-to-state transitions
-- [Parameterized Transitions](./parameterized-transitions.md) - Transitions that carry typed data
-- [Mapped Transitions](./mapped-transitions.md) - Automatic parameter conversion
-- [Reentrant Transitions](./reentrant-transitions.md) - Same-parameter transitions
-- [Inverted Transitions](./inverted-transitions.md) - Define transitions by destination instead of source
+That renders as `If: ready to process` rather than the whole expression.
