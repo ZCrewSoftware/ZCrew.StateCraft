@@ -187,6 +187,53 @@ public class TransitionTests
     }
 
     [Fact]
+    public async Task Transition_WhenTransitionNotRegisteredForCurrentState_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithTransition("To B", "B"))
+            .WithState("B", state => state)
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var transition = () => stateMachine.Transition("NonExistent", TestContext.Current.CancellationToken);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(transition);
+    }
+
+    [Fact]
+    public async Task TryTransition_WhenTransitionNotRegisteredForCurrentState_ShouldReturnFalseWithoutMutatingState()
+    {
+        // Arrange
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42)
+            .WithState(
+                "A",
+                state =>
+                    state.WithParameter<int>().WithTransition("To B", t => t.To("B"))
+            )
+            .WithState("B", state => state)
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await stateMachine.TryTransition("NonExistent", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.False(result);
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("A", stateMachine.CurrentState.StateValue);
+        Assert.Equal(42, stateMachine.Parameters.GetCurrentParameter<int>());
+    }
+
+    [Fact]
     public async Task Transition_WithInitialCondition_WhenConditionIsTrue_ShouldTransition()
     {
         // Arrange

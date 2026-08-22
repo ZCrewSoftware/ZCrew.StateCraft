@@ -242,6 +242,81 @@ public class PendingEntryTests
     }
 
     [Fact]
+    public async Task Transition_WhenRetryEntryFailsAgain_ShouldPreserveNextParametersAndPreviousState()
+    {
+        // Arrange
+        var onEntry = Substitute.For<Action<string>>();
+        onEntry.When(x => x.Invoke(Arg.Any<string>())).Do(_ => throw new InvalidOperationException());
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A", 42)
+            .WithState("A", state => state.WithParameter<int>().WithTransition<string>("To B", "B"))
+            .WithState("B", state => state.WithParameter<string>().OnEntry(onEntry).WithTransition("To C", "C"))
+            .WithState("C", state => state)
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => stateMachine.Transition("To B", "hello", TestContext.Current.CancellationToken)
+        );
+
+        // Act — retry via second transition also fails
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => stateMachine.Transition("To C", TestContext.Current.CancellationToken)
+        );
+
+        // Assert — Next params and PreviousState still preserved, no rollback
+        Assert.Null(stateMachine.CurrentState);
+        Assert.NotNull(stateMachine.NextState);
+        Assert.Equal("B", stateMachine.NextState.StateValue);
+        Assert.Equal("hello", stateMachine.Parameters.GetNextParameter<string>());
+        Assert.NotNull(stateMachine.PreviousState);
+        Assert.Equal("A", stateMachine.PreviousState.StateValue);
+    }
+
+    [Fact]
+    public async Task Transition_WhenRetryEntrySucceedsOnThirdAttempt_ShouldCompleteTransition()
+    {
+        // Arrange
+        var callCount = 0;
+        var onEntry = Substitute.For<Action>();
+        onEntry
+            .When(x => x.Invoke())
+            .Do(_ =>
+            {
+                if (Interlocked.Increment(ref callCount) <= 2)
+                    throw new InvalidOperationException();
+            });
+        var stateMachine = StateMachine
+            .Configure<string, string>()
+            .WithInitialState("A")
+            .WithState("A", state => state.WithTransition("To B", "B"))
+            .WithState("B", state => state.OnEntry(onEntry).WithTransition("To C", "C"))
+            .WithState("C", state => state)
+            .Build();
+
+        await stateMachine.Activate(TestContext.Current.CancellationToken);
+
+        // First attempt fails
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => stateMachine.Transition("To B", TestContext.Current.CancellationToken)
+        );
+
+        // Second attempt (retry entry) also fails
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => stateMachine.Transition("To C", TestContext.Current.CancellationToken)
+        );
+
+        // Act — third attempt succeeds
+        await stateMachine.Transition("To C", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.NotNull(stateMachine.CurrentState);
+        Assert.Equal("C", stateMachine.CurrentState.StateValue);
+        Assert.Equal(3, callCount);
+    }
+
+    [Fact]
     public async Task Transition_WhenOnStateChangeThrows_ShouldStillRollbackToRecovery()
     {
         // Arrange
