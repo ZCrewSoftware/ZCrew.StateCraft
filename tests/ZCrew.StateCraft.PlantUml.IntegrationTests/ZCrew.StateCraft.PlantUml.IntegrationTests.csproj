@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../src/ZCrew.StateCraft.PlantUml/ZCrew.StateCraft.PlantUml.csproj" />
+  </ItemGroup>
+</Project>

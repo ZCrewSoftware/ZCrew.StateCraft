@@ -80,3 +80,4 @@ await machine.Deactivate(cancellationToken);
 - [Exception Behavior](./exception-behavior.md) - Custom exception handling implementations
 - [Inverted Transitions](./inverted-transitions.md) - Define transitions by destination instead of source
 - [Mermaid Diagrams](./mermaid-diagrams.md) - Render a configuration as a Mermaid `stateDiagram-v2`
+- [PlantUML Diagrams](./plantuml-diagrams.md) - Render a configuration as a PlantUML state diagram
